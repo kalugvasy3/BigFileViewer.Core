@@ -16,8 +16,8 @@
     <Grid x:Name="bigGrid" >
 
         <FsharpXAMLLibrary:ControlPanelLeft x:Name="controlPanelLeft" VerticalAlignment="Top" HorizontalAlignment="Left" Width="49" />
-        <FsharpXAMLLibrary:MyTextBox Margin="54,0,0,10"/>
-
+        <FsharpXAMLLibrary:MyTextBox Margin="54,0,0,22"/>
+        <CommonClassLibrary:StatusBarSystem  Height="22"  VerticalAlignment="Bottom"/>
 
     </Grid>
 

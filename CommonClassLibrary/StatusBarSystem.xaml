@@ -1,0 +1,58 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             VerticalAlignment="Top"
+             mc:Ignorable="d">
+    <Grid MinWidth="400"
+          Margin="0,0,0,0"
+          VerticalAlignment="Top">
+
+        <ProgressBar x:Name="prgStatus" Height="22" VerticalAlignment="Bottom"  VerticalContentAlignment="Bottom" HorizontalContentAlignment="Stretch" />
+
+
+        <StatusBar Name="statusSystem"
+                   Opacity="0.70"
+                   Width="Auto"
+                   Height="22"
+                   VerticalAlignment="Bottom"
+                   VerticalContentAlignment="Center"
+                   BorderBrush="{x:Null}"
+                   BorderThickness="0"
+                   FontFamily="Courier New"
+                   FontSize="11"
+                   Foreground="DarkBlue" Margin="0,0,0,0">
+            <StatusBarItem Name="statusSystemBar"
+                           Height="22"
+                           HorizontalAlignment="Left"
+                           BorderThickness="1"
+                           Content="System"
+                           FontFamily="Courier New"
+                           FontSize="12"
+                           FontStyle="Normal"
+                           Foreground="DarkBlue"
+                           ToolTip="program is using memory (in bytes) ..." />
+            <StatusBarItem Name="statusFile"
+                           Height="22"
+                           FontFamily="Courier New"
+                           FontSize="12" />
+            <StatusBarItem Name="statusDocSizeBar"
+                           Height="22"
+                           Margin="10,0,0,0"
+                           HorizontalAlignment="Left"
+                           FontFamily="Courier New"
+                           FontSize="12"
+                           ToolTip="text size (in bytes) ..." />
+
+            <StatusBar.Background>
+                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                    <GradientStop Offset="0.203" Color="#FFFDFDFD" />
+                    <GradientStop Offset="0.843" Color="#FFD5D5D5" />
+                </LinearGradientBrush>
+            </StatusBar.Background>
+
+        </StatusBar>
+
+    </Grid>
+</UserControl>

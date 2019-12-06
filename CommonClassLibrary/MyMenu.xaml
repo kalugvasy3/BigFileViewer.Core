@@ -1,0 +1,46 @@
+﻿<UserControl 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+
+             mc:Ignorable="d" 
+             Height="140" Width="140">
+
+    <Grid RenderTransformOrigin="0.329,0.223"  >
+
+
+        <Menu x:Name="myMenu"  VerticalAlignment="Center" Opacity="0.95" HorizontalAlignment="Center"  Width="43" Height="150" Margin="44,0,53,-10"    >
+            <MenuItem x:Name="menuOpen" Header="_Open"  />
+            <Separator Height="11" Width="106" />
+            <MenuItem x:Name="menuFind" Header="_Find">
+                <DockPanel >
+                    <TextBox x:Name="txtFindNext" Width="86" ToolTip=" From current position to below ... "  />
+                    <Button x:Name="btnFindNext" Content="Next" Width="40"/>
+                </DockPanel>
+            </MenuItem>
+            <Separator Height="29" Width="33" />
+            <MenuItem x:Name="goTo" Header="_GoTo" Width="46">
+                <DockPanel >
+                    <TextBox x:Name="txtGoTo" Width="86" ToolTip=" Line || Line,Position ||  ,Position "  />
+                    <Button x:Name="btnGoTo" Content="GoTo" Width="40"/>
+                </DockPanel>
+            </MenuItem>
+            <Separator Height="16" Width="106" />
+            <MenuItem x:Name="menuExit" Header="_Exit"  />
+
+            <!--<MenuItem Header="_File">
+                <MenuItem x:Name="menuOpen" Header="_Open"  />
+                <Separator />
+                <MenuItem x:Name="menuExit" Header="_Exit"  />
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem x:Name="menuFind" Header="_Find"  />
+            </MenuItem>-->
+        </Menu>
+
+    </Grid>
+
+</UserControl>
+
+

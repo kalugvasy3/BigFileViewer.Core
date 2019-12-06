@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.161
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "BigFileViewer", "BigFileViewer\BigFileViewer.fsproj", "{19E5CC99-0AE8-4649-98ED-CEB50C7FCABD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EC595750-C5C5-4155-8FCC-3789BE2428B9} = {EC595750-C5C5-4155-8FCC-3789BE2428B9}
+		{BE2C40D9-D515-456F-B366-7A5A8AE3DEB5} = {BE2C40D9-D515-456F-B366-7A5A8AE3DEB5}
+		{9E1F9DE9-BAC8-420C-88A7-AB48C0DDFCAE} = {9E1F9DE9-BAC8-420C-88A7-AB48C0DDFCAE}
+	EndProjectSection
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "CommonClassLibrary", "CommonClassLibrary\CommonClassLibrary.fsproj", "{9E1F9DE9-BAC8-420C-88A7-AB48C0DDFCAE}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "MyUserControl", "MyUserControl\MyUserControl.fsproj", "{BE2C40D9-D515-456F-B366-7A5A8AE3DEB5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EC595750-C5C5-4155-8FCC-3789BE2428B9} = {EC595750-C5C5-4155-8FCC-3789BE2428B9}
+		{9E1F9DE9-BAC8-420C-88A7-AB48C0DDFCAE} = {9E1F9DE9-BAC8-420C-88A7-AB48C0DDFCAE}
+	EndProjectSection
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FsharpXAMLLibrary", "FsharpXAMLLibrary\FsharpXAMLLibrary.fsproj", "{EC595750-C5C5-4155-8FCC-3789BE2428B9}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsharpXAMLLibrarySupport", "FsharpXAMLLibrarySupport\FsharpXAMLLibrarySupport.fsproj", "{72AFCC60-D5D2-4728-82C4-B5696E75AE20}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{19E5CC99-0AE8-4649-98ED-CEB50C7FCABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19E5CC99-0AE8-4649-98ED-CEB50C7FCABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19E5CC99-0AE8-4649-98ED-CEB50C7FCABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19E5CC99-0AE8-4649-98ED-CEB50C7FCABD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E1F9DE9-BAC8-420C-88A7-AB48C0DDFCAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E1F9DE9-BAC8-420C-88A7-AB48C0DDFCAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E1F9DE9-BAC8-420C-88A7-AB48C0DDFCAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E1F9DE9-BAC8-420C-88A7-AB48C0DDFCAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE2C40D9-D515-456F-B366-7A5A8AE3DEB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE2C40D9-D515-456F-B366-7A5A8AE3DEB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE2C40D9-D515-456F-B366-7A5A8AE3DEB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE2C40D9-D515-456F-B366-7A5A8AE3DEB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC595750-C5C5-4155-8FCC-3789BE2428B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC595750-C5C5-4155-8FCC-3789BE2428B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC595750-C5C5-4155-8FCC-3789BE2428B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC595750-C5C5-4155-8FCC-3789BE2428B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72AFCC60-D5D2-4728-82C4-B5696E75AE20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72AFCC60-D5D2-4728-82C4-B5696E75AE20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72AFCC60-D5D2-4728-82C4-B5696E75AE20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72AFCC60-D5D2-4728-82C4-B5696E75AE20}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {07B6A8E3-08AF-4FE4-9D62-EA700B6742AB}
+	EndGlobalSection
+EndGlobal

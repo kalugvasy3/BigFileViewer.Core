@@ -1,0 +1,91 @@
+﻿namespace CommonClassLibrary
+
+open System
+open System.Collections.ObjectModel
+
+open System.Windows
+open System.Windows.Controls
+    
+open  System.Windows
+open  System.Windows.Shapes
+open  System.Windows.Controls
+open  System.Windows.Input
+open  System.Windows.Media
+open  System.Windows.Media.Imaging
+open  System.Windows.Threading
+
+open System.IO
+open System.Windows.Markup
+open System.Xaml
+open System.Reflection
+open System.Windows.Media
+
+open Utilities
+
+open Microsoft.FSharp.Control
+
+type  CaretCanvas()  as this = 
+    inherit  UserControl()
+    // Load CaretTxt.xaml
+
+    //do this.Content <- contentAsXamlObject("CaretCanvas") // Load XAML
+    do this.Content <- contentAsXamlObjectFromAssembly("CommonClassLibrary","CaretCanvas") // Load XAML
+
+
+    let mutable myCaret : TextBox = this.Content?myCaret 
+    let mutable tr : TranslateTransform = this.Content?tr
+
+    do myCaret.TextWrapping <- TextWrapping.NoWrap
+    do myCaret.UndoLimit <- 0
+    do myCaret.IsUndoEnabled <-false
+    do myCaret.ContextMenu <- new ContextMenu()
+    do myCaret.Foreground <- myCaret.Background
+    do myCaret.CaretBrush <- myCaret.Background   
+  
+  // Application code handle it ...
+    do DataObject.AddPastingHandler (myCaret, new DataObjectPastingEventHandler(fun o e -> e.CancelCommand()))
+    do DataObject.AddCopyingHandler (myCaret, new DataObjectCopyingEventHandler(fun o e -> e.CancelCommand()))
+
+  //http://www.codeproject.com/Questions/88171/Disallowing-paste-Ctrl-V-in-a-WPF-TextBox
+  //http://weblogs.asp.net/marianor/how-to-disable-copy-and-paste-for-a-control-in-wpf
+     
+    let mutable intAbsoluteNumLine = 0  // absolute Line
+    let mutable intAbsoluteNumChar = 0  // absolute Char
+
+    // Creates event / Invokes event Preview Key Down
+    let keyDown = new Event<KeyEventArgs>()
+    do myCaret.PreviewKeyDown.Add(fun e -> keyDown.Trigger(e))
+
+    // Creates event / Invokes event Preview Key Up
+    let keyUp = new Event<KeyEventArgs>()
+    do myCaret.PreviewKeyUp.Add(fun e -> keyUp.Trigger(e))
+    
+    let textInput = new Event<TextCompositionEventArgs>()
+    do myCaret.PreviewTextInput.Add(fun e -> textInput.Trigger(e)
+                                             // After each INPUT clear textBox (it only using for translate inputs to CHARS)
+                                             do myCaret.Clear()
+                                             do myCaret.CaretIndex <- 0
+                                   ) 
+
+    // Exposed event handler
+    member x.EventTxtKeyDown =  keyDown.Publish
+    member x.EventTxtKeyUp   =  keyUp.Publish
+    member x.EventTextInput  =  textInput.Publish
+   
+    member x.AbsoluteNumLine  with get() = intAbsoluteNumLine    and set(v) = intAbsoluteNumLine <- v
+    member x.AbsoluteNumChar  with get() = intAbsoluteNumChar    and set(v) = intAbsoluteNumChar  <- v
+
+    member x.FloatCareteW  with get() = myCaret.Width  and set(v) = myCaret.Width   <- v
+    member x.FloatCareteH  with get() = myCaret.Height  and set(v) = myCaret.Height   <- v
+
+    member x.BackGroundColorCarete with get() = myCaret.Background and set(v) = myCaret.Background <- v; 
+                                                                                myCaret.Foreground <- v; 
+                                                                                myCaret.CaretBrush <- v;
+
+    member x.TranslateTransform with get() = tr and set(v) = tr <- v 
+
+    
+
+    
+ 
+

@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>CommonClassLibrary</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Page Remove="CaretCanvas.xaml" />
+    <Page Remove="MyMenu.xaml" />
+    <Page Remove="StatusBarSystem.xaml" />
+    <Page Remove="UserClock.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Utilities.fs" />
+    <EmbeddedResource Include="CaretCanvas.xaml" />
+    <Compile Include="CaretCanvas.fs" />
+    <Compile Include="DataCommon.fs" />
+    <Compile Include="Fonts.fs" />
+    <EmbeddedResource Include="MyMenu.xaml" />
+    <Compile Include="MyMenu.fs" />
+    <Compile Include="OpenUpdateMMF.fs" />
+    <Compile Include="SQLiteAccess.fs" />
+    <EmbeddedResource Include="StatusBarSystem.xaml" />
+    <Compile Include="StatusBarSystem.fs" />
+    <Compile Include="Touch.fs" />
+    <EmbeddedResource Include="UserClock.xaml" />
+    <Compile Include="UserClock.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.OleDb" Version="4.7.0" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.112" />
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
+  </ItemGroup>
+
+</Project>

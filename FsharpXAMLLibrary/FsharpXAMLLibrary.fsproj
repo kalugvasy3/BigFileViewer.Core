@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>FsharpXAMLLibrary</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Page Remove="ControlPanelLeft.xaml" />
+    <Page Remove="MyTextBox.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Utilities.fs" />
+    <EmbeddedResource Include="ControlPanelLeft.xaml" />
+    <Compile Include="ControlPanelLeft.fs" />
+    <EmbeddedResource Include="MyTextBox.xaml" />
+    <Compile Include="MyTextBox.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.OleDb" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommonClassLibrary\CommonClassLibrary.fsproj" />
+  </ItemGroup>
+
+</Project>

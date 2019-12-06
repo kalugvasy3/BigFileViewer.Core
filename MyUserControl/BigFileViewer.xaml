@@ -1,0 +1,27 @@
+﻿<UserControl 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+
+        xmlns:CommonClassLibrary="clr-namespace:CommonClassLibrary;assembly=CommonClassLibrary" 
+        xmlns:FsharpXAMLLibrary="clr-namespace:FsharpXAMLLibrary;assembly=FsharpXAMLLibrary" 
+        xmlns:FsharpXAMLLibrarySupport="clr-namespace:FsharpXAMLLibrarySupport;assembly=FsharpXAMLLibrarySupport" 
+        x:Name="ucShowText" MinHeight="110" MinWidth="130" FontWeight="Bold" >
+
+    <UserControl.LayoutTransform>
+        <ScaleTransform x:Name="allScale" 
+                        ScaleX="1.0" 
+                        ScaleY="1.0" />
+    </UserControl.LayoutTransform>
+
+    <Grid x:Name="bigGrid" >
+
+        <FsharpXAMLLibrary:ControlPanelLeft x:Name="controlPanelLeft" VerticalAlignment="Top" HorizontalAlignment="Left" Width="49" />
+        <FsharpXAMLLibrary:MyTextBox Margin="54,0,0,10"/>
+
+
+    </Grid>
+
+</UserControl>
+
+
+

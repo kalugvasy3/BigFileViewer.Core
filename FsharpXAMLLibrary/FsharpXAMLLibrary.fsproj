@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Utilities.fs" />
     <EmbeddedResource Include="ControlPanelLeft.xaml" />
     <Compile Include="ControlPanelLeft.fs" />
     <EmbeddedResource Include="MyTextBox.xaml" />

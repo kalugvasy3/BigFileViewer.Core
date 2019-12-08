@@ -32,7 +32,7 @@ type  MyMenu()  as this =
     inherit  UserControl()
 
     //do this.Content <- contentAsXamlObject("MyMenu") // Load XAML
-    do this.Content <- contentAsXamlObjectFromAssembly("CommonClassLibrary","MyMenu") // Load XAML
+    do this.Content <- contentAsXamlObjectFromAssembly("CommonClassLibrary","MyMenu") :?> UserControl // Load XAML
 
 
     let eventMenu = new Event<string*string[]>() 

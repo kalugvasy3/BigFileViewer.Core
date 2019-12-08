@@ -15,6 +15,10 @@ let (?) (c:obj) (s:string) =
     match c with
     | :? ResourceDictionary as r ->  r.[s] :?> 'T
     | :? Control as c -> c.FindName(s) :?> 'T
+    //| :? Control as c -> let x = c.FindName(s)
+    //                     match x with
+    //                     | null -> failwith ("User Control " + s + " is NULL. dynamic lookup failed")
+    //                     | _ -> x :?> 'T
     | _ -> failwith "dynamic lookup failed"
 
 // strXamlName - MUST be Embedded Resource  - this function must be in same Assembly

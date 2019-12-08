@@ -23,6 +23,7 @@ open System.Windows.Media
 open Utilities
 open Microsoft.FSharp.Control
 
+
 type ControlPanelLeft()  as this = 
     inherit  UserControl()
 

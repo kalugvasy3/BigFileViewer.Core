@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Utilities.fs" />
     <EmbeddedResource Include="BigFileViewer.xaml" />
     <Compile Include="BigFileViewer.fs" />
   </ItemGroup>

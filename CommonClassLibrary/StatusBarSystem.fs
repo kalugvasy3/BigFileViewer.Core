@@ -25,6 +25,7 @@ open Utilities
 
 open Microsoft.FSharp.Control
 
+
 type StatusBarSystem()  as this = 
     inherit  UserControl()
 
@@ -46,14 +47,25 @@ type StatusBarSystem()  as this =
     let mutable longTotalDocSize : System.Int64 = 0L
     let mutable scaleCurrent : float = 1.0
     
-    let systemInfo() =  let intTotalMemory : int64  = System.GC.GetTotalAllocatedBytes()
-                        let totalAvailable = System.GC.GetTotalMemory(false)
+    let systemInfo() =  do GC.Collect()
+                        let intUsedMemory : int64  =  System.GC.GetGCMemoryInfo().MemoryLoadBytes 
+                        let totalAvailable =  System.GC.GetGCMemoryInfo().TotalAvailableMemoryBytes                        
                         let mutable intOS = 32
                         if Environment.Is64BitOperatingSystem then intOS <- 64                       
-                        do statusSystemBar.Content <- "OS: " + Environment.OSVersion.ToString() + " Scale " + (Convert.ToInt32(scaleCurrent * 100.0)).ToString() + "%  Used Memory - " + intTotalMemory.ToString("0,0") + " ( Available " + totalAvailable.ToString("0,0") + " )";
+                        do statusSystemBar.Content <- "OS: " + Environment.OSVersion.ToString() + " Scale " + (Convert.ToInt32(scaleCurrent * 100.0)).ToString() + "%  Used Memory - " + intUsedMemory.ToString("0,0") + " ( Available " + totalAvailable.ToString("0,0") + " )";
                         do statusFile.Content <- "  lines - " + numberTotalLines.ToString("0,0")
                         do statusDocSizeBar.Content <- " file - " + fullFileName + "  ( " + longTotalDocSize.ToString("0,0") + " bytes ) " 
-  
+ 
+    //let systemInfo() = let myComputer =  new Microsoft.VisualBasic.Devices.ComputerInfo() 
+    //                   let totalAvailable  = myComputer.AvailablePhysicalMemory 
+    //                   let mutable intOS = 32
+    //                   if Environment.Is64BitOperatingSystem then intOS <- 64
+    //                   let intTotalMemory = System.GC.GetTotalMemory(false)
+    //                   do statusSystemBar.Content <- "OS:X" + intOS.ToString() + " Scale " + (Convert.ToInt32(scaleCurrent * 100.0)).ToString() + "%  Used Memory - " + intTotalMemory.ToString("0,0") + " ( Available " + totalAvailable.ToString("0,0") + " )";
+    //                   do statusFile.Content <- "  lines - " + numberTotalLines.ToString("0,0")
+    //                   do statusDocSizeBar.Content <- " file - " + fullFileName + "  ( " + longTotalDocSize.ToString("0,0") + " bytes ) " 
+
+
     do systemInfo()
 
 

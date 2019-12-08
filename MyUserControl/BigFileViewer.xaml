@@ -17,7 +17,7 @@
 
         <FsharpXAMLLibrary:ControlPanelLeft x:Name="controlPanelLeft" VerticalAlignment="Top" HorizontalAlignment="Left"   />
         <FsharpXAMLLibrary:MyTextBox x:Name="myTextBox" Margin="54,0,0,22"/>
-        <CommonClassLibrary:StatusBarSystem  Height="22"  VerticalAlignment="Bottom"/>
+        <CommonClassLibrary:StatusBarSystem x:Name="statusBar"  Height="22"  VerticalAlignment="Bottom"/>
 
     </Grid>
 

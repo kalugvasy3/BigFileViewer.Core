@@ -34,22 +34,22 @@ type BigFileViewer() as this  =
     // FIND ALL OBJECTS IN THIS.CONTENT  :StatusBarSystem x:Name="statusBar"
     let mutable myControlPanelLeft : ControlPanelLeft = (this.Content)?controlPanelLeft
     let mutable myTextBox : MyTextBox = (this.Content)?myTextBox 
-    //let mutable statusBar : StatusBarSystem = (this.Content)?statusBar 
+    let mutable statusBar : StatusBarSystem = (this.Content)?statusBar 
 
     let mutable allScale : ScaleTransform = (this.Content)?allScale
     let mutable bigGrid : Grid  = (this.Content)?bigGrid
     let mutable winHolder : Window = new Window()
 
-    //let createNewFind() =
-    //    let mutable quickFind = new QuickFind()
-    //    do quickFind.InitMyTextBox(&myTextBox) 
+    let createNewFind() =
+        let mutable quickFind = new QuickFind()
+        do quickFind.InitMyTextBox(&myTextBox) 
 
 
 
     let eventScaleUpdate(e : float) = allScale.ScaleX <- e
                                       allScale.ScaleY <- e
     
-    //do myTextBox.StatusBar <- ref statusBar
+    do myTextBox.StatusBar <- ref statusBar
     do myTextBox.EventSysInfoUpdate.Add(fun e ->  eventScaleUpdate(e))
 
 
@@ -64,13 +64,13 @@ type BigFileViewer() as this  =
 
 
 
-    //let openFindDialog() = let uc = new QuickFind()
-    //                       let mutable win = new Window()
-    //                       do win.Name <- "Quick Find"
-    //                       do win.Content <- uc
-    //                       do win.WindowStyle <- WindowStyle.SingleBorderWindow
+    let openFindDialog() = let uc = new QuickFind()
+                           let mutable win = new Window()
+                           do win.Name <- "Quick Find"
+                           do win.Content <- uc
+                           do win.WindowStyle <- WindowStyle.SingleBorderWindow
 
-    //                       ignore()
+                           ignore()
 
 
 

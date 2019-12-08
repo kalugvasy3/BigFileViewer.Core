@@ -35,7 +35,7 @@ do this.Content <- ucMainWindow
 do this.Unloaded.Add(fun _ -> this <- null 
                               GC.Collect())   //Environment.Exit(0)
 
-//do this.SizeChanged.Add(fun _ ->  ucMainWindow.WinHolder <- this)
+do this.SizeChanged.Add(fun _ ->  ucMainWindow.WinHolder <- this)
 
 [<STAThread>] 
 [<EntryPoint>]

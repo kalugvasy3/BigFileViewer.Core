@@ -383,6 +383,36 @@
                 </StackPanel>
             </GroupBox>
 
+            <GroupBox x:Name="grpSearch"
+                      Margin="0,0,0,0"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Bottom"
+                      Foreground="DarkBlue"
+                      Header="Search"
+                      ToolTip="Search Tools ..."
+                      IsEnabled="True" FontSize="10">
+                
+             <Button x:Name="btnFindReplace"
+                    Width="35"
+                    Height="27"
+                    AllowDrop="False"
+                    BorderBrush="{x:Null}"
+                    ClickMode="Release"
+                    Content="$"
+                    Focusable="False"
+                    FontFamily="Wingdings"
+                    FontSize="19"
+                    FontStyle="Normal"
+                    FontWeight="Bold"
+                    Foreground="DarkBlue"
+                    IsEnabled="True"
+                    ToolTip="Find / (Replace)"
+                    UseLayoutRounding="False" Background="#FFFDFDFD" /> 
+                
+            </GroupBox>
+
+ 
+
 
             <GroupBox x:Name="grpEdit"
                       Margin="0,0,0,0"
@@ -411,7 +441,7 @@
                             FontStyle="Normal"
                             FontWeight="Normal"
                             Foreground="DarkBlue"
-                            IsEnabled="True"
+                            IsEnabled="False"
                             ToolTip="Delete Selected ..."
                             UseLayoutRounding="False" />
 
@@ -432,7 +462,7 @@
                             FontWeight="Normal"
                             Foreground="DarkBlue"
                             IsEnabled="True"
-                            ToolTip="Copy Selected into Application Clipboard ..."
+                            ToolTip="Copy Selected into Clipboard ..."
                             UseLayoutRounding="False" />
 
                     <Button Name="btnCutGroup"
@@ -451,7 +481,7 @@
                             FontStyle="Normal"
                             FontWeight="Normal"
                             Foreground="DarkBlue"
-                            IsEnabled="True"
+                            IsEnabled="False"
                             ToolTip="Cut Selected into Application Clipboard ..."
                             UseLayoutRounding="False" />
 
@@ -471,35 +501,11 @@
                             FontStyle="Normal"
                             FontWeight="Normal"
                             Foreground="DarkBlue"
-                            IsEnabled="True"
+                            IsEnabled="False"
                             ToolTip="Paste From Application Clipboard ..."
                             UseLayoutRounding="False" />
                 </StackPanel>
             </GroupBox>
-
-
-
-
-
-            <Button x:Name="btnFindReplace"
-                    Width="35"
-                    Height="27"
-                    Margin="7,5,0,0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Bottom"
-                    AllowDrop="False"
-                    BorderBrush="{x:Null}"
-                    ClickMode="Release"
-                    Content="$"
-                    Focusable="False"
-                    FontFamily="Wingdings"
-                    FontSize="19"
-                    FontStyle="Normal"
-                    FontWeight="Bold"
-                    Foreground="DarkBlue"
-                    IsEnabled="True"
-                    ToolTip="Find / Replace"
-                    UseLayoutRounding="False" Background="#FFFDFDFD" />
 
 
 

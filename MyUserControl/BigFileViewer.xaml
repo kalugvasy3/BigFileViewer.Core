@@ -13,7 +13,7 @@
                         ScaleY="1.0" />
     </UserControl.LayoutTransform>
 
-    <Grid x:Name="bigGrid" MinHeight="670" >
+    <Grid x:Name="bigGrid" MinHeight="677" >
 
         <FsharpXAMLLibrary:ControlPanelLeft x:Name="controlPanelLeft" VerticalAlignment="Top" HorizontalAlignment="Left"   />
         <FsharpXAMLLibrary:MyTextBox x:Name="myTextBox" Margin="54,0,0,22"/>

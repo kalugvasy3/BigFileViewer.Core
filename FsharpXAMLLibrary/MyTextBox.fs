@@ -48,7 +48,7 @@ type MyTextBox() as this  =
 
     let mutable statusBar = ref (new StatusBarSystem())
 
-    let eventSysInfoUpdate = new Event<float>() 
+    //let eventSysInfoUpdate = new Event<float>() 
     let openFind = new Event<_>() 
   
     
@@ -86,16 +86,16 @@ type MyTextBox() as this  =
 
 
 
-    let mutable scale = 1.0
-    let scalePlus() =  if scale < 1.75 then scale <- scale + 0.05
-                       (!statusBar).ScaleNewValue <- scale
-                       do eventSysInfoUpdate.Trigger(scale)
+    //let mutable scale = 1.0
+    //let scalePlus() =  if scale < 1.75 then scale <- scale + 0.05
+    //                   (!statusBar).ScaleNewValue <- scale
+    //                   do eventSysInfoUpdate.Trigger(scale)
 
 
 
-    let scaleMinus() = if scale > 0.75 then scale <- scale - 0.05
-                       (!statusBar).ScaleNewValue <- scale
-                       do eventSysInfoUpdate.Trigger(scale)
+    //let scaleMinus() = if scale > 0.75 then scale <- scale - 0.05
+    //                   (!statusBar).ScaleNewValue <- scale
+    //                   do eventSysInfoUpdate.Trigger(scale)
 
 
 
@@ -156,8 +156,8 @@ type MyTextBox() as this  =
 
  
 
-    let wheel(e : MouseWheelEventArgs) = if e.Delta > 0 then scalePlus() 
-                                                        else scaleMinus();
+    //let wheel(e : MouseWheelEventArgs) = if e.Delta > 0 then scalePlus() 
+    //                                                    else scaleMinus();
 
 
 
@@ -166,7 +166,7 @@ type MyTextBox() as this  =
                                                  userClock.Visibility <- Visibility.Collapsed 
                                                  (!statusBar).PrgStatusValue <- arg 
                                                  (!statusBar).NumberTotalLines <- openUpdateMMF.IntNumberOfTotalLinesEstimation
-                                                 do eventSysInfoUpdate.Trigger(scale)
+                                              //   do eventSysInfoUpdate.Trigger(scale)
                                     
                                                  match arg with
                                                  | 0.0 -> do canvasMain.AllowDrop <- true 
@@ -203,7 +203,7 @@ type MyTextBox() as this  =
     let canvasWheel (e : MouseWheelEventArgs) =
             match Keyboard.Modifiers with
             | ModifierKeys.Shift -> scrolXWheel(e)
-            | ModifierKeys.Control -> wheel(e)
+            | ModifierKeys.Control -> ()
             | _ -> scrolYWheel(e)
 
 
@@ -293,7 +293,8 @@ type MyTextBox() as this  =
                                          do this.Dispatcher.Invoke(new Action ( fun () -> do lblDropHere.Visibility <- Visibility.Collapsed
                                                                                           do (!statusBar).FullFileName <- openUpdateMMF.FullFileName
                                                                                           do (!statusBar).LongTotalDocSize <- openUpdateMMF.LongTotalDocSize 
-                                                                                          do eventSysInfoUpdate.Trigger(scale)))
+                                                                                          //do eventSysInfoUpdate.Trigger(scale)
+                                                                                          ))
 
                               | x ->     do this.Dispatcher.Invoke(new Action ( fun () -> do lblDropHere.Visibility <- Visibility.Visible
                                                                                           do lblDropHere.Content <- x ))
@@ -302,7 +303,7 @@ type MyTextBox() as this  =
             // Final Thread
             let finalThreadDoWOrk(x : bool) = 
                                     do this.Dispatcher.Invoke(new Action ( fun () -> 
-                                                do eventSysInfoUpdate.Trigger(scale)
+                                                //do eventSysInfoUpdate.Trigger(scale)
                                                 do updateUserClock (false)
                                                 do update(true)
                                                 Thread.Sleep(200)
@@ -410,7 +411,7 @@ type MyTextBox() as this  =
             do canvasMain.MouseWheel.Add(fun e -> canvasWheel(e)) 
             do canvasMain.SizeChanged.Add(fun e -> update(true)) 
             do canvasMain.Drop.Add(fun e -> openFileDrag(e))
-            do eventSysInfoUpdate.Trigger(scale)
+            //do eventSysInfoUpdate.Trigger(scale)
             do canvasMain.Unloaded.Add(fun e -> unLoaded(e)) 
 
             do canvasMain.MouseMove.Add(fun e -> mouseMove(e))
@@ -441,8 +442,8 @@ type MyTextBox() as this  =
 
         )
 
-    [<CLIEvent>]
-    member x.EventSysInfoUpdate =  eventSysInfoUpdate.Publish
+    //[<CLIEvent>]
+    //member x.EventSysInfoUpdate =  eventSysInfoUpdate.Publish
     [<CLIEvent>]
     member x.OpenFind = openFind.Publish
 

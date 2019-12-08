@@ -24,6 +24,7 @@ open System.Windows.Media
 open Utilities
 
 open Microsoft.FSharp.Control
+open System.Diagnostics
 
 
 type StatusBarSystem()  as this = 
@@ -46,13 +47,19 @@ type StatusBarSystem()  as this =
 
     let mutable longTotalDocSize : System.Int64 = 0L
     let mutable scaleCurrent : float = 1.0
-    
+
     let systemInfo() =  do GC.Collect()
                         let intUsedMemory : int64  =  System.GC.GetGCMemoryInfo().MemoryLoadBytes 
+                        let intUsedMemoryCurrentProcess : int64 = Process.GetCurrentProcess().WorkingSet64
                         let totalAvailable =  System.GC.GetGCMemoryInfo().TotalAvailableMemoryBytes                        
                         let mutable intOS = 32
                         if Environment.Is64BitOperatingSystem then intOS <- 64                       
-                        do statusSystemBar.Content <- "OS: " + Environment.OSVersion.ToString() + " Scale " + (Convert.ToInt32(scaleCurrent * 100.0)).ToString() + "%  Used Memory - " + intUsedMemory.ToString("0,0") + " ( Available " + totalAvailable.ToString("0,0") + " )";
+                        do statusSystemBar.Content <- "OS: " + Environment.OSVersion.ToString() 
+                                                             + " Scale " + (Convert.ToInt32(scaleCurrent * 100.0)).ToString() + "%" 
+                                                             + " Used Memory " + ((float)intUsedMemoryCurrentProcess / 1024.0 / 1024.0).ToString("0,0.00") + " MByte," 
+                                                             + " Total Memory Loaded " + ((float)intUsedMemory/ 1024.0 / 1024.0).ToString("0,0") + " MByte,"
+                                                             + " (Total Memory " + ((float)totalAvailable/ 1024.0 / 1024.0 / 1024.0).ToString("0,0") +  " GByte)";
+
                         do statusFile.Content <- "  lines - " + numberTotalLines.ToString("0,0")
                         do statusDocSizeBar.Content <- " file - " + fullFileName + "  ( " + longTotalDocSize.ToString("0,0") + " bytes ) " 
  

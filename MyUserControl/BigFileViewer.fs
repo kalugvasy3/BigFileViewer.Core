@@ -45,14 +45,30 @@ type BigFileViewer() as this  =
         do quickFind.InitMyTextBox(&myTextBox) 
 
 
+    let mutable scale = 1.0
+    let scalePlus() =  if scale < 1.30 then scale <- scale + 0.05
+                       statusBar.ScaleNewValue <- scale
+                       allScale.ScaleX <- scale
+                       allScale.ScaleY <- scale
 
-    let eventScaleUpdate(e : float) = allScale.ScaleX <- e
-                                      allScale.ScaleY <- e
+
+    let scaleMinus() = if scale > 0.70 then scale <- scale - 0.05
+                       statusBar.ScaleNewValue <- scale
+                       allScale.ScaleX <- scale
+                       allScale.ScaleY <- scale
+                                                 
+
+    let canvasWheel (e : MouseWheelEventArgs) =
+            match Keyboard.Modifiers with
+            | ModifierKeys.Control -> if e.Delta > 0 then scalePlus() 
+                                                     else scaleMinus();
+            | _ -> ()
+
     
     do myTextBox.StatusBar <- ref statusBar
-    do myTextBox.EventSysInfoUpdate.Add(fun e ->  eventScaleUpdate(e))
+   // do myTextBox.EventSysInfoUpdate.Add(fun e ->  eventScaleUpdate(e))
 
-
+    do this.MouseWheel.Add(fun e -> canvasWheel(e))
 
     let deltaAdjVert =  4.0 * (float)System.Windows.SystemParameters.Border
                       + 4.0 * (float)System.Windows.SystemParameters.FixedFrameHorizontalBorderHeight 
@@ -77,7 +93,7 @@ type BigFileViewer() as this  =
 
         // Synchronized UserControl size with Window
     member x.WinHolder  with set(v) = ( do winHolder <- v 
-                                        do this.Width <- v.Width -   deltaAdjHoriz 
+                                        do this.Width <- v.Width -   deltaAdjHoriz * allScale.ScaleX
                                         do this.Height <- v.Height - deltaAdjVert 
                                      )
 

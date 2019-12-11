@@ -342,7 +342,7 @@ type OpenUpdateMMF() as _this   =
                      | false -> do longCurrentBlock <- (int64) calcBlock
                                 
                                 blnContinueContentFromMMF <- false
-                                Thread.Sleep(100) //Very important - STOP ALL Thread
+                                Thread.Sleep(0) //Very important - STOP ALL Thread
 
                                 match ( longCurrentBlock > 0L , longCurrentBlock < longNumberOfBlocks - 1L) with
                                 // ONE BLOCK ONLY

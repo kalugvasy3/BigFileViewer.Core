@@ -44,6 +44,8 @@ type BigFileViewer() as this  =
         let mutable quickFind = new QuickFind()
         do quickFind.InitMyTextBox(&myTextBox) 
 
+    let minHeight = 730.0
+    let minWidth = 512.0
 
     let mutable scale = 1.0
     let scalePlus() =  if scale < 1.30 then scale <- scale + 0.05
@@ -63,6 +65,8 @@ type BigFileViewer() as this  =
             | ModifierKeys.Control -> if e.Delta > 0 then scalePlus() 
                                                      else scaleMinus();
             | _ -> ()
+            winHolder.MinHeight <- minHeight * scale 
+            winHolder.MinWidth <- minWidth * scale 
 
     
     do myTextBox.StatusBar <- ref statusBar
@@ -93,8 +97,8 @@ type BigFileViewer() as this  =
 
         // Synchronized UserControl size with Window
     member x.WinHolder  with set(v) = ( do winHolder <- v 
-                                        do this.Width <- v.Width -   deltaAdjHoriz * allScale.ScaleX
-                                        do this.Height <- v.Height - deltaAdjVert 
+                                        do this.Width <- v.ActualWidth -   deltaAdjHoriz 
+                                        do this.Height <- v.ActualHeight - deltaAdjVert 
                                      )
 
 

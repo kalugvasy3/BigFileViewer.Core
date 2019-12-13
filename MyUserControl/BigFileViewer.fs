@@ -48,7 +48,7 @@ type BigFileViewer() as this  =
     let minWidth = 512.0
 
     let mutable scale = 1.0
-    let scalePlus() =  if scale < 1.30 then scale <- scale + 0.05
+    let scalePlus() =  if scale < 1.50 then scale <- scale + 0.05
                        statusBar.ScaleNewValue <- scale
                        allScale.ScaleX <- scale
                        allScale.ScaleY <- scale

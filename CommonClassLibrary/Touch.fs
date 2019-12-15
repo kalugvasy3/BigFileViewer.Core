@@ -27,8 +27,10 @@ open System.Collections.ObjectModel
 type Touch() = 
 
     let eventTouch = new Event<float*float*float>() 
-    let mutable myCanvas : Canvas = null
-    let mutable myFont  = new  CommonClassLibrary.Fonts()
+    let eventScale = new Event<float>()
+
+    let mutable myCanvas = ref (new Canvas())
+    let mutable myFont  = ref (new  CommonClassLibrary.Fonts())
 
     let mutable lScale = 1.0
 
@@ -40,16 +42,17 @@ type Touch() =
                     let secondary = Math.Sqrt((touchPoints.[0 , 0] - touchPoints.[1 , 0]) ** 2.0 +     // deltaX
                                               (touchPoints.[0 , 1] - touchPoints.[1 , 1]) ** 2.0 )     // deltaY
                     do lScale <- ((primary / secondary - 1.0) * 100.0 ) % 5.0  // 
-                    ignore()
+                    do eventScale.Trigger(lScale)
 
     let touchFrame(sender : obj, e: TouchFrameEventArgs) = 
 
             let mutable blnContinue = false
-            let touchPointsFromUC = e.GetTouchPoints(myCanvas)
-            match touchPointsFromUC.Count with
+            let touchPointsFromUC = e.GetTouchPoints(!myCanvas)
+            let numberOfTouch = touchPointsFromUC.Count
+            match numberOfTouch with
             | 0 -> ignore()
-            | 1 -> ignore()   // same like mouse - selecting etc.
-            | 2 -> for i = 0 to 1 do
+            | 1 
+            | 2 -> for i = 0 to numberOfTouch - 1 do
                        let tp = touchPointsFromUC.[i]
                        match tp.Action with        
                        | TouchAction.Down  -> touchPointsPrimary.[i , 0] <- tp.Position.X   // This is the first (primary) touch point. Just record its position.
@@ -58,7 +61,7 @@ type Touch() =
                        | TouchAction.Move  -> touchPoints.[i , 0] <- tp.Position.X         // This is not the first touch point. 
                                               touchPoints.[i , 1] <- tp.Position.Y                                     
                                               do blnContinue <- true
-                       | TouchAction.Up    -> myCanvas.ReleaseAllTouchCaptures()
+                       | TouchAction.Up    -> (!myCanvas).ReleaseAllTouchCaptures()
                        | _ -> ignore()
                    
                    if blnContinue then 
@@ -68,13 +71,13 @@ type Touch() =
                        let avrY = touchPoints.[*, 1] |> Array.average
                    
                          // use INT for round ... using like index for array of string ...   
-                       let deltaX = int ((avrPrimaryX - avrX) *  myFont.CoeffFont_Widh / myFont.Tb_FontSize)
-                       let deltaY = int ((avrPrimaryY - avrY) * myFont.CoeffFont_High / myFont.Tb_FontSize )
+                       let deltaX = int ((avrPrimaryX - avrX) *  (!myFont).CoeffFont_Widh / (!myFont).Tb_FontSize)
+                       let deltaY = int ((avrPrimaryY - avrY) * (!myFont).CoeffFont_High / (!myFont).Tb_FontSize )
 
                        if Math.Abs(deltaX) > 0 then  do touchPointsPrimary.[* , 0] <- touchPoints.[* , 0]
                        if Math.Abs(deltaY) > 0 then  do touchPointsPrimary.[* , 1] <- touchPoints.[* , 1]
-                       do myScale()
-                       do eventTouch.Trigger(float deltaX , float deltaY, 0.0) // lScale just show direction increase/decries 
+                       if numberOfTouch = 1 then do myScale()
+                       if numberOfTouch = 2 then do eventTouch.Trigger(float deltaX , float deltaY, 0.0) // lScale just show direction increase/decries 
 
                    ignore()
 
@@ -83,7 +86,10 @@ type Touch() =
 
     [<CLIEvent>]
     member x.EventTouch =  eventTouch.Publish
-    member x.MyFont with get() = myFont and set(v) = myFont <- v
+    [<CLIEvent>]
+    member x.EventScale =  eventScale.Publish
+    
+    member x.MyFont with get() = myFont and set(v) = myFont <- v   
     member x.MyCanvas with get() = myCanvas and set(v) = myCanvas <- v
 
     member x.TouchFrame(sender : obj, e: TouchFrameEventArgs) = touchFrame(sender, e)

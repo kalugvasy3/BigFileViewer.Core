@@ -115,11 +115,11 @@ type MyTextBox() as this  =
                          this.Dispatcher.Invoke(new Action ( fun _ ->
                                                    do openUpdateMMF.BlnStopSearch <- true
                                                    do updateUserClock(false) 
-                                                   Thread.Sleep(0)
+                                                   Thread.Sleep(10)
                                                    let deltaY = scrollX.ActualHeight
                                                    let curr = Mouse.GetPosition(scrollY)
                                                    let iy = int (scrollY.Maximum *  (curr.Y - deltaY) / (scrollY.ActualHeight - 2.0 * deltaY) )
-                                                   Thread.Sleep(0)
+                                                   Thread.Sleep(10)
                                                    scrollY.Value <- float iy 
                                                    )) 
                                                             
@@ -128,12 +128,12 @@ type MyTextBox() as this  =
                          this.Dispatcher.Invoke(new Action ( fun _ ->
                                                    do openUpdateMMF.BlnStopSearch <- true
                                                    do updateUserClock(false) 
-                                                   Thread.Sleep(0)
+                                                   Thread.Sleep(10)
 
                                                    let deltaX = scrollY.ActualWidth
                                                    let curr = Mouse.GetPosition(scrollX)
                                                    let ix = int (scrollX.Maximum *  (curr.X - deltaX) / (scrollX.ActualWidth - 2.0 * deltaX))
-                                                   Thread.Sleep(0)
+                                                   Thread.Sleep(10)
                                                    scrollX.Value <- float ix 
                                                    )) 
 

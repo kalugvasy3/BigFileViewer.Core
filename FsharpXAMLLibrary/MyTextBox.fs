@@ -62,7 +62,7 @@ type MyTextBox() as this  =
             do scrollX.SmallChange <- 1.0   
             do scrollX.LargeChange <- float (openUpdateMMF.IntHorizCountCharsOnPage / 2);
             do tbX.Text <- "X: " + openUpdateMMF.IntFirstCharOnPage.ToString("0,0") + " of " + ((int)scrollX.Maximum).ToString("0,0") 
-            do Thread.Sleep(10)
+            do Thread.Sleep(0)
 
 
 
@@ -78,7 +78,7 @@ type MyTextBox() as this  =
             do scrollY.SmallChange <- 1.0   // one line
             do scrollY.LargeChange <- float (openUpdateMMF.IntVertCountLinesOnPage / 2)   // number lines per page/2
             do tbY.Text <- "Y: " + openUpdateMMF.IntFirstLineOnPage.ToString("0,0") + " of " + ((int)scrollY.Maximum).ToString("0,0") + "   (" + openUpdateMMF.IntVertCountLinesOnPage.ToString() + ")";     
-            do Thread.Sleep(10)
+            do Thread.Sleep(0)
 
 
 
@@ -115,11 +115,11 @@ type MyTextBox() as this  =
                          this.Dispatcher.Invoke(new Action ( fun _ ->
                                                    do openUpdateMMF.BlnStopSearch <- true
                                                    do updateUserClock(false) 
-                                                   Thread.Sleep(100)
+                                                   Thread.Sleep(0)
                                                    let deltaY = scrollX.ActualHeight
                                                    let curr = Mouse.GetPosition(scrollY)
                                                    let iy = int (scrollY.Maximum *  (curr.Y - deltaY) / (scrollY.ActualHeight - 2.0 * deltaY) )
-                                                   Thread.Sleep(100)
+                                                   Thread.Sleep(0)
                                                    scrollY.Value <- float iy 
                                                    )) 
                                                             
@@ -128,12 +128,12 @@ type MyTextBox() as this  =
                          this.Dispatcher.Invoke(new Action ( fun _ ->
                                                    do openUpdateMMF.BlnStopSearch <- true
                                                    do updateUserClock(false) 
-                                                   Thread.Sleep(100)
+                                                   Thread.Sleep(0)
 
                                                    let deltaX = scrollY.ActualWidth
                                                    let curr = Mouse.GetPosition(scrollX)
                                                    let ix = int (scrollX.Maximum *  (curr.X - deltaX) / (scrollX.ActualWidth - 2.0 * deltaX))
-                                                   Thread.Sleep(100)
+                                                   Thread.Sleep(0)
                                                    scrollX.Value <- float ix 
                                                    )) 
 
@@ -283,7 +283,7 @@ type MyTextBox() as this  =
                                                 //do eventSysInfoUpdate.Trigger(scale)
                                                 do updateUserClock (false)
                                                 do update(true)
-                                                Thread.Sleep(200)
+                                                Thread.Sleep(0)
                                                 do canvasMain.Focus() |> ignore))
             
             // Create Task                                
@@ -338,7 +338,7 @@ type MyTextBox() as this  =
     let nextSynchro(s : string[]) =
                         let uiThread : TaskScheduler = TaskScheduler.FromCurrentSynchronizationContext()          
                         let mainThreadDoWorkTask = Task<bool>.Factory.StartNew(fun () -> ( goto(openUpdateMMF.FindNext(s.[0]))
-                                                                                           Thread.Sleep(100)     
+                                                                                           Thread.Sleep(0)     
                                                                                            true)) 
                         do mainThreadDoWorkTask.ContinueWith( fun ( t : Task<bool> ) -> ( 
                                                                                           do openUpdateMMF.BlnStopSearch <- true
@@ -398,8 +398,8 @@ type MyTextBox() as this  =
             do canvasMain.KeyDown.Add(fun e -> canvasKeyDown (e))
             
             do Touch.FrameReported.AddHandler( fun sender e -> myTouch.TouchFrame(sender, e))
-            do myTouch.MyCanvas <- canvasMain
-            do myTouch.EventTouch.Add(fun e -> moveResise(e)) 
+            //do myTouch.MyCanvas <- canvasMain
+            //do myTouch.EventTouch.Add(fun e -> moveResise(e)) 
 
 
 

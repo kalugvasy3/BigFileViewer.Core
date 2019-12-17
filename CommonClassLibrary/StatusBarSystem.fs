@@ -80,7 +80,7 @@ type StatusBarSystem()  as this =
     let eventStatusSystem = new Event<MouseEventArgs>() 
     do statusSystem.MouseLeftButtonDown.Add(fun e ->
                                                  GC.Collect()
-                                                 System.Threading.Thread.Sleep(40)
+                                                 System.Threading.Thread.Sleep(0)
                                                  do systemInfo() 
                                                  eventStatusSystem.Trigger(e)
                                            )

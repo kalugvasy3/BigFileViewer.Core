@@ -158,7 +158,7 @@ type OpenUpdateMMF() as _this   =
                                   do countLine <- countLine + 1 
                                   Thread.Sleep(0)
                             
-                            Thread.Sleep(1)
+                            Thread.Sleep(0)
 
                             // Last line in Block + First line in Next Block
                             if (blnContinueContentFromMMF || direction = "I") then 
@@ -198,7 +198,7 @@ type OpenUpdateMMF() as _this   =
             // We must give time for Dispose
             if not (isNull mmf)  then do mmf <- null
             GC.Collect()
-            Thread.Sleep(500)   // 0.5 sec
+            Thread.Sleep(100)   // 0.1 sec
             do arrayOfBlockInfo <- Array.empty
             do intFirstLineOnPage <- 0 
             do intLastLineOnPage <- 0 
@@ -226,7 +226,7 @@ type OpenUpdateMMF() as _this   =
                    if longNumberOfBlocks <> 0L then
                        let fcurent = ((iBlock + 1) * 100) / (int)longNumberOfBlocks
                        if (fcurent % 5 = 0) then  do eventSysInfoStart.Trigger(float fcurent)
-                                                  do Thread.Sleep(200) 
+                                                  do Thread.Sleep(0) 
                        if fcurent = 100 then do eventSysInfoStart.Trigger(0.0)   
 
 
@@ -452,7 +452,7 @@ type OpenUpdateMMF() as _this   =
     let createMMF (files : string[]) =
             do mmf <-null
             GC.Collect |>ignore
-            Thread.Sleep(500)
+            Thread.Sleep(0)
             let mutable strReturn = "Please drop only ONE file!"          
             do preInitFileOpen ()
                       

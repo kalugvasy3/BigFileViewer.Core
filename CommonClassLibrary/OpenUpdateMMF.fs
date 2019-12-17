@@ -217,7 +217,7 @@ type OpenUpdateMMF() as _this   =
             do arrayPresentWindow  <- Array.create 0 (new StringBuilder())
             do longTotalDocSize <- 0L
             do longNumberOfBlocks <- 0L
-            do longOfset <- int64 (2.0 ** 26.0)  // 2.0 ** 27.0 - 134217728L  // preliminary read 128M  // DO NOT CHANGE !!!!
+            do longOfset <- int64 (2.0 ** 24.0)  // 2.0 ** 24.0 - 16,777,216L  // preliminary read 16M - Faster // DO NOT CHANGE !!!!
 
 
 
@@ -486,6 +486,8 @@ type OpenUpdateMMF() as _this   =
          if longTotalDocSize >= 3L * longOfset 
             then
                  match r with
+                 | _ when r > 0.03125 && r <= 0.0625    -> longOfset <- longOfset * 32L;
+                 | _ when r > 0.0625 && r <= 0.125    -> longOfset <- longOfset * 16L;
                  | _ when r > 0.125 && r <= 0.25    -> longOfset <- longOfset * 8L;
                  | _ when r > 0.25 && r <= 0.5    -> longOfset <- longOfset * 4L;  
                  | _ when r > 0.5  && r <= 1.0    -> longOfset <- longOfset * 2L;   
@@ -493,9 +495,9 @@ type OpenUpdateMMF() as _this   =
                  | _ when r > 2.0  && r <= 4.0    -> longOfset <- longOfset / 2L;  
                  | _ when r > 4.0  && r <= 8.0    -> longOfset <- longOfset / 4L;
                  | _ when r > 8.0  && r <= 16.0   -> longOfset <- longOfset / 8L;
-                 //| _ when r > 16.0  && r <= 32.0   -> longOfset <- longOfset / 16L;
-                 //| _ when r > 32.0  && r <= 64.0   -> longOfset <- longOfset / 32L;
-                 | _ when r > 16.0                -> longOfset <- longOfset / 16L; 
+                 | _ when r > 16.0  && r <= 32.0   -> longOfset <- longOfset / 16L;
+                 | _ when r > 32.0  && r <= 64.0   -> longOfset <- longOfset / 32L;
+                 | _ when r > 64.0                -> longOfset <- longOfset / 64L; 
                  | _ ->  longOfset <- 0L
                          do strReturn <- "One or more line(s) exceed "+ intLimitCharsPerLine.ToString("0,0") + " chars, use Pro Version" 
             else longOfset <- 3L * longOfset 

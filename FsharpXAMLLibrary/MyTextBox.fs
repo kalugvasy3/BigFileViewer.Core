@@ -399,9 +399,9 @@ type MyTextBox() as this  =
 
             do canvasMain.KeyDown.Add(fun e -> canvasKeyDown (e))
             
-            do Touch.FrameReported.AddHandler( fun sender e -> myTouch.TouchFrame(sender, e))
-            do myTouch.MyCanvas <- ref canvasMain
-            do myTouch.EventScale.Add(fun e -> scaleCurrnet.Trigger(e)) 
+            //do Touch.FrameReported.AddHandler( fun sender e -> myTouch.TouchFrame(sender, e))
+            //do myTouch.MyCanvas <- ref canvasMain
+            //do myTouch.EventScale.Add(fun e -> scaleCurrnet.Trigger(e)) 
 
 
 

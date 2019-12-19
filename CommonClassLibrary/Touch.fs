@@ -42,7 +42,7 @@ type Touch() =
                     let secondary = Math.Sqrt((touchPoints.[0 , 0] - touchPoints.[1 , 0]) ** 2.0 +     // deltaX
                                               (touchPoints.[0 , 1] - touchPoints.[1 , 1]) ** 2.0 )     // deltaY
                     do lScale <- ((primary / secondary - 1.0) * 100.0 ) % 5.0  // 
-                    do eventScale.Trigger(lScale)
+                  //  do eventScale.Trigger(lScale)
 
     let touchFrame(sender : obj, e: TouchFrameEventArgs) = 
 
@@ -76,7 +76,7 @@ type Touch() =
 
                        if Math.Abs(deltaX) > 0 then  do touchPointsPrimary.[* , 0] <- touchPoints.[* , 0]
                        if Math.Abs(deltaY) > 0 then  do touchPointsPrimary.[* , 1] <- touchPoints.[* , 1]
-                       if numberOfTouch = 1 then do myScale()
+                       if numberOfTouch = 1 then do ignore() //myScale()
                        if numberOfTouch = 2 then do eventTouch.Trigger(float deltaX , float deltaY, 0.0) // lScale just show direction increase/decries 
 
                    ignore()

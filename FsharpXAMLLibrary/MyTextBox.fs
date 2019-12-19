@@ -49,6 +49,7 @@ type MyTextBox() as this  =
     let mutable statusBar = ref (new StatusBarSystem())
 
     let openFind = new Event<_>() 
+    let scaleCurrnet = new Event<float>()
     
     let unLoaded(e : RoutedEventArgs) = if openUpdateMMF.Mmf <> null then openUpdateMMF.Mmf.Dispose() 
                                         GC.Collect()
@@ -84,35 +85,36 @@ type MyTextBox() as this  =
 
     let updateUserClock (blnVisible : bool) =
 
-            this.Dispatcher.Invoke( fun _ ->   match blnVisible with
+            this.Dispatcher.InvokeAsync( fun _ ->   match blnVisible with
                                                 | true ->  userClock.Visibility <- Visibility.Visible 
                                                            canvasMain.AllowDrop <- false         
                                                 | false -> userClock.Visibility <- Visibility.Collapsed
                                                            canvasMain.AllowDrop <- true
-                                                           do canvasMain.Focus() |> ignore )
-            ignore()
+                                                           do canvasMain.Focus() |> ignore ) |> ignore
+            ()
     
 
 
 
     let update(blnChange : bool) =  
         [ async {
-            this.Dispatcher.Invoke(new Action ( fun _ -> 
-                                                   do initXScroll() 
+            this.Dispatcher.InvokeAsync(new Action ( fun _ -> 
+                                                   do initXScroll()
                                                    if blnChange then do initYScroll()
-                                                   ))
+                                                                     
+                                                   )) |> ignore
 
-            this.Dispatcher.Invoke(new Action ( fun _ -> 
+            this.Dispatcher.InvokeAsync(new Action ( fun _ -> 
                                                    do openUpdateMMF.UpdateCurrentWindow(&txtBlock, blnChange, myMenu.TxtFind) |> ignore
                                                    if myMenu.TxtFind.Trim() = "" then do openUpdateMMF.BlnStopSearch <- true 
-                                               )) 
+                                               )) |> ignore
 
                   } ] |> Async.Parallel |> Async.Ignore |> Async.Start                                  
 
                                                                           
  
     let updateDoubleY() = 
-                         this.Dispatcher.Invoke(new Action ( fun _ ->
+                         this.Dispatcher.InvokeAsync(new Action ( fun _ ->
                                                    do openUpdateMMF.BlnStopSearch <- true
                                                    do updateUserClock(false) 
                                                    Thread.Sleep(10)
@@ -121,25 +123,25 @@ type MyTextBox() as this  =
                                                    let iy = int (scrollY.Maximum *  (curr.Y - deltaY) / (scrollY.ActualHeight - 2.0 * deltaY) )
                                                    Thread.Sleep(10)
                                                    scrollY.Value <- float iy 
-                                                   )) 
+                                                   )) |> ignore 
                                                             
 
     let updateDoubleX() =
-                         this.Dispatcher.Invoke(new Action ( fun _ ->
-                                                   do openUpdateMMF.BlnStopSearch <- true
-                                                   do updateUserClock(false) 
-                                                   Thread.Sleep(10)
+                    this.Dispatcher.InvokeAsync(new Action ( fun _ ->
+                                            do openUpdateMMF.BlnStopSearch <- true
+                                            do updateUserClock(false) 
+                                            Thread.Sleep(10)
 
-                                                   let deltaX = scrollY.ActualWidth
-                                                   let curr = Mouse.GetPosition(scrollX)
-                                                   let ix = int (scrollX.Maximum *  (curr.X - deltaX) / (scrollX.ActualWidth - 2.0 * deltaX))
-                                                   Thread.Sleep(10)
-                                                   scrollX.Value <- float ix 
-                                                   )) 
+                                            let deltaX = scrollY.ActualWidth
+                                            let curr = Mouse.GetPosition(scrollX)
+                                            let ix = int (scrollX.Maximum *  (curr.X - deltaX) / (scrollX.ActualWidth - 2.0 * deltaX))
+                                            Thread.Sleep(10)
+                                            scrollX.Value <- float ix 
+                                            )) |> ignore
 
  
 
-    let eventSysInfoStart(arg) = do this.Dispatcher.Invoke(DispatcherPriority.ContextIdle, new Action(fun _ ->
+    let eventSysInfoStart(arg) = this.Dispatcher.Invoke (DispatcherPriority.ContextIdle, new Action(fun _ ->
                                                  userClock.Visibility <- Visibility.Collapsed 
                                                  (!statusBar).PrgStatusValue <- arg 
                                                  (!statusBar).NumberTotalLines <- openUpdateMMF.IntNumberOfTotalLinesEstimation
@@ -280,7 +282,7 @@ type MyTextBox() as this  =
             // Final Thread
             let finalThreadDoWOrk(x : bool) = 
                                     do this.Dispatcher.Invoke(new Action ( fun () -> 
-                                                //do eventSysInfoUpdate.Trigger(scale)
+
                                                 do updateUserClock (false)
                                                 do update(true)
                                                 Thread.Sleep(0)
@@ -398,8 +400,8 @@ type MyTextBox() as this  =
             do canvasMain.KeyDown.Add(fun e -> canvasKeyDown (e))
             
             do Touch.FrameReported.AddHandler( fun sender e -> myTouch.TouchFrame(sender, e))
-            //do myTouch.MyCanvas <- canvasMain
-            //do myTouch.EventTouch.Add(fun e -> moveResise(e)) 
+            do myTouch.MyCanvas <- ref canvasMain
+            do myTouch.EventScale.Add(fun e -> scaleCurrnet.Trigger(e)) 
 
 
 
@@ -419,8 +421,8 @@ type MyTextBox() as this  =
 
         )
 
-    //[<CLIEvent>]
-    //member x.EventSysInfoUpdate =  eventSysInfoUpdate.Publish
+    [<CLIEvent>]
+    member x.ScaleCurrnet =   scaleCurrnet.Publish
     [<CLIEvent>]
     member x.OpenFind = openFind.Publish
 

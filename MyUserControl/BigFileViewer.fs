@@ -68,9 +68,15 @@ type BigFileViewer() as this  =
             winHolder.MinHeight <- minHeight * scale 
             winHolder.MinWidth <- minWidth * scale 
 
+    let scaleCurrnet(e : float) = 
+            match e with
+            | _ when e > 0.0 -> allScale.ScaleX <- e
+                                allScale.ScaleY <- e
+            | _ -> ignore ()
     
     do myTextBox.StatusBar <- ref statusBar
-   // do myTextBox.EventSysInfoUpdate.Add(fun e ->  eventScaleUpdate(e))
+   
+    do myTextBox.ScaleCurrnet.Add(fun e ->  scaleCurrnet(e))
 
     do this.MouseWheel.Add(fun e -> canvasWheel(e))
 

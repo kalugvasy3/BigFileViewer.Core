@@ -164,15 +164,15 @@ type MyTextBox() as this  =
 
 
     let scrolXWheel (e : MouseWheelEventArgs) =
-            if e.Delta > 0 then scrollX.Value <- float(openUpdateMMF.IntFirstCharOnPage - 7)
-                           else scrollX.Value <- float(openUpdateMMF.IntFirstCharOnPage + 7)
+            if e.Delta > 0 then scrollX.Value <- float(openUpdateMMF.IntFirstCharOnPage - 10)
+                           else scrollX.Value <- float(openUpdateMMF.IntFirstCharOnPage + 10)
 
 
 
 
     let scrolYWheel (e : MouseWheelEventArgs) =
-            if e.Delta > 0 then scrollY.Value <- float(openUpdateMMF.IntFirstLineOnPage - 3)
-                           else scrollY.Value <- float(openUpdateMMF.IntFirstLineOnPage + 3)
+            if e.Delta > 0 then scrollY.Value <- float(openUpdateMMF.IntFirstLineOnPage - 5)
+                           else scrollY.Value <- float(openUpdateMMF.IntFirstLineOnPage + 5)
 
 
 

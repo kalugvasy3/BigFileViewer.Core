@@ -11,19 +11,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Page Remove="ControlPanelLeft.xaml" />
     <Page Remove="MyTextBox.xaml" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="ControlPanelLeft.xaml" />
-    <Compile Include="ControlPanelLeft.fs" />
     <EmbeddedResource Include="MyTextBox.xaml" />
     <Compile Include="MyTextBox.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Data.OleDb" Version="4.7.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>

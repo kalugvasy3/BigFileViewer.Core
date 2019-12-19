@@ -10,6 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="ControlPanelLeft.xaml" />
+    <Compile Include="ControlPanelLeft.fs" />
     <EmbeddedResource Include="QuickFind.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>

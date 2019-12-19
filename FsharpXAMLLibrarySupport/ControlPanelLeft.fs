@@ -1,4 +1,4 @@
-﻿namespace FsharpXAMLLibrary
+﻿namespace FsharpXAMLLibrarySupport
 
 open System
 open System.Collections.ObjectModel
@@ -27,7 +27,7 @@ open Microsoft.FSharp.Control
 type ControlPanelLeft()  as this = 
     inherit  UserControl()
 
-    do this.Content <- contentAsXamlObjectFromAssembly("FsharpXAMLLibrary","ControlPanelLeft") // Load XAML
+    do this.Content <- contentAsXamlObjectFromAssembly("FsharpXAMLLibrarySupport","ControlPanelLeft") // Load XAML
 
     let mutable btnAppearance : Button =  this.Content?btnAppearance 
     let mutable btnGroupOperation : Button =  this.Content?btnGroupOperation 

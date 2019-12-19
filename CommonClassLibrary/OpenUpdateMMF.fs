@@ -652,59 +652,114 @@ type OpenUpdateMMF() as _this   =
     member x.EventBlockChanged =  eventBlockChanged.Publish
 
 
-    member x.IntFirstLineOnPage with get()= intFirstLineOnPage and set(v)=intFirstLineOnPage <-v
-    member x.IntLastLineOnPage with get()= intLastLineOnPage and set(v)=intLastLineOnPage <-v 
-    member x.IntFirstCharOnPage  with get()= intFirstCharOnPage and set(v)=intFirstCharOnPage <-v 
-    member x.IntVertCountLinesOnPage  with get()= intVertCountLinesOnPage and set(v)=intVertCountLinesOnPage <-v 
-    member x.IntHorizCountCharsOnPage  with get()= intHorizCountCharsOnPage and set(v)=intHorizCountCharsOnPage <-v  
+    member x.IntFirstLineOnPage 
+           with get()= intFirstLineOnPage and 
+                set(v)=intFirstLineOnPage <-v
+
+    member x.IntLastLineOnPage 
+           with get()= intLastLineOnPage and 
+                set(v)=intLastLineOnPage <-v 
+
+    member x.IntFirstCharOnPage  
+           with get()= intFirstCharOnPage and 
+                set(v)=intFirstCharOnPage <-v 
+
+    member x.IntVertCountLinesOnPage  
+           with get()= intVertCountLinesOnPage and 
+                set(v)=intVertCountLinesOnPage <-v 
+
+    member x.IntHorizCountCharsOnPage  
+           with get()= intHorizCountCharsOnPage and 
+                set(v)=intHorizCountCharsOnPage <-v  
    
-    member x.LongCurrentBlock  with get()= longCurrentBlock and set(v)=longCurrentBlock <-v 
-     
-     
+    member x.LongCurrentBlock  
+           with get()= longCurrentBlock and 
+                set(v)=longCurrentBlock <-v         
 
-    member x.IntMaxCharsInLine with get()= intMaxCharsInLine and set(v)=intMaxCharsInLine <-v 
-    member x.IntNumberOfTotalLinesEstimation with get()= intNumberOfTotalLinesEstimation and set(v)=intNumberOfTotalLinesEstimation <-v 
-
-
-    member x.RefListPreviousSbAll with get()= refListPreviousSbAll and set(v)=refListPreviousSbAll <-v 
-    member x.RefListCurrentSbAll with get()= refListCurrentSbAll and set(v)=refListCurrentSbAll <-v 
-    member x.RefListNextSbAll with get()= refListNextSbAll and set(v)=refListNextSbAll <-v 
-
-    member x.ResetRefListSb(r : List<StringBuilder> byref ) = r <- new  List<StringBuilder>()
-
-    member x.BlnPreviousRun with get()= blnPreviousRun and set(v)=blnPreviousRun <-v 
-    member x.BlnCurrentRun with get()= blnCurrentRun and set(v)=blnCurrentRun <-v 
-    member x.BlnNextRun with get()= blnThreadAllowRunnig and set(v)=blnThreadAllowRunnig <-v 
-
-    member x.ArrayPresentWindow  with get()= arrayPresentWindow and set(v)=arrayPresentWindow <-v 
-    member x.ArrayOfBlockInfo with get()= arrayOfBlockInfo and set(v)=arrayOfBlockInfo <-v  
+    member x.IntMaxCharsInLine 
+           with get()= intMaxCharsInLine and 
+                set(v)=intMaxCharsInLine <-v 
+    
+    member x.IntNumberOfTotalLinesEstimation 
+           with get()= intNumberOfTotalLinesEstimation and 
+                set(v)=intNumberOfTotalLinesEstimation <-v 
 
 
-    member x.BlnNextDone with get()= blnNextDone and set(v)=blnNextDone <-v 
+    member x.RefListPreviousSbAll 
+           with get()= refListPreviousSbAll and 
+                set(v)=refListPreviousSbAll <-v 
 
-    member x.FullFileName with get()= fullFileName and set(v)=fullFileName <-v 
-    member x.LongTotalDocSize with get()= longTotalDocSize and set(v)=longTotalDocSize <-v 
-    member x.LongNumberOfBlocks with get()= longNumberOfBlocks and set(v)=longNumberOfBlocks <-v 
+    member x.RefListCurrentSbAll 
+           with get()= refListCurrentSbAll and 
+                set(v)=refListCurrentSbAll <-v 
 
-    member x.Mmf  with get()= mmf and set(v)=mmf <-v 
+    member x.RefListNextSbAll 
+           with get()= refListNextSbAll and 
+                set(v)=refListNextSbAll <-v 
 
-    member x.LongOfset  with get()= longOfset and set(v)=longOfset <-v 
+    //member x.ResetRefListSb(r : List<StringBuilder> byref ) = r <- new  List<StringBuilder>()
+
+    member x.BlnPreviousRun 
+           with get()= blnPreviousRun and 
+                set(v)=blnPreviousRun <-v 
+
+    member x.BlnCurrentRun 
+           with get()= blnCurrentRun and 
+                set(v)=blnCurrentRun <-v 
+
+    member x.BlnNextRun 
+           with get()= blnThreadAllowRunnig and 
+                set(v)=blnThreadAllowRunnig <-v 
+
+    member x.ArrayPresentWindow  
+           with get()= arrayPresentWindow and 
+                set(v)=arrayPresentWindow <-v 
+
+    member x.ArrayOfBlockInfo 
+           with get()= arrayOfBlockInfo and 
+                set(v)=arrayOfBlockInfo <-v  
+
+    member x.BlnNextDone 
+           with get()= blnNextDone and 
+                set(v)=blnNextDone <-v 
+
+    member x.FullFileName 
+           with get()= fullFileName and 
+                set(v)=fullFileName <-v 
+
+    member x.LongTotalDocSize 
+           with get()= longTotalDocSize and 
+                set(v)=longTotalDocSize <-v 
+
+    member x.LongNumberOfBlocks 
+           with get()= longNumberOfBlocks and 
+                set(v)=longNumberOfBlocks <-v 
+
+    member x.Mmf  
+           with get()= mmf and set(v)=mmf <-v 
+
+    member x.LongOfset  
+           with get()= longOfset and set(v)=longOfset <-v 
  
 
     member x.UpdateCurrentWindow(tb : TextBlock byref, blnChange : bool, txtFind : string) = updateCurrentWindow(tb, blnChange, txtFind)
                                                                                 
-    member x.CreateMMF (files : string[]) = createMMF (files)
+    member x.CreateMMF (files : string[]) = 
+                       createMMF (files)
 
     member x.GetContentFromMMF (refListSb : List<StringBuilder> ref , intBlockNumber : int, blnAllLines : bool ,blnThread : bool, direction : string) =  
-                 getContentFromMMF (refListSb, intBlockNumber, blnAllLines, blnThread, direction)
+                               getContentFromMMF (refListSb, intBlockNumber, blnAllLines, blnThread, direction)
 
- //   member x.BlnRunnigAll with get() = blnRunnigAll  and set(v) = blnRunnigAll <- v
+ // member x.BlnRunnigAll with get() = blnRunnigAll  and set(v) = blnRunnigAll <- v
 
-    member x.UcHolder with get() = ucHolder and set(v) = 
-                                                      (ucHolder <- v 
-                                                       updateUcHolder())
+    member x.UcHolder 
+           with get() = ucHolder and 
+                set(v)= ucHolder <- v 
+                        updateUcHolder()
 
-    member x.IntMinLinesPerBloc  with get() = intMinLinesPerBloc and set(v) = intMinLinesPerBloc <- v
+    member x.IntMinLinesPerBloc  
+           with get() = intMinLinesPerBloc and 
+                set(v) = intMinLinesPerBloc <- v
 
     member x.InitArrayOfBlock() = initArrayOfBlock()
 
@@ -712,19 +767,22 @@ type OpenUpdateMMF() as _this   =
 
     member x.PreInitFileOpen () =  preInitFileOpen ()
 
-    member x.MyFont with get() = myFont and set(v) = myFont <- v
+    member x.MyFont 
+           with get() = myFont and set(v) = myFont <- v
 
-
-
-    member x.BlnContinueContentFromMMF with get() = blnContinueContentFromMMF and set(v) = blnContinueContentFromMMF<-v
+    member x.BlnContinueContentFromMMF 
+           with get() = blnContinueContentFromMMF and 
+                set(v) = blnContinueContentFromMMF<-v
 
     member x.FindNext(str : string) = findNext(str)
 
+    member x.RefListTestbAll 
+           with get() = refListTestbAll and 
+                set(v)= refListTestbAll <- v
 
-    member x.RefListTestbAll with get() = refListTestbAll and set(v)= refListTestbAll <- v
-
-
-    member x.BlnStopSearch with get() = blnStopSearch and set(v) = blnStopSearch <- v
+    member x.BlnStopSearch 
+           with get() = blnStopSearch and 
+                set(v) = blnStopSearch <- v
 
 
 

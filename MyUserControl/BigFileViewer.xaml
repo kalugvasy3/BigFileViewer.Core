@@ -15,7 +15,7 @@
 
     <Grid x:Name="bigGrid" MinHeight="677" >
 
-        <FsharpXAMLLibrary:ControlPanelLeft x:Name="controlPanelLeft" VerticalAlignment="Top" HorizontalAlignment="Left"   />
+        <FsharpXAMLLibrarySupport:ControlPanelLeft x:Name="controlPanelLeft" VerticalAlignment="Top" HorizontalAlignment="Left"   />
         <FsharpXAMLLibrary:MyTextBox x:Name="myTextBox" Margin="54,0,0,22"/>
         <CommonClassLibrary:StatusBarSystem x:Name="statusBar"  Height="22"  VerticalAlignment="Bottom"/>
 

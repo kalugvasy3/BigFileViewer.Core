@@ -11,8 +11,8 @@ open System.Windows.Media
 
 type Fonts()  = 
 
-    let mutable coeffFont_Widh = 1.824   // "1.8166"   1.830
-    let mutable coeffFont_High = 0.868   // "0.853"    0.880
+    let mutable coeffFont_Widh = 1.819
+    let mutable coeffFont_High = 0.853 
     let mutable tb_FontSize = 14.0
     let mutable tb_FontFamily = new FontFamily("Consolas") 
 

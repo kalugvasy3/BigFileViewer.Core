@@ -506,14 +506,14 @@ type OpenUpdateMMF() as _this   =
 
 
 
-    let updateUcHolder() = 
-            let h = ucHolder.ActualHeight
-            do intVertCountLinesOnPage <- (int)(ucHolder.ActualHeight *  myFont.CoeffFont_High /  myFont.Tb_FontSize);
+    //let updateUcHolder() = 
+    //        let h = ucHolder.ActualHeight
+    //        do intVertCountLinesOnPage <- (int)(ucHolder.ActualHeight *  myFont.CoeffFont_High /  myFont.Tb_FontSize);
             
-            match intVertCountLinesOnPage > intMinLinesPerBloc * 2 with   // it just means - block should include at least 2 screens ... 
-            | true ->  ucHolder.MaxHeight <- ucHolder.ActualHeight / 2.0
-                       ignore()
-            | false -> ignore()
+    //        match intVertCountLinesOnPage > intMinLinesPerBloc * 2 with   // it just means - block should include at least 2 screens ... 
+    //        | true ->  ucHolder.MaxHeight <- ucHolder.ActualHeight / 2.0
+    //                   ignore()
+    //        | false -> ignore()
 
 
     let mutable prevFindBlock = -1
@@ -752,10 +752,10 @@ type OpenUpdateMMF() as _this   =
 
  // member x.BlnRunnigAll with get() = blnRunnigAll  and set(v) = blnRunnigAll <- v
 
-    member x.UcHolder 
-           with get() = ucHolder and 
-                set(v)= ucHolder <- v 
-                        updateUcHolder()
+    //member x.UcHolder 
+    //       with get() = ucHolder and 
+    //            set(v)= ucHolder <- v 
+    //                    updateUcHolder()
 
     member x.IntMinLinesPerBloc  
            with get() = intMinLinesPerBloc and 

@@ -38,7 +38,7 @@
         <ScrollBar x:Name="scrollY" HorizontalAlignment="Right" Margin="0,0,0,17" Background="{x:Null}"  BorderThickness="0" BorderBrush="DarkGray" SmallChange="1"   />
 
         <Canvas x:Name="canvasMain" AllowDrop="True"  Background="Transparent" Canvas.Left="0" Canvas.Top="0" 
-                RenderTransformOrigin="0.0,0.0" Focusable="True" Height="Auto"  Margin="2,2,17,17" >
+                RenderTransformOrigin="0.0,0.0" Focusable="True" Height="Auto"  Margin="5,5,19,19" >
 
         </Canvas>
 

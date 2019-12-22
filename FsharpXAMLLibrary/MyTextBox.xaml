@@ -18,12 +18,11 @@
 
         <Label x:Name="lblDropHere" Content="Drop File Here" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center"  />
         <CommonClassLibrary:UserClock x:Name="userClock" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" />
-
+      
 
         <TextBlock x:Name="txtBlock"   Margin="5,5,19,19"  ScrollViewer.CanContentScroll="False" 
                    TextWrapping="NoWrap" FontFamily="Consolas" FontWeight="Normal"  
-                   Background="Transparent"
-                   />
+                   Background="Transparent"/>
 
         <TextBlock Margin="0,0,0,2" Height="12" VerticalAlignment="Bottom" Text=" X " x:Name="tbX" TextAlignment="Center" Foreground="DeepSkyBlue" Canvas.Left="0" HorizontalAlignment="Center" Width="Auto" FontFamily="Courier New" FontSize="11" Background="{x:Null}" FontWeight="Normal" />
         <TextBlock x:Name="tbY" TextAlignment="Center" Foreground="DeepSkyBlue" Text="Y" RenderTransformOrigin="1,0"  FontSize="11" FontFamily="Courier New" HorizontalAlignment="Right" Width="Auto" Background="{x:Null}" Height="12" Margin="0,0,14,100" >

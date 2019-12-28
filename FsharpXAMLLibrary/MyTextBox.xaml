@@ -20,22 +20,25 @@
         <CommonClassLibrary:UserClock x:Name="userClock" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" />
       
 
-        <TextBlock x:Name="txtBlock"   Margin="5,5,19,19"  ScrollViewer.CanContentScroll="False" 
+        <TextBlock x:Name="txtBlock"   Margin="5,5,15,15"  ScrollViewer.CanContentScroll="False" 
                    TextWrapping="NoWrap" FontFamily="Consolas" FontWeight="Normal"  
                    Background="Transparent"/>
 
-        <TextBlock Margin="0,0,0,2" Height="12" VerticalAlignment="Bottom" Text=" X " x:Name="tbX" TextAlignment="Center" Foreground="DeepSkyBlue" Canvas.Left="0" HorizontalAlignment="Center" Width="Auto" FontFamily="Courier New" FontSize="11" Background="{x:Null}" FontWeight="Normal" />
+
+        <ScrollBar x:Name="scrollX"  VerticalAlignment="Bottom" Margin="0,0,17,0" Height="17" Orientation="Horizontal" Opacity="0.3"  Background="LightGray" BorderThickness="0" BorderBrush="DarkGray" SmallChange="1" />
+        <ScrollBar x:Name="scrollY" HorizontalAlignment="Right" Margin="0,0,0,17" Background="LightGray" Opacity="0.3"  BorderThickness="0" BorderBrush="DarkGray" SmallChange="1"   />
+
+        <TextBlock Margin="0,0,0,2" Height="12" VerticalAlignment="Bottom" Text=" X " x:Name="tbX" Opacity="0.5" TextAlignment="Center" Foreground="DeepSkyBlue" Canvas.Left="0" HorizontalAlignment="Center" Width="Auto" FontFamily="Courier New" FontSize="11" Background="{x:Null}" FontWeight="Normal" />
+        
         <TextBlock x:Name="tbY" TextAlignment="Center" Foreground="DeepSkyBlue" Text="Y" RenderTransformOrigin="1,0"  FontSize="11" FontFamily="Courier New" HorizontalAlignment="Right" Width="Auto" Background="{x:Null}" Height="12" Margin="0,0,14,100" >
             <TextBlock.RenderTransform>
                 <TransformGroup>
                     <RotateTransform Angle="-90" />
                 </TransformGroup>
             </TextBlock.RenderTransform>
-        </TextBlock>
+        </TextBlock>       
         
-        <ScrollBar x:Name="scrollX"  VerticalAlignment="Bottom" Margin="0,0,17,0" Height="17" Orientation="Horizontal"  Background="{x:Null}" BorderThickness="0" BorderBrush="DarkGray" SmallChange="1" />
-        <ScrollBar x:Name="scrollY" HorizontalAlignment="Right" Margin="0,0,0,17" Background="{x:Null}"  BorderThickness="0" BorderBrush="DarkGray" SmallChange="1"   />
-
+        
         <Canvas x:Name="canvasMain" AllowDrop="True"  Background="Transparent" Canvas.Left="0" Canvas.Top="0" 
                 RenderTransformOrigin="0.0,0.0" Focusable="True" Height="Auto"  Margin="5,5,19,19" >
 

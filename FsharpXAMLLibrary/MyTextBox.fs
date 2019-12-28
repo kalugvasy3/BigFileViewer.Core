@@ -40,12 +40,13 @@ type MyTextBox() as this  =
 
     let mutable canvasMain : Canvas = (this.Content)?canvasMain 
     let mutable canvasSelecting : Canvas = (this.Content)?canvasSelecting 
+    let mutable canvasSelected : Canvas = (this.Content)?canvasSelected 
     let mutable txtBlock : TextBlock = (this.Content)?txtBlock 
     let mutable lblDropHere : Label = (this.Content)?lblDropHere  
     let mutable scrollX : ScrollBar = (this.Content)?scrollX
     let mutable scrollY : ScrollBar = (this.Content)?scrollY  
     
-    do canvasMain.Children.Add(crt) |> ignore
+    do canvasSelecting.Children.Add(crt) |> ignore
 
     let mutable myMenu : MyMenu = (this.Content)?myMenu
     do myMenu.HostUserControl <- this
@@ -90,7 +91,7 @@ type MyTextBox() as this  =
 
     let initXScroll() = 
             do openUpdateMMF.IntFirstCharOnPage <- (int)scrollX.Value
-            do openUpdateMMF.IntHorizCountCharsOnPage <- (int)(txtBlock.ActualWidth * myFonts.CoeffFont_Widh / myFonts.Tb_FontSize - 1.0)
+            do openUpdateMMF.IntHorizCountCharsOnPage <- (int)(canvasSelected.ActualWidth * myFonts.CoeffFont_Widh / myFonts.Tb_FontSize + 1.0)
             do openUpdateMMF.IntHorizCountCharsOnPage <- match openUpdateMMF.IntHorizCountCharsOnPage < 0 with | true -> 0 | false -> openUpdateMMF.IntHorizCountCharsOnPage
             do scrollX.Minimum <- 0.0
             do scrollX.Maximum <- match openUpdateMMF.IntMaxCharsInLine <= 0 with | true ->  0.0 | false -> float (openUpdateMMF.IntMaxCharsInLine ) // size of longest line
@@ -104,7 +105,7 @@ type MyTextBox() as this  =
 
     let initYScroll() = 
             do openUpdateMMF.IntFirstLineOnPage <- (int)scrollY.Value
-            do openUpdateMMF.IntVertCountLinesOnPage <- (int)(txtBlock.ActualHeight * myFonts.CoeffFont_High / myFonts.Tb_FontSize - 1.0)
+            do openUpdateMMF.IntVertCountLinesOnPage <- (int)(canvasSelected.ActualHeight * myFonts.CoeffFont_High / myFonts.Tb_FontSize + 1.0)
 
             do openUpdateMMF.IntVertCountLinesOnPage <- match openUpdateMMF.IntVertCountLinesOnPage < 0 with | true -> 0 | false -> openUpdateMMF.IntVertCountLinesOnPage
             do openUpdateMMF.IntLastLineOnPage <- match (openUpdateMMF.IntFirstLineOnPage + openUpdateMMF.IntVertCountLinesOnPage) < openUpdateMMF.IntNumberOfTotalLinesEstimation  with

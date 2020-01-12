@@ -105,7 +105,7 @@ type MyTextBox() as this  =
             do scrollX.SmallChange <- 1.0   
             do scrollX.LargeChange <- float (openUpdateMMF.IntHorizCountCharsOnPage / 2);
             do tbX.Text <- "X: " + openUpdateMMF.IntFirstCharOnPage.ToString("0,0") + " of " + ((int)scrollX.Maximum).ToString("0,0") 
-            //do set_Caret(crt, openUpdateMMF,myFonts,blnInsert)
+            //do ModuleTextBox.set_Caret(crt, openUpdateMMF,myFonts,blnInsert)
             do set_Caret()
             do Thread.Sleep(0)
 

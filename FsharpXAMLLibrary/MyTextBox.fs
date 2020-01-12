@@ -447,7 +447,7 @@ type MyTextBox() as this  =
             let mutable intStopLine = spMoveCurrent.IntLineCurrent   // spMoveCurrent
             let mutable intStopChar = spMoveCurrent.IntCharCurrent   // spMoveCurrent
 
-            if (blnPlaceHolder) 
+            if (blnPlaceHolder = false) 
             then
                 if intStartLine >= openUpdateMMF.IntNumberOfTotalLinesEstimation then do intStartLine <- openUpdateMMF.IntNumberOfTotalLinesEstimation - 1
                 if intStartChar >= openUpdateMMF.ArrayPresentWindow.[intStartLine].Length then do intStartChar <- intAbsolutSelectHorizStart  - (int)scrollX.Value
@@ -517,26 +517,6 @@ type MyTextBox() as this  =
 
 
 
-    let setMousePositionForMoving() =
-       //do pointMouseLeftButtonPressed <- Mouse.GetPosition(txtBlock)
-       let p = Mouse.GetPosition(txtBlock) 
-
-       do crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntFirstLineOnPage + (int)(p.Y / myFonts.Tb_FontSize * myFonts.CoeffFont_High); 
-       do crt.AbsoluteNumCharCurrent <- openUpdateMMF.IntFirstCharOnPage + (int)((p.X +  myFonts.Tb_FontSize / 4.0) / myFonts.Tb_FontSize * myFonts.CoeffFont_Widh);
-
-
-       //if (Keyboard.Modifiers != ModifierKeys.Shift) {
-       //    intAbsolutSelectVertStart = intAbsolutCaretVertCurrent;   // Save/Select Start Position for Selection
-       //    intAbsolutSelectHorizStart = intAbsolutCaretHorizCurrent; // Save/Select Start Position for Selection
-       //}
-
-       do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
-
-       do canvasMain.Focus() |> ignore
-
-
-
-
 
 
 
@@ -561,7 +541,7 @@ type MyTextBox() as this  =
             do canvasMain.Unloaded.Add(fun e -> unLoaded(e)) 
 
             do canvasMain.MouseMove.Add(fun e -> mouseMove(e))
-            do canvasMain.MouseLeftButtonDown.Add(fun e -> setMousePositionForMoving())
+            //do canvasMain.MouseLeftButtonDown.Add(fun e -> setMousePositionForMoving())
             //do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
 
             do canvasMain.KeyDown.Add(fun e -> canvasKeyDown (e))

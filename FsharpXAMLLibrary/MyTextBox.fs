@@ -72,9 +72,10 @@ type MyTextBox() as this  =
                                         GC.Collect()
 
   
-    let set_CareAbsoluteNumLineiChar = crt.AbsoluteNumCharCurrent - openUpdateMMF.IntFirstCharOnPage
+    let set_Caret() = 
+        let iChar = crt.AbsoluteNumCharCurrent - openUpdateMMF.IntFirstCharOnPage
         let iLine = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage
-    
+       
         do crt.TranslateTransform.X <- myFonts.Tb_FontSize * (float)iChar / myFonts.CoeffFont_Widh - 1.0
         do crt.TranslateTransform.Y <- myFonts.Tb_FontSize * (float)iLine / myFonts.CoeffFont_High       
         do crt.BackGroundColorCarete <- new SolidColorBrush(Colors.Magenta)
@@ -433,7 +434,8 @@ type MyTextBox() as this  =
 
 
 
-    let currentCanvasSelectAbsoluteNumLine  let blnReturn = (crt.AbsoluteNumCharCurrent = intAbsolutSelectHorizStart) &&
+    let currentCanvasSelectAbsoluteNumLine   =
+            let blnReturn = (crt.AbsoluteNumCharCurrent = intAbsolutSelectHorizStart) &&
                             (crt.AbsoluteNumLineCurrent = intAbsolutSelectVertStart) &&
                             (blnPlaceHolder = false)            
             
@@ -450,7 +452,7 @@ type MyTextBox() as this  =
                 if intStartLine >= openUpdateMMF.IntNumberOfTotalLinesEstimation then do intStartLine <- openUpdateMMF.IntNumberOfTotalLinesEstimation - 1
                 if intStartChar >= openUpdateMMF.ArrayPresentWindow.[intStartLine].Length then do intStartChar <- intAbsolutSelectHorizStart  - (int)scrollX.Value
                 if intStopLine >= openUpdateMMF.IntNumberOfTotalLinesEstimation then do intStopLine <- openUpdateMMF.IntNumberOfTotalLinesEstimation - 1
-                if intStopChar >= openUpdateMMF.ArrayPresentWindow.[intStopLine].Length then do intStopChar <- crt.AbsoluteNumChar - (int)scrollX.Value
+                if intStopChar >= openUpdateMMF.ArrayPresentWindow.[intStopLine].Length then do intStopChar <- crt.AbsoluteNumCharCurrent - (int)scrollX.Value
             
             if (intStartLine > intStopLine)
             then
@@ -500,12 +502,12 @@ type MyTextBox() as this  =
         do crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntFirstLineOnPage + (int)(p.Y / myFonts.Tb_FontSize * myFonts.CoeffFont_High); 
         do crt.AbsoluteNumCharCurrent <- openUpdateMMF.IntFirstCharOnPage + (int)((p.X +  myFonts.Tb_FontSize / 4.0) / myFonts.Tb_FontSize * myFonts.CoeffFont_Widh);
       
-        do intPressedPositionY <- intFirstLineOnPageUpdate
-        do intPressedPositionX <- intFirstCharOnPageUpdate
+        //do intPressedPositionY <- intFirstLineOnPageUpdate
+        //do intPressedPositionX <- intFirstCharOnPageUpdate
       
-        if Keyboard.Modifiers != ModifierKeys.Shift then
-            intAbsolutSelectVertStart <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
-            intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent // Save/Select Start Position for Selection
+        //if Keyboard.Modifiers != ModifierKeys.Shift then
+        //    intAbsolutSelectVertStart <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
+        //    intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent // Save/Select Start Position for Selection
         
       
         do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
@@ -539,7 +541,7 @@ type MyTextBox() as this  =
             do canvasMain.Unloaded.Add(fun e -> unLoaded(e)) 
 
             do canvasMain.MouseMove.Add(fun e -> mouseMove(e))
-            do canvasMain.MouseLeftButtonDown.Add(fun e -> setMousePositionForMoving())
+            //do canvasMain.MouseLeftButtonDown.Add(fun e -> setMousePositionForMoving())
             //do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
 
             do canvasMain.KeyDown.Add(fun e -> canvasKeyDown (e))

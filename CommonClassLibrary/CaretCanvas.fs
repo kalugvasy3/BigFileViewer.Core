@@ -49,8 +49,8 @@ type  CaretCanvas()  as this =
   //http://www.codeproject.com/Questions/88171/Disallowing-paste-Ctrl-V-in-a-WPF-TextBox
   //http://weblogs.asp.net/marianor/how-to-disable-copy-and-paste-for-a-control-in-wpf
      
-    let mutable intAbsoluteNumLine = 0  // absolute Line
-    let mutable intAbsoluteNumChar = 0  // absolute Char
+    let mutable intAbsoluteNumLineCurrent = 0  // absolute Line
+    let mutable intAbsoluteNumCharCurrent = 0  // absolute Char
 
     // Creates event / Invokes event Preview Key Down
     let keyDown = new Event<KeyEventArgs>()
@@ -72,8 +72,8 @@ type  CaretCanvas()  as this =
     member x.EventTxtKeyUp   =  keyUp.Publish
     member x.EventTextInput  =  textInput.Publish
    
-    member x.AbsoluteNumLine  with get() = intAbsoluteNumLine    and set(v) = intAbsoluteNumLine <- v
-    member x.AbsoluteNumChar  with get() = intAbsoluteNumChar    and set(v) = intAbsoluteNumChar  <- v
+    member x.AbsoluteNumLineCurrent  with get() = intAbsoluteNumLineCurrent    and set(v) = intAbsoluteNumLineCurrent <- v
+    member x.AbsoluteNumCharCurrent  with get() = intAbsoluteNumCharCurrent    and set(v) = intAbsoluteNumCharCurrent  <- v
 
     member x.FloatCareteW  with get() = myCaret.Width  and set(v) = myCaret.Width   <- v
     member x.FloatCareteH  with get() = myCaret.Height  and set(v) = myCaret.Height   <- v

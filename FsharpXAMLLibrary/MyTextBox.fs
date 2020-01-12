@@ -4,6 +4,7 @@ open System
 open System.Windows
 open System.Windows.Controls
 open System.Windows.Controls.Primitives
+open System.Collections.Generic;
 open System.IO
 open System.Windows.Markup
 open System.Windows.Input
@@ -45,6 +46,13 @@ type MyTextBox() as this  =
     let mutable lblDropHere : Label = (this.Content)?lblDropHere  
     let mutable scrollX : ScrollBar = (this.Content)?scrollX
     let mutable scrollY : ScrollBar = (this.Content)?scrollY  
+
+    let mutable pointMouseLeftButtonPressed: Point = new Point();
+    let mutable intPressedPositionY = 0
+    let mutable intPressedPositionX = 0
+
+    let mutable intAbsolutSelectVertStart = 0
+    let mutable intAbsolutSelectHorizStart = 0
     
     do canvasSelecting.Children.Add(crt) |> ignore
 
@@ -53,6 +61,7 @@ type MyTextBox() as this  =
 
     let mutable tbX : TextBlock = (this.Content)?tbX
     let mutable tbY : TextBlock = (this.Content)?tbY
+    let mutable tbXY : TextBlock = (this.Content)?tbXY
 
     let mutable statusBar = ref (new StatusBarSystem())
 
@@ -61,14 +70,10 @@ type MyTextBox() as this  =
     
     let unLoaded(e : RoutedEventArgs) = if openUpdateMMF.Mmf <> null then openUpdateMMF.Mmf.Dispose() 
                                         GC.Collect()
-  
-  
 
   
-  
-    let set_Caret() =
-        let iChar = crt.AbsoluteNumChar - openUpdateMMF.IntFirstCharOnPage
-        let iLine = crt.AbsoluteNumLine - openUpdateMMF.IntFirstLineOnPage
+    let set_CareAbsoluteNumLineiChar = crt.AbsoluteNumCharCurrent - openUpdateMMF.IntFirstCharOnPage
+        let iLine = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage
     
         do crt.TranslateTransform.X <- myFonts.Tb_FontSize * (float)iChar / myFonts.CoeffFont_Widh - 1.0
         do crt.TranslateTransform.Y <- myFonts.Tb_FontSize * (float)iLine / myFonts.CoeffFont_High       
@@ -130,27 +135,6 @@ type MyTextBox() as this  =
                                                            do canvasMain.Focus() |> ignore ) |> ignore
             ()
     
-
- 
-    let setMousePositionForMoving() =
-        //do pointMouseLeftButtonPressed <- Mouse.GetPosition(txtBlock)
-        let p = Mouse.GetPosition(txtBlock) 
-
-        do crt.AbsoluteNumLine <- openUpdateMMF.IntFirstLineOnPage + (int)(p.Y / myFonts.Tb_FontSize * myFonts.CoeffFont_High); 
-        do crt.AbsoluteNumChar <- openUpdateMMF.IntFirstCharOnPage + (int)((p.X +  myFonts.Tb_FontSize / 4.0) / myFonts.Tb_FontSize * myFonts.CoeffFont_Widh);
-
-
-        //if (Keyboard.Modifiers != ModifierKeys.Shift) {
-        //    intAbsolutSelectVertStart = intAbsolutCaretVertCurrent;   // Save/Select Start Position for Selection
-        //    intAbsolutSelectHorizStart = intAbsolutCaretHorizCurrent; // Save/Select Start Position for Selection
-        //}
-
-        do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
-
-        do canvasMain.Focus() |> ignore
-
-
-
 
     let update(blnChange : bool) =  
         [ async {
@@ -422,12 +406,115 @@ type MyTextBox() as this  =
 
 
     do myMenu.EventGoTo.Add(fun (y,x) -> goto (y ,x))
+ 
+ 
+ // Mouse Section - Move. Set. Selected
 
-       
+    let mutable listSPMain = new List<ListOfSelectedPositionInLine>()
+    
+    let mutable pointMouseLeftButtonPressed = Point()
+    let mutable intPressedPositionY = 0
+    let mutable intPressedPositionX = 0
+    
+    let mutable intAbsolutSelectVertStart = 0
+    let mutable intAbsolutSelectHorizStart = 0
+
+    let mutable intNextAbsolutSelectionLine = 0
+    let mutable intNextAbsolutSelectionHorizont = 0
+
+    let mutable spMoveCurrent = new SelectedPositionsCurrent()
+    let mutable spMovePrevious = new SelectedPositionsCurrent()
+
+    let mutable blnPlaceHolder = false
+    let mutable blnPenDeSelect = false
+    let mutable blnRecSelect = false
+    let mutable blnRecDeSelect = false
+
+
+
+
+    let currentCanvasSelectAbsoluteNumLine  let blnReturn = (crt.AbsoluteNumCharCurrent = intAbsolutSelectHorizStart) &&
+                            (crt.AbsoluteNumLineCurrent = intAbsolutSelectVertStart) &&
+                            (blnPlaceHolder = false)            
+            
+            let colr = Colors.Indigo
+
+            let mutable intStartLine = intAbsolutSelectVertStart - (int)scrollY.Value     // Caret Selected Position 
+            let mutable intStartChar = intAbsolutSelectHorizStart - (int)scrollX.Value    // Caret Selected Position 
+
+            let mutable intStopLine = spMoveCurrent.IntLineCurrent   // spMoveCurrent
+            let mutable intStopChar = spMoveCurrent.IntCharCurrent   // spMoveCurrent
+
+            if (blnPlaceHolder = false) 
+            then
+                if intStartLine >= openUpdateMMF.IntNumberOfTotalLinesEstimation then do intStartLine <- openUpdateMMF.IntNumberOfTotalLinesEstimation - 1
+                if intStartChar >= openUpdateMMF.ArrayPresentWindow.[intStartLine].Length then do intStartChar <- intAbsolutSelectHorizStart  - (int)scrollX.Value
+                if intStopLine >= openUpdateMMF.IntNumberOfTotalLinesEstimation then do intStopLine <- openUpdateMMF.IntNumberOfTotalLinesEstimation - 1
+                if intStopChar >= openUpdateMMF.ArrayPresentWindow.[intStopLine].Length then do intStopChar <- crt.AbsoluteNumChar - (int)scrollX.Value
+            
+            if (intStartLine > intStopLine)
+            then
+                let mutable intTmp = intStartLine
+                intStartLine <- intStopLine
+                intStopLine <- intTmp
+
+                intTmp <- intStartChar
+                intStartChar <- intStopChar
+                intStopChar <- intTmp
+
+            if (intStartLine = intStopLine && intStartChar > intStopChar) 
+            then
+                let intTmp = intStartChar
+                intStartChar <- intStopChar
+                intStopChar <- intTmp
+                
+            if (intStartLine < (int)scrollY.Value) 
+            then
+                intStartLine <- (int)scrollY.Value
+                intStartChar <- 0
+            
+            
+
+            ignore()
+            
+
+
 
     let mouseMove(e : MouseEventArgs) = 
+            do e.Handled <- true
             let curr = e.GetPosition
+
+            let intRelativeX = (int)((Mouse.GetPosition(canvasSelected).X + myFonts.Tb_FontSize / 4.0) * myFonts.CoeffFont_Widh / myFonts.Tb_FontSize)
+            let intRelativeY = (int)(Mouse.GetPosition(canvasSelected).Y  * myFonts.CoeffFont_High / myFonts.Tb_FontSize)
+
+            tbXY.Text <- "X:" + intRelativeX.ToString() + "   Y:" + intRelativeY.ToString();
+           
+
             ignore()
+
+
+    let setAbsoluteNumLineing() =
+        do pointMouseLeftButtonPressed <- Mouse.GetPosition(canvasSelected)
+        let p = Mouse.GetPosition(canvasSelected) 
+      
+        do crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntFirstLineOnPage + (int)(p.Y / myFonts.Tb_FontSize * myFonts.CoeffFont_High); 
+        do crt.AbsoluteNumCharCurrent <- openUpdateMMF.IntFirstCharOnPage + (int)((p.X +  myFonts.Tb_FontSize / 4.0) / myFonts.Tb_FontSize * myFonts.CoeffFont_Widh);
+      
+        do intPressedPositionY <- intFirstLineOnPageUpdate
+        do intPressedPositionX <- intFirstCharOnPageUpdate
+      
+        if Keyboard.Modifiers != ModifierKeys.Shift then
+            intAbsolutSelectVertStart <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
+            intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent // Save/Select Start Position for Selection
+        
+      
+        do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
+      
+        do canvasMain.Focus() |> ignore
+
+
+
+
 
 
 
@@ -457,6 +544,7 @@ type MyTextBox() as this  =
 
             do canvasMain.KeyDown.Add(fun e -> canvasKeyDown (e))
             
+            do canvasMain.Focusable <- true
             do canvasMain.Focus() |> ignore
 
             //do Touch.FrameReported.AddHandler( fun sender e -> myTouch.TouchFrame(sender, e))
@@ -492,6 +580,12 @@ type MyTextBox() as this  =
     member x.IntFirstLineOnPage with get() = (int)scrollY.Value and set(v) = scrollY.Value <- (double)v
 
     member x.OpenUpdateMMF with get() = openUpdateMMF   
+
+    member x.BlnPlaceHolder with get() = blnPlaceHolder and set(v) = blnPlaceHolder <-v
+    member x.BlnPenDeSelect with get() = blnPenDeSelect and set(v) = blnPenDeSelect <-v
+    member x.BlnRecSelect with get() = blnRecSelect and set(v) = blnRecSelect <-v
+    member x.BlnRecDeSelect with get() = blnRecDeSelect and set(v) = blnRecDeSelect <-v
+
 
 
 

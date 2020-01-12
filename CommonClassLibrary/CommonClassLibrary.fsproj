@@ -14,20 +14,24 @@
   <ItemGroup>
     <Page Remove="CaretCanvas.xaml" />
     <Page Remove="MyMenu.xaml" />
+    <Page Remove="selectedRectangle.xaml" />
     <Page Remove="StatusBarSystem.xaml" />
     <Page Remove="UserClock.xaml" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Fonts.fs" />
     <Compile Include="Utilities.fs" />
     <EmbeddedResource Include="CaretCanvas.xaml" />
     <Compile Include="CaretCanvas.fs" />
     <Compile Include="DataCommon.fs" />
-    <Compile Include="Fonts.fs" />
     <EmbeddedResource Include="MyMenu.xaml" />
     <Compile Include="MyMenu.fs" />
     <Compile Include="OpenUpdateMMF.fs" />
     <Compile Include="SQLiteAccess.fs" />
+    <EmbeddedResource Include="SelectedRectangle.xaml" />
+    <Compile Include="SelectedRectangle.fs" />
+    <Compile Include="SelectedPositions.fs" />
     <EmbeddedResource Include="StatusBarSystem.xaml" />
     <Compile Include="StatusBarSystem.fs" />
     <Compile Include="Touch.fs" />

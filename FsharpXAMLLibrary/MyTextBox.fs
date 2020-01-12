@@ -20,6 +20,7 @@ open System.Windows.Threading
 open System.Windows.Input
 open System.Windows.Media
 
+open ModuleTextBox
 
 type MyTextBox() as this  = 
     inherit UserControl() 
@@ -71,7 +72,7 @@ type MyTextBox() as this  =
     let unLoaded(e : RoutedEventArgs) = if openUpdateMMF.Mmf <> null then openUpdateMMF.Mmf.Dispose() 
                                         GC.Collect()
 
-  
+    //Function "Set Caret" to Absolute Position   
     let set_Caret() = 
         let iChar = crt.AbsoluteNumCharCurrent - openUpdateMMF.IntFirstCharOnPage
         let iLine = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage
@@ -104,6 +105,7 @@ type MyTextBox() as this  =
             do scrollX.SmallChange <- 1.0   
             do scrollX.LargeChange <- float (openUpdateMMF.IntHorizCountCharsOnPage / 2);
             do tbX.Text <- "X: " + openUpdateMMF.IntFirstCharOnPage.ToString("0,0") + " of " + ((int)scrollX.Maximum).ToString("0,0") 
+            //do set_Caret(crt, openUpdateMMF,myFonts,blnInsert)
             do set_Caret()
             do Thread.Sleep(0)
 
@@ -518,7 +520,7 @@ type MyTextBox() as this  =
 
 
     let setMousePositionForMoving() =
-       //do pointMouseLeftButtonPressed <- Mouse.GetPosition(txtBlock)
+       do pointMouseLeftButtonPressed <- Mouse.GetPosition(canvasSelected)
        let p = Mouse.GetPosition(txtBlock) 
 
        do crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntFirstLineOnPage + (int)(p.Y / myFonts.Tb_FontSize * myFonts.CoeffFont_High); 

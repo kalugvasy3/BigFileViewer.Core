@@ -96,6 +96,16 @@ type MyTextBox() as this  =
 
 
 
+    let mouseMove() = 
+
+            let intRelativeX = (int)((Mouse.GetPosition(canvasSelected).X + myFonts.Tb_FontSize / 4.0) * myFonts.CoeffFont_Widh / myFonts.Tb_FontSize)
+            let intRelativeY = (int)(Mouse.GetPosition(canvasSelected).Y  * myFonts.CoeffFont_High / myFonts.Tb_FontSize)
+
+            tbXY.Text <- "X:" + (intRelativeX + openUpdateMMF.IntFirstCharOnPage).ToString() + "   Y:" + (intRelativeY + openUpdateMMF.IntFirstLineOnPage).ToString();
+
+            ignore() 
+
+
     let initXScroll() = 
             do openUpdateMMF.IntFirstCharOnPage <- (int)scrollX.Value
             do openUpdateMMF.IntHorizCountCharsOnPage <- (int)(canvasSelected.ActualWidth * myFonts.CoeffFont_Widh / myFonts.Tb_FontSize + 1.0)
@@ -107,6 +117,7 @@ type MyTextBox() as this  =
             do tbX.Text <- "X: " + openUpdateMMF.IntFirstCharOnPage.ToString("0,0") + " of " + ((int)scrollX.Maximum).ToString("0,0") 
             //do ModuleTextBox.set_Caret(crt, openUpdateMMF,myFonts,blnInsert)
             do set_Caret()
+            mouseMove()
             do Thread.Sleep(0)
 
 
@@ -124,6 +135,7 @@ type MyTextBox() as this  =
             do scrollY.LargeChange <- float (openUpdateMMF.IntVertCountLinesOnPage / 2)   // number lines per page/2
             do tbY.Text <- "Y: " + openUpdateMMF.IntFirstLineOnPage.ToString("0,0") + " of " + ((int)scrollY.Maximum).ToString("0,0") + "   (" + openUpdateMMF.IntVertCountLinesOnPage.ToString() + ")";     
             do set_Caret()
+            mouseMove()
             do Thread.Sleep(0)
 
 
@@ -152,6 +164,7 @@ type MyTextBox() as this  =
                                                    if myMenu.TxtFind.Trim() = "" then do openUpdateMMF.BlnStopSearch <- true 
                                                    
                                                )) |> ignore
+                                             
 
                   } ] |> Async.Parallel |> Async.Ignore |> Async.Start                                  
 
@@ -205,7 +218,6 @@ type MyTextBox() as this  =
                                                  
                                                  do  update(true)
                                                )) |> ignore
-                              
 
 
     let scrolXWheel (e : MouseWheelEventArgs) =
@@ -214,13 +226,11 @@ type MyTextBox() as this  =
 
 
 
-
-
     let scrolYWheel (e : MouseWheelEventArgs) =
+            
             if e.Delta > 0 then scrollY.Value <- float(openUpdateMMF.IntFirstLineOnPage - 5)
                            else scrollY.Value <- float(openUpdateMMF.IntFirstLineOnPage + 5)
-
-
+ 
 
 
     let canvasWheel (e : MouseWheelEventArgs) =
@@ -484,17 +494,7 @@ type MyTextBox() as this  =
 
 
 
-    let mouseMove(e : MouseEventArgs) = 
-            do e.Handled <- true
-            let curr = e.GetPosition
 
-            let intRelativeX = (int)((Mouse.GetPosition(canvasSelected).X + myFonts.Tb_FontSize / 4.0) * myFonts.CoeffFont_Widh / myFonts.Tb_FontSize)
-            let intRelativeY = (int)(Mouse.GetPosition(canvasSelected).Y  * myFonts.CoeffFont_High / myFonts.Tb_FontSize)
-
-            tbXY.Text <- "X:" + intRelativeX.ToString() + "   Y:" + intRelativeY.ToString();
-           
-
-            ignore()
 
 
     let setAbsoluteNumLineing() =
@@ -562,7 +562,7 @@ type MyTextBox() as this  =
             do canvasMain.Drop.Add(fun e -> openFileDrag(e))
             do canvasMain.Unloaded.Add(fun e -> unLoaded(e)) 
 
-            do canvasMain.MouseMove.Add(fun e -> mouseMove(e))
+            do canvasMain.MouseMove.Add(fun _ -> mouseMove())
             do canvasMain.MouseLeftButtonDown.Add(fun e -> setMousePositionForMoving())
             //do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
 

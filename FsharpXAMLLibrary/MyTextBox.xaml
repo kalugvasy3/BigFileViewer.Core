@@ -44,7 +44,7 @@
         
 
         <Canvas x:Name="canvasMain" AllowDrop="True"  Background="Transparent" Canvas.Left="0" Canvas.Top="0" 
-                RenderTransformOrigin="0.0,0.0" Focusable="True" Height="Auto"  Margin="5,5,19,19" >
+                RenderTransformOrigin="0.0,0.0" Focusable="True" Height="Auto"  Margin="5,5,19,19" Cursor="IBeam" >
 
         </Canvas>
 

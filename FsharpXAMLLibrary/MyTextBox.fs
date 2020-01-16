@@ -92,7 +92,7 @@ type MyTextBox() as this  =
 
         if blnOut then crt.Visibility <- Visibility.Hidden
                   else crt.Visibility <- Visibility.Visible
-        ()
+        do Thread.Sleep(0)
 
 
 
@@ -103,7 +103,7 @@ type MyTextBox() as this  =
 
             tbXY.Text <- "X:" + (intRelativeX + openUpdateMMF.IntFirstCharOnPage).ToString("0,0") + "   Y:" + (intRelativeY + openUpdateMMF.IntFirstLineOnPage).ToString("0,0");
 
-            ignore() 
+            do Thread.Sleep(0) 
 
 
     let initXScroll() = 
@@ -142,28 +142,29 @@ type MyTextBox() as this  =
 
     let updateUserClock (blnVisible : bool) =
 
-            this.Dispatcher.InvokeAsync( fun _ ->   match blnVisible with
-                                                | true ->  userClock.Visibility <- Visibility.Visible 
-                                                           canvasMain.AllowDrop <- false         
-                                                | false -> userClock.Visibility <- Visibility.Collapsed
-                                                           canvasMain.AllowDrop <- true
-                                                           do canvasMain.Focus() |> ignore ) |> ignore
-            ()
+            this.Dispatcher.InvokeAsync( fun _ ->  
+                 match blnVisible with
+                 | true ->  userClock.Visibility <- Visibility.Visible 
+                            canvasMain.AllowDrop <- false         
+                 | false -> userClock.Visibility <- Visibility.Collapsed
+                            canvasMain.AllowDrop <- true
+                            do canvasMain.Focus() |> ignore ) |> ignore
+            do Thread.Sleep(0)
     
 
     let update(blnChange : bool) =  
         [ async {
             this.Dispatcher.InvokeAsync(new Action ( fun _ -> 
-                                                   do initXScroll()
-                                                   if blnChange then do initYScroll()
-                                                                     
-                                                   )) |> ignore
+                 do initXScroll()
+                 if blnChange then do initYScroll()
+                                   
+                 )) |> ignore
 
             this.Dispatcher.InvokeAsync(new Action ( fun _ ->                                                    
-                                                   do openUpdateMMF.UpdateCurrentWindow(&txtBlock, blnChange, myMenu.TxtFind) |> ignore
-                                                   if myMenu.TxtFind.Trim() = "" then do openUpdateMMF.BlnStopSearch <- true 
-                                                   
-                                               )) |> ignore
+                 do openUpdateMMF.UpdateCurrentWindow(&txtBlock, blnChange, myMenu.TxtFind) |> ignore
+                 if myMenu.TxtFind.Trim() = "" then do openUpdateMMF.BlnStopSearch <- true 
+                     
+                 )) |> ignore
                                              
 
                   } ] |> Async.Parallel |> Async.Ignore |> Async.Start                                  
@@ -171,59 +172,59 @@ type MyTextBox() as this  =
                                                                           
  
     let updateDoubleY() = 
-                         this.Dispatcher.InvokeAsync(new Action ( fun _ ->
-                                                   do openUpdateMMF.BlnStopSearch <- true
-                                                   do updateUserClock(false) 
-                                                   Thread.Sleep(10)
-                                                   let deltaY = scrollX.ActualHeight
-                                                   let curr = Mouse.GetPosition(scrollY)
-                                                   let iy = int (scrollY.Maximum *  (curr.Y - deltaY) / (scrollY.ActualHeight - 2.0 * deltaY) )
-                                                   Thread.Sleep(10)
-                                                   scrollY.Value <- float iy 
-                                                   )) |> ignore 
+            this.Dispatcher.InvokeAsync(new Action ( fun _ ->
+                 do openUpdateMMF.BlnStopSearch <- true
+                 do updateUserClock(false) 
+                 Thread.Sleep(10)
+                 let deltaY = scrollX.ActualHeight
+                 let curr = Mouse.GetPosition(scrollY)
+                 let iy = int (scrollY.Maximum *  (curr.Y - deltaY) / (scrollY.ActualHeight - 2.0 * deltaY) )
+                 Thread.Sleep(10)
+                 scrollY.Value <- float iy 
+                 )) |> ignore 
                                                             
 
     let updateDoubleX() =
-                    this.Dispatcher.InvokeAsync(new Action ( fun _ ->
-                                            do openUpdateMMF.BlnStopSearch <- true
-                                            do updateUserClock(false) 
-                                            Thread.Sleep(10)
+            this.Dispatcher.InvokeAsync(new Action ( fun _ ->
+                 do openUpdateMMF.BlnStopSearch <- true
+                 do updateUserClock(false) 
+                 Thread.Sleep(10)
 
-                                            let deltaX = scrollY.ActualWidth
-                                            let curr = Mouse.GetPosition(scrollX)
-                                            let ix = int (scrollX.Maximum *  (curr.X - deltaX) / (scrollX.ActualWidth - 2.0 * deltaX))
-                                            Thread.Sleep(10)
-                                            scrollX.Value <- float ix 
-                                            )) |> ignore
+                 let deltaX = scrollY.ActualWidth
+                 let curr = Mouse.GetPosition(scrollX)
+                 let ix = int (scrollX.Maximum *  (curr.X - deltaX) / (scrollX.ActualWidth - 2.0 * deltaX))
+                 Thread.Sleep(10)
+                 scrollX.Value <- float ix 
+                 )) |> ignore
 
  
 
-    let eventSysInfoStart(arg) = this.Dispatcher.Invoke (DispatcherPriority.ContextIdle, new Action(fun _ ->
-                                                 userClock.Visibility <- Visibility.Collapsed 
-                                                 (!statusBar).PrgStatusValue <- arg 
-                                                 (!statusBar).NumberTotalLines <- openUpdateMMF.IntNumberOfTotalLinesEstimation
-                                              //   do eventSysInfoUpdate.Trigger(scale)
-                                    
-                                                 match arg with
-                                                 | 0.0 -> do canvasMain.AllowDrop <- true 
-                                                          do updateUserClock(false)
-                                                        //  do openUpdateMMF.BlnStopSearch <- true
-                                                 | _ when arg > 0.0 -> do canvasMain.AllowDrop <- false
-                                                 | _ when arg = -1.0 -> do MessageBox.Show("One or more line(s) exceed  4M ! \nUse Pro Version!") |> ignore
-                                                                        do openUpdateMMF.PreInitFileOpen ()
-                                                                        do Thread.Sleep(10)
-                                                                        do update(true)
-                                                                        do canvasMain.AllowDrop <- true  
-                                                 | _ -> ignore()
-                                                 
-                                                 do  update(true)
-                                               )) |> ignore
-
+    let eventSysInfoStart(arg) = 
+            this.Dispatcher.Invoke (DispatcherPriority.ContextIdle, new Action(fun _ ->
+                 userClock.Visibility <- Visibility.Collapsed 
+                 (!statusBar).PrgStatusValue <- arg 
+                 (!statusBar).NumberTotalLines <- openUpdateMMF.IntNumberOfTotalLinesEstimation
+                 
+                 match arg with
+                 | 0.0 -> do canvasMain.AllowDrop <- true 
+                          do updateUserClock(false)
+                        //  do openUpdateMMF.BlnStopSearch <- true
+                 | _ when arg > 0.0 -> do canvasMain.AllowDrop <- false
+                 | _ when arg = -1.0 -> do MessageBox.Show("One or more line(s) exceed  4M ! \nUse Pro Version!") |> ignore
+                                        do openUpdateMMF.PreInitFileOpen ()
+                                        do Thread.Sleep(10)
+                                        do update(true)
+                                        do canvasMain.AllowDrop <- true  
+                 | _ -> ignore()
+                 
+                 do  update(true)
+                 )) |> ignore
+            do Thread.Sleep(0)  
 
     let scrolXWheel (e : MouseWheelEventArgs) =
             if e.Delta > 0 then scrollX.Value <- float(openUpdateMMF.IntFirstCharOnPage - 10)
                            else scrollX.Value <- float(openUpdateMMF.IntFirstCharOnPage + 10)
-
+            
 
 
     let scrolYWheel (e : MouseWheelEventArgs) =
@@ -238,6 +239,7 @@ type MyTextBox() as this  =
             | ModifierKeys.Shift -> scrolXWheel(e)
             | ModifierKeys.Control -> ()
             | _ -> scrolYWheel(e)
+            do Thread.Sleep(0)
 
 
 
@@ -274,7 +276,7 @@ type MyTextBox() as this  =
                                       | Key.Insert -> blnInsert <- not blnInsert
                                                       set_Caret() 
                                       | _ -> ignore()
-
+            do Thread.Sleep(0)
 
 
     let openFileTXT (files) =

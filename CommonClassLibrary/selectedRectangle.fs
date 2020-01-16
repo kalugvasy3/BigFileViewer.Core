@@ -27,13 +27,15 @@ type  SelectedRectangle()  as this =
     
     member x.RecX with get() = tr.X  and set(v) = tr.X   <- v
     member x.RecY with get() = tr.Y and set(v) = tr.Y <- v 
+    member x.Opacity with get() = myRec.Opacity and set(v) = myRec.Opacity <- v
 
-    member x.SelectedRectangle(rW, rH, trX, trY , br) =
+    member x.SelectedRectangle(rW, rH, trX, trY , br, opt) =
                   do myRec.Width <- rW
                   do myRec.Height <- rH
                   do tr.X <- trX
                   do tr.Y <- trY
                   do myRec.Fill <- br  
+                  do myRec.Opacity <- opt
 
     
 

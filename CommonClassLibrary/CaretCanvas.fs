@@ -34,13 +34,15 @@ type  CaretCanvas()  as this =
 
     let mutable myCaret : TextBox = this.Content?myCaret 
     let mutable tr : TranslateTransform = this.Content?tr
+    let mutable lastChar : String = "" 
 
     do myCaret.TextWrapping <- TextWrapping.NoWrap
     do myCaret.UndoLimit <- 0
     do myCaret.IsUndoEnabled <-false
     do myCaret.ContextMenu <- new ContextMenu()
     do myCaret.Foreground <- myCaret.Background
-    do myCaret.CaretBrush <- myCaret.Background   
+    do myCaret.CaretBrush <- myCaret.Background 
+    
   
   // Application code handle it ...
     do DataObject.AddPastingHandler (myCaret, new DataObjectPastingEventHandler(fun o e -> e.CancelCommand()))
@@ -63,6 +65,7 @@ type  CaretCanvas()  as this =
     let textInput = new Event<TextCompositionEventArgs>()
     do myCaret.PreviewTextInput.Add(fun e -> textInput.Trigger(e)
                                              // After each INPUT clear textBox (it only using for translate inputs to CHARS)
+                                             do lastChar <- e.Text // One char or maybe String if paste
                                              do myCaret.Clear()
                                              do myCaret.CaretIndex <- 0
                                    ) 
@@ -71,6 +74,8 @@ type  CaretCanvas()  as this =
     member x.EventTxtKeyDown =  keyDown.Publish
     member x.EventTxtKeyUp   =  keyUp.Publish
     member x.EventTextInput  =  textInput.Publish
+
+    member x.LastChar with get() = lastChar
    
     member x.AbsoluteNumLineCurrent  with get() = intAbsoluteNumLineCurrent    and set(v) = intAbsoluteNumLineCurrent <- v
     member x.AbsoluteNumCharCurrent  with get() = intAbsoluteNumCharCurrent    and set(v) = intAbsoluteNumCharCurrent  <- v

@@ -65,6 +65,7 @@ type MyTextBox() as this  =
     let mutable tbXY : TextBlock = (this.Content)?tbXY
 
     let mutable statusBar = ref (new StatusBarSystem())
+    let mutable lenghtArr = new List<int>()
 
     let openFind = new Event<_>() 
     let scaleCurrnet = new Event<float>()
@@ -92,6 +93,9 @@ type MyTextBox() as this  =
 
         if blnOut then crt.Visibility <- Visibility.Hidden
                   else crt.Visibility <- Visibility.Visible
+
+        do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
+        do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas
         do Thread.Sleep(0)
 
 
@@ -102,6 +106,11 @@ type MyTextBox() as this  =
             let intRelativeY = (int)(Mouse.GetPosition(canvasSelected).Y  * myFonts.CoeffFont_High / myFonts.Tb_FontSize)
 
             tbXY.Text <- "X:" + (intRelativeX + openUpdateMMF.IntFirstCharOnPage).ToString("0,0") + "   Y:" + (intRelativeY + openUpdateMMF.IntFirstLineOnPage).ToString("0,0");
+
+
+
+
+
 
             do Thread.Sleep(0) 
 
@@ -115,7 +124,6 @@ type MyTextBox() as this  =
             do scrollX.SmallChange <- 1.0   
             do scrollX.LargeChange <- float (openUpdateMMF.IntHorizCountCharsOnPage / 2);
             do tbX.Text <- "X: " + openUpdateMMF.IntFirstCharOnPage.ToString("0,0") + " of " + ((int)scrollX.Maximum).ToString("0,0") 
-            //do ModuleTextBox.set_Caret(crt, openUpdateMMF,myFonts,blnInsert)
             do set_Caret()
             mouseMove()
             do Thread.Sleep(0)
@@ -161,7 +169,7 @@ type MyTextBox() as this  =
                  )) |> ignore
 
             this.Dispatcher.InvokeAsync(new Action ( fun _ ->                                                    
-                 do openUpdateMMF.UpdateCurrentWindow(&txtBlock, blnChange, myMenu.TxtFind) |> ignore
+                 do openUpdateMMF.UpdateCurrentWindow(ref txtBlock , ref lenghtArr, blnChange, myMenu.TxtFind) |> ignore
                  if myMenu.TxtFind.Trim() = "" then do openUpdateMMF.BlnStopSearch <- true 
                      
                  )) |> ignore
@@ -267,7 +275,9 @@ type MyTextBox() as this  =
                                       | Key.PageUp -> scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage        // Up
                                       | Key.PageDown -> scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage      // Down
                                       | Key.Home -> scrollX.Value <- 0.0
-                                      | Key.End -> scrollX.Value <-  float openUpdateMMF.IntMaxCharsInLine
+                                      | Key.End -> scrollX.Value <-  let intX = lenghtArr.[crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage] - 1   
+                                                                     (float)lenghtArr.[intX] 
+                                                                     
                                       | Key.Left -> scrollX.Value <-  scrollX.Value - 1.0 
                                       | Key.Right -> scrollX.Value <-  scrollX.Value + 1.0 
                                       | Key.Up -> scrollY.Value <- scrollY.Value - 1.0
@@ -463,10 +473,13 @@ type MyTextBox() as this  =
 
             if (blnPlaceHolder) 
             then
+                let (start, lengthStart) = openUpdateMMF.ArrayPresentWindow.[intStartLine]
+                let (stop, lengthStop) = openUpdateMMF.ArrayPresentWindow.[intStopLine]
+
                 if intStartLine >= openUpdateMMF.IntNumberOfTotalLinesEstimation then do intStartLine <- openUpdateMMF.IntNumberOfTotalLinesEstimation - 1
-                if intStartChar >= openUpdateMMF.ArrayPresentWindow.[intStartLine].Length then do intStartChar <- intAbsolutSelectHorizStart  - (int)scrollX.Value
+                if intStartChar >= lengthStart then do intStartChar <- intAbsolutSelectHorizStart  - (int)scrollX.Value
                 if intStopLine >= openUpdateMMF.IntNumberOfTotalLinesEstimation then do intStopLine <- openUpdateMMF.IntNumberOfTotalLinesEstimation - 1
-                if intStopChar >= openUpdateMMF.ArrayPresentWindow.[intStopLine].Length then do intStopChar <- crt.AbsoluteNumCharCurrent - (int)scrollX.Value
+                if intStopChar >= lengthStop then do intStopChar <- crt.AbsoluteNumCharCurrent - (int)scrollX.Value
             
             if (intStartLine > intStopLine)
             then

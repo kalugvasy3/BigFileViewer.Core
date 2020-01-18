@@ -53,7 +53,7 @@ type OpenUpdateMMF() as _this   =
     let mutable blnCurrentRun        : bool ref = ref true
     let mutable blnThreadAllowRunnig : bool ref = ref true
 
-    let mutable arrayPresentWindow  = Array.create 0 (new StringBuilder())
+    let mutable arrayPresentWindow : (StringBuilder * int) [] = [|(new StringBuilder() , 0)|]
     let mutable arrayOfBlockInfo : int[] = Array.empty
     
 
@@ -76,7 +76,7 @@ type OpenUpdateMMF() as _this   =
 
     let mutable myFont = new CommonClassLibrary.Fonts()
 
-    let mutable ARR : StringBuilder [] = Array.empty 
+    let mutable ARR : (StringBuilder * int) [] = [|(new StringBuilder() , 0)|] 
 
 
 
@@ -214,7 +214,7 @@ type OpenUpdateMMF() as _this   =
             do refListPreviousSbAll  <- ref (new  List<StringBuilder>())
             do refListCurrentSbAll  <- ref (new  List<StringBuilder>())
             do refListNextSbAll  <- ref (new  List<StringBuilder>())
-            do arrayPresentWindow  <- Array.create 0 (new StringBuilder())
+            do arrayPresentWindow  <- [|(new StringBuilder(), 0)|]
             do longTotalDocSize <- 0L
             do longNumberOfBlocks <- 0L
             do longOfset <- int64 (2.0 ** 26.0)  // 2.0 ** 27.0 - 134217728L  // preliminary read 128M  // DO NOT CHANGE !!!!
@@ -311,21 +311,21 @@ type OpenUpdateMMF() as _this   =
                  | true ->  let prevI = currentBlockFirstLine + curentI - previousBlockFirsLine   // currentBlockFirstLine - 1 is previous
                             if (arrayOfBlockInfo.[int longCurrentBlock - 1] / 2  > prevI) then do intHysteresis <- -1
                             if prevI >= 0 && prevI < refListPreviousSbAll.Value.Count 
-                                then (refListPreviousSbAll.Value).[prevI]
-                                else new StringBuilder()               
+                                then ((refListPreviousSbAll.Value).[prevI], (refListPreviousSbAll.Value).[prevI].Length) 
+                                else (new StringBuilder(),0)               
                                      
              
                  | false -> match (curentI < nextBlockFirstLine - currentBlockFirstLine ) with
                             |  true  -> if  curentI < refListCurrentSbAll.Value.Count && curentI >=0
-                                            then (refListCurrentSbAll.Value).[curentI]
-                                            else  new StringBuilder()
+                                            then ((refListCurrentSbAll.Value).[curentI], (refListCurrentSbAll.Value).[curentI].Length)
+                                            else  (new StringBuilder(),0)
              
                             |  false -> let nextI = curentI + currentBlockFirstLine - nextBlockFirstLine + 1
                                         if (nextI > arrayOfBlockInfo.[int longCurrentBlock + 1] / 2) then do intHysteresis <- +1
                                         if nextI - 1  < refListNextSbAll.Value.Count &&  nextI  > 0 // if have not loaded yet 
-                                            then (refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ]
-                                            else new StringBuilder()
-                 else new StringBuilder()
+                                            then ((refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ], (refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ].Length)
+                                            else (new StringBuilder(),0)
+                 else (new StringBuilder(),0)
             
 
 
@@ -376,7 +376,7 @@ type OpenUpdateMMF() as _this   =
                                                  
                                 false 
 
-         do ARR <- Array.empty 
+         //do ARR <- [|(new StringBuilder(), 0) |]
          do ARR <- Array.init lines (fun i -> initCurrentWindowArray(i))
   
          do  match blnContinue() with
@@ -413,12 +413,12 @@ type OpenUpdateMMF() as _this   =
 
 
     //Update Current Window // We are working with Block 128M // Always CurrenBlock
-    let updateCurrentWindow(txb : TextBlock, blnChange : bool, txtFind : string ) =        
+    let updateCurrentWindow(txb : TextBlock ref , lenghtArr : List<int> ref , blnChange : bool, txtFind : string ) =        
             let textEffect (index, length) = 
                              let mutable scb = new SolidColorBrush(Colors.Magenta)
                              do scb.Freeze()
                              let te = new TextEffect(null, scb, null, index, length)
-                             do txb.TextEffects.Add(te)
+                             do (!txb).TextEffects.Add(te)
             let rec findAddTextEffect (index : int , s : string) =
                           let mutable localIndex = 0
                           if s.Contains(txtFind) && txtFind.Trim() <> "" then 
@@ -426,25 +426,34 @@ type OpenUpdateMMF() as _this   =
                              do textEffect(index + localIndex, txtFind.Length)
                              let ind = index + localIndex + txtFind.Length
                              do findAddTextEffect(ind, s.Substring(localIndex + txtFind.Length) )                           
+            
             let mutable sbText = new StringBuilder()
+            
+            let mutable listTmp = new List<int>()
+            
             let intLastCharOnPage = intFirstCharOnPage + intHorizCountCharsOnPage
             let lines = arrayPresentWindow.Length
             let mutable index = 0
-            let buildCurrent (i : int , v  : StringBuilder) =
-                let intLength : int = v.Length  
-                if intFirstCharOnPage < intLength
-                    then  let intTmp : int = match (intLastCharOnPage <= intLength) with | true -> intHorizCountCharsOnPage | false -> (intLength - intFirstCharOnPage)
-                          let str : string = v.ToString().Substring(intFirstCharOnPage, intTmp) + Environment.NewLine
+            
+            let buildCurrent (i : int , v  : StringBuilder * int) =
+                let (sb,iLen) = v 
+                if intFirstCharOnPage < iLen
+                    then  let intTmp : int = match (intLastCharOnPage <= iLen) with | true -> intHorizCountCharsOnPage | false -> (iLen - intFirstCharOnPage)
+                          let str : string = sb.ToString().Substring(intFirstCharOnPage, intTmp) + Environment.NewLine
                           do findAddTextEffect(index , str)
-                          do index<- index + str.Length 
+                          do index<- index + iLen 
                           do sbText.Append(str) |> ignore
+                          do listTmp.Add(iLen)
                     else  do sbText.Append(Environment.NewLine) |> ignore               
                           do index <- index + Environment.NewLine.Length
+                          do listTmp.Add(0)
 
             if blnChange then  do arrayPresentWindow <- updateArrayPresentWindow ()   
-            do txb.TextEffects.Clear() 
+            do (!txb).TextEffects.Clear() 
             do arrayPresentWindow |> Array.iteri (fun i v -> buildCurrent (i , v) )   
-            do txb.Text <- sbText.ToString()
+            
+            do (!lenghtArr) <- listTmp
+            do (!txb).Text <- sbText.ToString()
             true
 
 
@@ -742,7 +751,7 @@ type OpenUpdateMMF() as _this   =
            with get()= longOfset and set(v)=longOfset <-v 
  
 
-    member x.UpdateCurrentWindow(tb : TextBlock byref, blnChange : bool, txtFind : string) = updateCurrentWindow(tb, blnChange, txtFind)
+    member x.UpdateCurrentWindow(tb : TextBlock ref, lenghtArr : List<int> ref, blnChange : bool, txtFind : string) = updateCurrentWindow(tb , lenghtArr, blnChange, txtFind)
                                                                                 
     member x.CreateMMF (files : string[]) = 
                        createMMF (files)

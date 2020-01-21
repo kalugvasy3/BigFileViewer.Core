@@ -63,11 +63,11 @@ type  CaretCanvas()  as this =
     do myCaret.PreviewKeyUp.Add(fun e -> keyUp.Trigger(e))
     
     let textInput = new Event<TextCompositionEventArgs>()
-    do myCaret.PreviewTextInput.Add(fun e -> textInput.Trigger(e)
-                                             // After each INPUT clear textBox (it only using for translate inputs to CHARS)
-                                             do lastChar <- e.Text // One char or maybe String if paste
-                                             do myCaret.Clear()
-                                             do myCaret.CaretIndex <- 0
+    do myCaret.PreviewTextInput.Add(fun e -> 
+                 do lastChar <- e.Text // One char or maybe String if paste
+                 do myCaret.Clear()
+                 do myCaret.CaretIndex <- 0 // After each INPUT clear textBox (it only using for translate inputs to CHARS)
+                 textInput.Trigger(e)
                                    ) 
 
     // Exposed event handler
@@ -88,6 +88,7 @@ type  CaretCanvas()  as this =
                                                                                 myCaret.CaretBrush <- v;
 
     member x.TranslateTransform with get() = tr and set(v) = tr <- v 
+
 
     
 

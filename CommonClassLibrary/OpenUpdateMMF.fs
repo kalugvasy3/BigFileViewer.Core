@@ -299,7 +299,7 @@ type OpenUpdateMMF() as _this   =
 
 
 
-    let initCurrentWindowArray(i : int) =  
+    let initCurrentWindowArray(i : int) =   // i - number of line
             if arrayOfBlockInfo.Length > 0 then
                  let currentBlockFirstLine : int = firstLine(int longCurrentBlock)  // length 
                  let curentI : int = i + intFirstLineOnPage - currentBlockFirstLine 
@@ -376,7 +376,6 @@ type OpenUpdateMMF() as _this   =
                                                  
                                 false 
 
-         //do ARR <- [|(new StringBuilder(), 0) |]
          do ARR <- Array.init lines (fun i -> initCurrentWindowArray(i))
   
          do  match blnContinue() with
@@ -429,31 +428,30 @@ type OpenUpdateMMF() as _this   =
             
             let mutable sbText = new StringBuilder()
             
-            let mutable listTmp = new List<int>()
-            
             let intLastCharOnPage = intFirstCharOnPage + intHorizCountCharsOnPage
             let lines = arrayPresentWindow.Length
             let mutable index = 0
-            
+            do (!lenghtArr).Clear()
+
             let buildCurrent (i : int , v  : StringBuilder * int) =
                 let (sb,iLen) = v 
+                do (!lenghtArr).Add(iLen)
+                
                 if intFirstCharOnPage < iLen
                     then  let intTmp : int = match (intLastCharOnPage <= iLen) with | true -> intHorizCountCharsOnPage | false -> (iLen - intFirstCharOnPage)
                           let str : string = sb.ToString().Substring(intFirstCharOnPage, intTmp) + Environment.NewLine
                           do findAddTextEffect(index , str)
                           do index<- index + iLen 
                           do sbText.Append(str) |> ignore
-                          do listTmp.Add(iLen)
                     else  do sbText.Append(Environment.NewLine) |> ignore               
                           do index <- index + Environment.NewLine.Length
-                          do listTmp.Add(0)
 
             if blnChange then  do arrayPresentWindow <- updateArrayPresentWindow ()   
             do (!txb).TextEffects.Clear() 
             do arrayPresentWindow |> Array.iteri (fun i v -> buildCurrent (i , v) )   
-            
-            do (!lenghtArr) <- listTmp
+
             do (!txb).Text <- sbText.ToString()
+            if (!lenghtArr).Count = 0 then (!lenghtArr).Add(0)
             true
 
 
@@ -672,6 +670,9 @@ type OpenUpdateMMF() as _this   =
     member x.IntFirstCharOnPage  
            with get()= intFirstCharOnPage and 
                 set(v)=intFirstCharOnPage <-v 
+
+    member x.IntLastCharOnPage
+           with get() = intFirstCharOnPage + intHorizCountCharsOnPage 
 
     member x.IntVertCountLinesOnPage  
            with get()= intVertCountLinesOnPage and 

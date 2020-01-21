@@ -55,7 +55,7 @@ type MyTextBox() as this  =
     let mutable intAbsolutSelectVertStart = 0
     let mutable intAbsolutSelectHorizStart = 0
     
-    do canvasSelecting.Children.Add(crt) |> ignore
+    do canvasMain.Children.Add(crt) |> ignore
 
     let mutable myMenu : MyMenu = (this.Content)?myMenu
     do myMenu.HostUserControl <- this
@@ -66,6 +66,7 @@ type MyTextBox() as this  =
 
     let mutable statusBar = ref (new StatusBarSystem())
     let mutable lenghtArr = new List<int>()
+    do lenghtArr.Add(0)
 
     let openFind = new Event<_>() 
     let scaleCurrnet = new Event<float>()
@@ -73,29 +74,40 @@ type MyTextBox() as this  =
     let unLoaded(e : RoutedEventArgs) = if openUpdateMMF.Mmf <> null then openUpdateMMF.Mmf.Dispose() 
                                         GC.Collect()
 
+    let mutable blnCrtExecute = false  
+
     //Function "Set Caret" to Absolute Position   
     let set_Caret() = 
+
+        if openUpdateMMF.IntFirstCharOnPage <= crt.AbsoluteNumCharCurrent &&
+           crt.AbsoluteNumCharCurrent < openUpdateMMF.IntFirstCharOnPage + openUpdateMMF.IntHorizCountCharsOnPage &&
+           openUpdateMMF.IntFirstLineOnPage <= crt.AbsoluteNumLineCurrent &&
+           crt.AbsoluteNumLineCurrent < openUpdateMMF.IntLastLineOnPage 
+           then do blnCrtExecute <- true         
+           else do blnCrtExecute <- false            
+
         let iChar = crt.AbsoluteNumCharCurrent - openUpdateMMF.IntFirstCharOnPage
-        let iLine = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage
-       
+        let iLine = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage      
+
         do crt.TranslateTransform.X <- myFonts.Tb_FontSize * (float)iChar / myFonts.CoeffFont_Widh - 1.0
         do crt.TranslateTransform.Y <- myFonts.Tb_FontSize * (float)iLine / myFonts.CoeffFont_High       
         do crt.BackGroundColorCarete <- new SolidColorBrush(Colors.Magenta)
-
+             
         do crt.FloatCareteH <- myFonts.Tb_FontSize / myFonts.CoeffFont_High       
         do crt.FloatCareteW <- match blnInsert with
                                | true  -> myFonts.Tb_FontSize / myFonts.CoeffFont_Widh 
                                | false -> myFonts.Tb_FontSize / myFonts.CoeffFont_Widh / 3.0
-  
+              
         let blnOut =  iLine < 0 || iChar < 0 || 
                       iLine >= (openUpdateMMF.IntVertCountLinesOnPage) || 
                       iChar >= (openUpdateMMF.IntHorizCountCharsOnPage)
-
+              
         if blnOut then crt.Visibility <- Visibility.Hidden
                   else crt.Visibility <- Visibility.Visible
-
+              
         do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
         do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas
+       
         do Thread.Sleep(0)
 
 
@@ -108,6 +120,8 @@ type MyTextBox() as this  =
             tbXY.Text <- "X:" + (intRelativeX + openUpdateMMF.IntFirstCharOnPage).ToString("0,0") + "   Y:" + (intRelativeY + openUpdateMMF.IntFirstLineOnPage).ToString("0,0");
 
 
+            do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
+            do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas
 
 
 
@@ -117,33 +131,30 @@ type MyTextBox() as this  =
 
     let initXScroll() = 
             do openUpdateMMF.IntFirstCharOnPage <- (int)scrollX.Value
-            do openUpdateMMF.IntHorizCountCharsOnPage <- (int)(canvasSelected.ActualWidth * myFonts.CoeffFont_Widh / myFonts.Tb_FontSize + 1.0)
+            do openUpdateMMF.IntHorizCountCharsOnPage <- (int)(canvasSelected.ActualWidth * myFonts.CoeffFont_Widh / myFonts.Tb_FontSize )
             do openUpdateMMF.IntHorizCountCharsOnPage <- match openUpdateMMF.IntHorizCountCharsOnPage < 0 with | true -> 0 | false -> openUpdateMMF.IntHorizCountCharsOnPage
             do scrollX.Minimum <- 0.0
             do scrollX.Maximum <- match openUpdateMMF.IntMaxCharsInLine <= 0 with | true ->  0.0 | false -> float (openUpdateMMF.IntMaxCharsInLine ) // size of longest line
             do scrollX.SmallChange <- 1.0   
             do scrollX.LargeChange <- float (openUpdateMMF.IntHorizCountCharsOnPage / 2);
             do tbX.Text <- "X: " + openUpdateMMF.IntFirstCharOnPage.ToString("0,0") + " of " + ((int)scrollX.Maximum).ToString("0,0") 
-            do set_Caret()
-            mouseMove()
             do Thread.Sleep(0)
 
 
 
     let initYScroll() = 
             do openUpdateMMF.IntFirstLineOnPage <- (int)scrollY.Value
-            do openUpdateMMF.IntVertCountLinesOnPage <- (int)(canvasSelected.ActualHeight * myFonts.CoeffFont_High / myFonts.Tb_FontSize + 1.0)
+            do openUpdateMMF.IntVertCountLinesOnPage <- (int)(canvasSelected.ActualHeight * myFonts.CoeffFont_High / myFonts.Tb_FontSize )
 
-            do openUpdateMMF.IntVertCountLinesOnPage <- match openUpdateMMF.IntVertCountLinesOnPage < 0 with | true -> 0 | false -> openUpdateMMF.IntVertCountLinesOnPage
-            do openUpdateMMF.IntLastLineOnPage <- match (openUpdateMMF.IntFirstLineOnPage + openUpdateMMF.IntVertCountLinesOnPage) < openUpdateMMF.IntNumberOfTotalLinesEstimation  with
-                                                  | true -> (openUpdateMMF.IntFirstLineOnPage + openUpdateMMF.IntVertCountLinesOnPage) 
-                                                  | false -> openUpdateMMF.IntNumberOfTotalLinesEstimation
+            //do openUpdateMMF.IntVertCountLinesOnPage <- match openUpdateMMF.IntVertCountLinesOnPage < 0 with | true -> 0 | false -> openUpdateMMF.IntVertCountLinesOnPage
+            do openUpdateMMF.IntLastLineOnPage <- openUpdateMMF.IntFirstLineOnPage + openUpdateMMF.IntVertCountLinesOnPage
+                                                  //match (openUpdateMMF.IntFirstLineOnPage + openUpdateMMF.IntVertCountLinesOnPage) < openUpdateMMF.IntNumberOfTotalLinesEstimation  with
+                                                  //| true -> (openUpdateMMF.IntFirstLineOnPage + openUpdateMMF.IntVertCountLinesOnPage) 
+                                                  //| false -> openUpdateMMF.IntNumberOfTotalLinesEstimation
             do scrollY.Maximum <- float openUpdateMMF.IntNumberOfTotalLinesEstimation
             do scrollY.SmallChange <- 1.0   // one line
             do scrollY.LargeChange <- float (openUpdateMMF.IntVertCountLinesOnPage / 2)   // number lines per page/2
             do tbY.Text <- "Y: " + openUpdateMMF.IntFirstLineOnPage.ToString("0,0") + " of " + ((int)scrollY.Maximum).ToString("0,0") + "   (" + openUpdateMMF.IntVertCountLinesOnPage.ToString() + ")";     
-            do set_Caret()
-            mouseMove()
             do Thread.Sleep(0)
 
 
@@ -169,11 +180,10 @@ type MyTextBox() as this  =
                  )) |> ignore
 
             this.Dispatcher.InvokeAsync(new Action ( fun _ ->                                                    
-                 do openUpdateMMF.UpdateCurrentWindow(ref txtBlock , ref lenghtArr, blnChange, myMenu.TxtFind) |> ignore
+                 do openUpdateMMF.UpdateCurrentWindow(ref txtBlock  , ref lenghtArr, blnChange, myMenu.TxtFind) |> ignore
                  if myMenu.TxtFind.Trim() = "" then do openUpdateMMF.BlnStopSearch <- true 
-                     
-                 )) |> ignore
-                                             
+                 set_Caret()
+                 )) |> ignore                                            
 
                   } ] |> Async.Parallel |> Async.Ignore |> Async.Start                                  
 
@@ -248,16 +258,22 @@ type MyTextBox() as this  =
             | ModifierKeys.Control -> ()
             | _ -> scrolYWheel(e)
             do Thread.Sleep(0)
-
-
+          
 
     let canvasKeyDown (e : KeyEventArgs ) =
+ 
             match Keyboard.Modifiers with
             | ModifierKeys.Shift   -> match e.Key with
                                       | Key.Tab -> scrollX.Value <-  scrollX.Value - 4.0       // Right one Page
                                       | Key.PageUp -> scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage * 100.0        // 100*Up
                                       | Key.PageDown -> scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage * 100.0      // 100*Down
+                                      | Key.Home -> scrollX.Value <- (float)crt.AbsoluteNumCharCurrent
+                                      | Key.C -> scrollX.Value <- (float)crt.AbsoluteNumCharCurrent
+                                                 scrollY.Value <- (float)crt.AbsoluteNumLineCurrent                                     
                                       | _ -> ignore()     // Left one Page
+            
+            | ModifierKeys.Alt     -> match e.Key with   // System Only
+                                      | _ -> ignore()                                                      
 
             | ModifierKeys.Control -> match e.Key with
                                       | Key.Home -> scrollX.Value <- 0.0
@@ -274,19 +290,43 @@ type MyTextBox() as this  =
                                       | Key.Escape -> openUpdateMMF.BlnStopSearch <- true
                                       | Key.PageUp -> scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage        // Up
                                       | Key.PageDown -> scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage      // Down
-                                      | Key.Home -> scrollX.Value <- 0.0
-                                      | Key.End -> scrollX.Value <-  let intX = lenghtArr.[crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage] - 1   
-                                                                     (float)lenghtArr.[intX] 
+                                      | Key.Home -> crt.AbsoluteNumCharCurrent  <- 0
+                                                    scrollX.Value <- 0.0
+                                                    
+                                      | Key.End -> scrollX.Value <- let indexArr = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage  
+                                                                    crt.AbsoluteNumCharCurrent <- lenghtArr.[indexArr]                                                                 
+                                                                    if scrollX.Value <= (float)crt.AbsoluteNumCharCurrent && crt.AbsoluteNumCharCurrent <= openUpdateMMF.IntLastCharOnPage  
+                                                                    then scrollX.Value
+                                                                    else (float)(crt.AbsoluteNumCharCurrent - openUpdateMMF.IntHorizCountCharsOnPage + 1 )
                                                                      
-                                      | Key.Left -> scrollX.Value <-  scrollX.Value - 1.0 
-                                      | Key.Right -> scrollX.Value <-  scrollX.Value + 1.0 
+                                      | Key.Left ->  match crt.AbsoluteNumCharCurrent > 0 with
+                                                     | true ->  crt.AbsoluteNumCharCurrent <- (crt.AbsoluteNumCharCurrent - 1)  //scrollX.Value <-   scrollX.Value - 1.0 
+                                                                let iChar = crt.AbsoluteNumCharCurrent - openUpdateMMF.IntFirstCharOnPage
+                                                                if iChar < 0 then scrollX.Value <- scrollX.Value + (float)(iChar)
+                                                     | _ -> ignore()
+                                                     
+                                      | Key.Right -> crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent + 1  //         scrollX.Value <-  scrollX.Value + 1.0 
+                                                     let iChar = crt.AbsoluteNumCharCurrent - openUpdateMMF.IntFirstCharOnPage
+                                                     if iChar >= (openUpdateMMF.IntHorizCountCharsOnPage - 1) then scrollX.Value <- scrollX.Value + (float)(iChar - openUpdateMMF.IntHorizCountCharsOnPage)
+ 
                                       | Key.Up -> scrollY.Value <- scrollY.Value - 1.0
                                       | Key.Down -> scrollY.Value <- scrollY.Value + 1.0 
                                       | Key.Tab -> scrollX.Value <-  scrollX.Value + 4.0
                                       | Key.Insert -> blnInsert <- not blnInsert
-                                                      set_Caret() 
-                                      | _ -> ignore()
+                                      | _ -> ()
+            set_Caret()
             do Thread.Sleep(0)
+
+
+    //let canvasKeyDown (e : KeyEventArgs ) = 
+            
+    //        if crt.X >= openUpdateMMF.IntFirstCharOnPage &&
+    //           crt.X <= openUpdateMMF.IntLastCharOnPage &&
+    //           crt.Y >= openUpdateMMF.IntFirstLineOnPage &&
+    //           crt.Y <= openUpdateMMF.IntLastLineOnPage
+    //        then ignore()
+    //        else crtKeyDown(e)
+ 
 
 
     let openFileTXT (files) =
@@ -529,7 +569,10 @@ type MyTextBox() as this  =
       
         do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
       
-        do canvasMain.Focus() |> ignore
+        //do canvasMain.Focus() |> ignore
+        do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
+        do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas
+
 
 
 
@@ -549,10 +592,12 @@ type MyTextBox() as this  =
 
        do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
 
-       do canvasMain.Focus() |> ignore
+       //do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
+       //do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas
 
 
 
+    let crtEventTextInput(e : TextCompositionEventArgs) = ignore()   // crt.LastChar
 
 
 
@@ -579,12 +624,20 @@ type MyTextBox() as this  =
 
             do canvasMain.MouseMove.Add(fun _ -> mouseMove())
             do canvasMain.MouseLeftButtonDown.Add(fun e -> setMousePositionForMoving())
+            
             //do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
 
             do canvasMain.KeyDown.Add(fun e -> canvasKeyDown (e))
-            
-            do canvasMain.Focusable <- true
-            do canvasMain.Focus() |> ignore
+           
+            do crt.EventTxtKeyDown.Add(fun e -> canvasKeyDown (e))
+            do crt.EventTextInput.Add(fun e -> crtEventTextInput (e))
+
+            do set_Caret()
+       
+            //do crt.Focusable <- true
+            //do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
+            //do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas
+
 
             //do Touch.FrameReported.AddHandler( fun sender e -> myTouch.TouchFrame(sender, e))
             //do myTouch.MyCanvas <- ref canvasMain

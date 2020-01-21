@@ -100,7 +100,7 @@ type MyTextBox() as this  =
               
         let blnOut =  iLine < 0 || iChar < 0 || 
                       iLine >= (openUpdateMMF.IntVertCountLinesOnPage) || 
-                      iChar >= (openUpdateMMF.IntHorizCountCharsOnPage)
+                      iChar > (openUpdateMMF.IntHorizCountCharsOnPage)
               
         if blnOut then crt.Visibility <- Visibility.Hidden
                   else crt.Visibility <- Visibility.Visible
@@ -302,12 +302,13 @@ type MyTextBox() as this  =
                                       | Key.Left ->  match crt.AbsoluteNumCharCurrent > 0 with
                                                      | true ->  crt.AbsoluteNumCharCurrent <- (crt.AbsoluteNumCharCurrent - 1)  //scrollX.Value <-   scrollX.Value - 1.0 
                                                                 let iChar = crt.AbsoluteNumCharCurrent - openUpdateMMF.IntFirstCharOnPage
-                                                                if iChar < 0 then scrollX.Value <- scrollX.Value + (float)(iChar)
+                                                                if iChar < 0 && crt.AbsoluteNumCharCurrent >= 0 then scrollX.Value <- scrollX.Value - 1.0
                                                      | _ -> ignore()
                                                      
-                                      | Key.Right -> crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent + 1  //         scrollX.Value <-  scrollX.Value + 1.0 
+                                      | Key.Right -> if (float)crt.AbsoluteNumCharCurrent <= scrollX.Value + (float)openUpdateMMF.IntHorizCountCharsOnPage 
+                                                       then crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent + 1  //         scrollX.Value <-  scrollX.Value + 1.0 
                                                      let iChar = crt.AbsoluteNumCharCurrent - openUpdateMMF.IntFirstCharOnPage
-                                                     if iChar >= (openUpdateMMF.IntHorizCountCharsOnPage - 1) then scrollX.Value <- scrollX.Value + (float)(iChar - openUpdateMMF.IntHorizCountCharsOnPage)
+                                                     if iChar > openUpdateMMF.IntHorizCountCharsOnPage  then scrollX.Value <- scrollX.Value + 1.0 //(float)(iChar - openUpdateMMF.IntHorizCountCharsOnPage )
  
                                       | Key.Up -> scrollY.Value <- scrollY.Value - 1.0
                                       | Key.Down -> scrollY.Value <- scrollY.Value + 1.0 

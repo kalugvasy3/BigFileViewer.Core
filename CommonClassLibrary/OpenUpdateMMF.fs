@@ -29,7 +29,9 @@ type OpenUpdateMMF() as _this   =
    
     let mutable intFirstLineOnPage = 0 
     let mutable intLastLineOnPage = 0 
+
     let mutable intFirstCharOnPage = 0 
+    let mutable intLastCharOnPage = 0
 
     let mutable intHysteresis = 0
     
@@ -78,6 +80,7 @@ type OpenUpdateMMF() as _this   =
 
     let mutable ARR : (StringBuilder * int) [] = [|(new StringBuilder() , 0)|] 
 
+    let mutable allowSizeChange = true
 
 
     let firstLine(iBlock : int) =
@@ -300,6 +303,8 @@ type OpenUpdateMMF() as _this   =
 
 
     let initCurrentWindowArray(i : int) =   // i - number of line
+            do allowSizeChange <- false
+
             if arrayOfBlockInfo.Length > 0 then
                  let currentBlockFirstLine : int = firstLine(int longCurrentBlock)  // length 
                  let curentI : int = i + intFirstLineOnPage - currentBlockFirstLine 
@@ -326,9 +331,7 @@ type OpenUpdateMMF() as _this   =
                                             then ((refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ], (refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ].Length)
                                             else (new StringBuilder(),0)
                  else (new StringBuilder(),0)
-            
-
-
+ 
 
     let updateArrayPresentWindow () =   
  
@@ -377,6 +380,7 @@ type OpenUpdateMMF() as _this   =
                                 false 
 
          do ARR <- Array.init lines (fun i -> initCurrentWindowArray(i))
+         do allowSizeChange <- true
   
          do  match blnContinue() with
              | true ->  match intHysteresis with
@@ -662,25 +666,28 @@ type OpenUpdateMMF() as _this   =
     member x.IntFirstLineOnPage 
            with get()= intFirstLineOnPage and 
                 set(v)=intFirstLineOnPage <-v
+                       intLastLineOnPage <- intFirstLineOnPage + intVertCountLinesOnPage 
 
     member x.IntLastLineOnPage 
-           with get()= intLastLineOnPage and 
-                set(v)=intLastLineOnPage <-v 
+           with get()= intLastLineOnPage  
 
     member x.IntFirstCharOnPage  
-           with get()= intFirstCharOnPage and 
-                set(v)=intFirstCharOnPage <-v 
+           with get() = intFirstCharOnPage and 
+                set(v)= intFirstCharOnPage <-v 
+                        intLastCharOnPage <- intFirstCharOnPage + intHorizCountCharsOnPage
 
     member x.IntLastCharOnPage
-           with get() = intFirstCharOnPage + intHorizCountCharsOnPage 
+           with get() = intLastCharOnPage 
 
     member x.IntVertCountLinesOnPage  
            with get()= intVertCountLinesOnPage and 
                 set(v)=intVertCountLinesOnPage <-v 
+                       intLastLineOnPage <- intFirstLineOnPage + intVertCountLinesOnPage 
 
     member x.IntHorizCountCharsOnPage  
            with get()= intHorizCountCharsOnPage and 
-                set(v)=intHorizCountCharsOnPage <-v  
+                set(v)=intHorizCountCharsOnPage <-v                        
+                       intLastCharOnPage <- intFirstCharOnPage + intHorizCountCharsOnPage
    
     member x.LongCurrentBlock  
            with get()= longCurrentBlock and 
@@ -793,6 +800,9 @@ type OpenUpdateMMF() as _this   =
     member x.BlnStopSearch 
            with get() = blnStopSearch and 
                 set(v) = blnStopSearch <- v
+
+
+    member x.AllowSizeChange with get() = allowSizeChange
 
 
 

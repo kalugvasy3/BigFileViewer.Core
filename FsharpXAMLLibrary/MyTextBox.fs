@@ -107,8 +107,9 @@ type MyTextBox() as this  =
            crt.AbsoluteNumLineCurrent <= openUpdateMMF.IntLastLineOnPage + 1       
         
         then  do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
+              do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas                
               do crt.Focus() |> ignore
-             // do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas                      
+                    
         else do Keyboard.Focus(canvasMain) |> ignore
              do canvasMain.Focus() |> ignore 
  
@@ -246,7 +247,46 @@ type MyTextBox() as this  =
             | ModifierKeys.Control -> ()
             | _ -> scrolYWheel(e)
             do Thread.Sleep(0)
-          
+
+
+    let isCrtInsideWindow() = 
+
+           let posX = match crt.AbsoluteNumCharCurrent with
+                      | x when x < (openUpdateMMF.IntFirstCharOnPage ) -> -1
+                      | x when x > (openUpdateMMF.IntLastCharOnPage  ) -> +1
+                      | _ -> 0
+
+           let posY = match crt.AbsoluteNumLineCurrent with
+                      | y when y < (openUpdateMMF.IntFirstLineOnPage ) -> -1
+                      | y when y >= (openUpdateMMF.IntLastLineOnPage ) -> +1
+                      | _ -> 0 
+
+           match posX, posY with   
+           // 0,  0   is default behavior.
+
+           | -1,  0 -> scrollX.Value <- (float)crt.AbsoluteNumCharCurrent
+           
+           |  0, -1 -> scrollY.Value <- (float)crt.AbsoluteNumLineCurrent
+           
+           | -1, -1 -> scrollX.Value <- (float)crt.AbsoluteNumCharCurrent
+                       scrollY.Value <- (float)crt.AbsoluteNumLineCurrent
+           
+           | +1,  0 -> scrollX.Value <- (float)(crt.AbsoluteNumCharCurrent - openUpdateMMF.IntHorizCountCharsOnPage)                       
+           
+           |  0, +1 -> scrollY.Value <- (float)(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage + 1) 
+           
+           | +1, +1 -> scrollX.Value <- (float)(crt.AbsoluteNumCharCurrent - openUpdateMMF.IntHorizCountCharsOnPage)
+                       scrollY.Value <- (float)(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage)
+           
+           | +1, -1 -> scrollX.Value <- (float)(crt.AbsoluteNumCharCurrent - openUpdateMMF.IntHorizCountCharsOnPage)
+                       scrollY.Value <- (float)crt.AbsoluteNumLineCurrent
+
+           | -1, +1 -> scrollX.Value <- (float)crt.AbsoluteNumCharCurrent
+                       scrollY.Value <- (float)(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage)
+           | _ ,  _ -> ignore()
+           
+           (posX, posY)
+
 
     let canvasKeyDown (e : KeyEventArgs ) =
  
@@ -264,64 +304,68 @@ type MyTextBox() as this  =
                                       | _ -> ignore()                                                      
 
             | ModifierKeys.Control -> match e.Key with
-                                      | Key.Home -> scrollX.Value <- 0.0
-                                                    scrollY.Value <- 0.0
-                                      | Key.End  -> scrollY.Value <- float openUpdateMMF.IntNumberOfTotalLinesEstimation - 1.0                   // Bottom
-                                                    scrollX.Value <- 0.0
-                                      | Key.PageUp   -> scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage * 10.0        // 10*Up
-                                      | Key.PageDown -> scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage * 10.0      // 10*Down
+                                      | Key.Home -> crt.AbsoluteNumLineCurrent <- 0
+                                                    crt.AbsoluteNumCharCurrent <- 0
+                                                    do isCrtInsideWindow() |> ignore
+
+                                      | Key.End  -> crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntNumberOfTotalLinesEstimation 
+                                                    let indexArr = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage  
+                                                    do crt.AbsoluteNumCharCurrent <- lenghtArr.[indexArr] 
+                                                    do isCrtInsideWindow() |> ignore
+
+                                      | Key.PageUp   -> crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage * 10 
+                                                        if crt.AbsoluteNumLineCurrent < 0 then crt.AbsoluteNumLineCurrent <- 0
+                                                        do isCrtInsideWindow() |> ignore
+
+                                      | Key.PageDown -> crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent + openUpdateMMF.IntVertCountLinesOnPage * 10 
+                                                        if crt.AbsoluteNumLineCurrent > openUpdateMMF.IntNumberOfTotalLinesEstimation then crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntNumberOfTotalLinesEstimation
+                                                        do isCrtInsideWindow() |> ignore
+
                                       | Key.O        -> myMenu.Visibility <- Visibility.Visible
                                       | Key.F        -> openFind.Trigger()
                                       | _ -> ignore()
 
             | _ ->                    match e.Key with
                                       | Key.Escape -> openUpdateMMF.BlnStopSearch <- true
-                                      | Key.PageUp -> scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage        // Up
-                                      | Key.PageDown -> scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage      // Down
-                                      | Key.Home -> crt.AbsoluteNumCharCurrent  <- 0
-                                                    scrollX.Value <- 0.0
+                                      | Key.PageUp -> match isCrtInsideWindow() with
+                                                        | 0 , 0 -> if crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage >=0
+                                                                      then do crt.AbsoluteNumLineCurrent  <- crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage
+                                                                           do scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage
+                                                        | _ , _ -> ignore()
+                                      | Key.PageDown -> match isCrtInsideWindow() with
+                                                        | 0 , 0 -> do crt.AbsoluteNumLineCurrent  <- crt.AbsoluteNumLineCurrent + openUpdateMMF.IntVertCountLinesOnPage
+                                                                   scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage
+                                                        | _ , _ -> ignore()
+                                                              // Down
+                                      | Key.Home ->  match isCrtInsideWindow() with
+                                                     | 0 , 0 -> do crt.AbsoluteNumCharCurrent  <- 0
+                                                                do scrollX.Value <- 0.0
+                                                     | _ , _ -> ignore()
                                                     
-                                      | Key.End -> scrollX.Value <- let indexArr = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage  
-                                                                    crt.AbsoluteNumCharCurrent <- lenghtArr.[indexArr]                                                                 
-                                                                    if scrollX.Value <= (float)crt.AbsoluteNumCharCurrent && crt.AbsoluteNumCharCurrent <= openUpdateMMF.IntLastCharOnPage  
-                                                                    then scrollX.Value
-                                                                    else (float)(crt.AbsoluteNumCharCurrent - openUpdateMMF.IntHorizCountCharsOnPage + 1 )
-                                                                      
-                                      | Key.Left ->  if (float)crt.AbsoluteNumCharCurrent >= scrollX.Value && crt.AbsoluteNumCharCurrent > 0 &&
-                                                        (float)crt.AbsoluteNumCharCurrent <= scrollX.Value + (float)openUpdateMMF.IntHorizCountCharsOnPage
-                                                     then crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent - 1  
-                                                     
-                                                     if crt.AbsoluteNumCharCurrent < openUpdateMMF.IntFirstCharOnPage ||
-                                                        crt.AbsoluteNumCharCurrent > openUpdateMMF.IntLastCharOnPage
-                                                     then scrollX.Value <- (float) crt.AbsoluteNumCharCurrent 
-                                                     //else scrollX.Value <- (float) crt.AbsoluteNumCharCurrent 
-                                                     
-                                      | Key.Right -> if (float)crt.AbsoluteNumCharCurrent <= scrollX.Value + (float)openUpdateMMF.IntHorizCountCharsOnPage &&
-                                                        (float)crt.AbsoluteNumCharCurrent >= scrollX.Value
-                                                     then crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent + 1  
-                                                     
-                                                     if crt.AbsoluteNumCharCurrent > openUpdateMMF.IntLastCharOnPage ||
-                                                        crt.AbsoluteNumCharCurrent < openUpdateMMF.IntFirstCharOnPage
-                                                     then scrollX.Value <- (float) (crt.AbsoluteNumCharCurrent - openUpdateMMF.IntHorizCountCharsOnPage)
-                                                     
-                                      | Key.Up ->    if (float)crt.AbsoluteNumLineCurrent >= scrollY.Value && crt.AbsoluteNumLineCurrent > 0 &&
-                                                        (float)crt.AbsoluteNumLineCurrent <= scrollY.Value + (float)openUpdateMMF.IntVertCountLinesOnPage                                      
-                                                        then crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent - 1  
-                                                     if crt.AbsoluteNumLineCurrent < openUpdateMMF.IntFirstLineOnPage ||
-                                                        crt.AbsoluteNumLineCurrent >= openUpdateMMF.IntLastLineOnPage                                                 
-                                                     then scrollY.Value <- (float)crt.AbsoluteNumLineCurrent
-                                                       
-                                                     
-                                      | Key.Down ->  if (float)crt.AbsoluteNumLineCurrent <= scrollY.Value + (float)openUpdateMMF.IntVertCountLinesOnPage &&
-                                                        (float)crt.AbsoluteNumLineCurrent >= scrollY.Value 
-                                                     then crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent + 1  
-                                                    
-                                                     if crt.AbsoluteNumLineCurrent >= openUpdateMMF.IntLastLineOnPage ||
-                                                        crt.AbsoluteNumLineCurrent < openUpdateMMF.IntFirstLineOnPage
-                                                     then scrollY.Value <- (float)(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage + 1 )
-                                                                                                            
+                                      | Key.End ->   match isCrtInsideWindow() with
+                                                     | 0 , 0 -> let indexArr = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage  
+                                                                crt.AbsoluteNumCharCurrent <- lenghtArr.[indexArr] 
+                                                                scrollX.Value <- (float) (crt.AbsoluteNumCharCurrent - openUpdateMMF.IntHorizCountCharsOnPage)
+                                                     | _ , _ -> ignore()
 
-                                      | Key.Tab -> scrollX.Value <-  scrollX.Value + 4.0
+                                                                      
+                                      | Key.Left ->  if crt.AbsoluteNumCharCurrent > 0 then 
+                                                        do crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent - 1                                     
+                                                     do isCrtInsideWindow() |> ignore
+
+                                      | Key.Right -> do crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent + 1 
+                                                     do isCrtInsideWindow() |> ignore
+                                                     
+                                      | Key.Up ->    if crt.AbsoluteNumLineCurrent > 0 then 
+                                                        do crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent - 1  
+                                                     do isCrtInsideWindow() |> ignore   
+                                                     
+                                      | Key.Down ->  do crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent + 1 
+                                                     do isCrtInsideWindow() |> ignore
+
+                                      | Key.Tab ->   crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent + 4 
+                                                     do isCrtInsideWindow() |> ignore
+
                                       | Key.Insert -> blnInsert <- not blnInsert
                                       | _ -> ()
             set_Caret()
@@ -355,8 +399,8 @@ type MyTextBox() as this  =
                                        ))
             // Main Thread 
             let mainThreadLoadFile () =                       
-                    let feedback = openUpdateMMF.CreateMMF(files)
-                    
+                    let feedback = openUpdateMMF.CreateMMF(files)                   
+
                     do update(true)
                     match feedback = "" with
                     | false-> do MessageBox.Show(feedback) |> ignore
@@ -388,6 +432,7 @@ type MyTextBox() as this  =
                                                   do openUpdateMMF.GetContentFromMMF(openUpdateMMF.RefListPreviousSbAll, 0, true, true, "P")   // Read Block 0 only (Current). 
                                         
                                          do this.Dispatcher.Invoke(new Action ( fun () -> do lblDropHere.Visibility <- Visibility.Collapsed
+                                                                                          
                                                                                           do (!statusBar).FullFileName <- openUpdateMMF.FullFileName
                                                                                           do (!statusBar).LongTotalDocSize <- openUpdateMMF.LongTotalDocSize 
                                                                                           //do eventSysInfoUpdate.Trigger(scale)

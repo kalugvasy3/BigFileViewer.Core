@@ -302,10 +302,9 @@ type OpenUpdateMMF() as _this   =
 
 
 
-    let initCurrentWindowArray(i : int) =   // i - number of line
-            do allowSizeChange <- false
+    let initCurrentWindowArray(i : int) =   // i - number of line         
 
-            if arrayOfBlockInfo.Length > 0 then
+            if arrayOfBlockInfo.Length > 0 && arrayOfBlockInfo.Length > int longCurrentBlock + 1   then
                  let currentBlockFirstLine : int = firstLine(int longCurrentBlock)  // length 
                  let curentI : int = i + intFirstLineOnPage - currentBlockFirstLine 
              

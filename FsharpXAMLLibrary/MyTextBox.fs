@@ -60,6 +60,11 @@ type MyTextBox() as this  =
     let mutable myMenu : MyMenu = (this.Content)?myMenu
     do myMenu.HostUserControl <- this
 
+    let mutable flagShift = false
+    let mutable flagControl = false
+    let mutable flagAlt = false
+
+
     let mutable tbX : TextBlock = (this.Content)?tbX
     let mutable tbY : TextBlock = (this.Content)?tbY
     let mutable tbXY : TextBlock = (this.Content)?tbXY
@@ -258,7 +263,7 @@ type MyTextBox() as this  =
 
            let posY = match crt.AbsoluteNumLineCurrent with
                       | y when y < (openUpdateMMF.IntFirstLineOnPage ) -> -1
-                      | y when y >= (openUpdateMMF.IntLastLineOnPage ) -> +1
+                      | y when y > (openUpdateMMF.IntLastLineOnPage ) -> +1
                       | _ -> 0 
 
            match posX, posY with   
@@ -276,13 +281,13 @@ type MyTextBox() as this  =
            |  0, +1 -> scrollY.Value <- (float)(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage + 1) 
            
            | +1, +1 -> scrollX.Value <- (float)(crt.AbsoluteNumCharCurrent - openUpdateMMF.IntHorizCountCharsOnPage)
-                       scrollY.Value <- (float)(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage)
+                       scrollY.Value <- (float)(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage + 1)
            
            | +1, -1 -> scrollX.Value <- (float)(crt.AbsoluteNumCharCurrent - openUpdateMMF.IntHorizCountCharsOnPage)
                        scrollY.Value <- (float)crt.AbsoluteNumLineCurrent
 
            | -1, +1 -> scrollX.Value <- (float)crt.AbsoluteNumCharCurrent
-                       scrollY.Value <- (float)(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage)
+                       scrollY.Value <- (float)(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage + 1)
            | _ ,  _ -> ignore()
            
            (posX, posY)
@@ -293,24 +298,28 @@ type MyTextBox() as this  =
             match Keyboard.Modifiers with
             | ModifierKeys.Shift   -> match e.Key with
                                       | Key.Tab -> scrollX.Value <-  scrollX.Value - 4.0       // Right one Page
+
                                       | Key.PageUp -> scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage * 100.0        // 100*Up
+
                                       | Key.PageDown -> scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage * 100.0      // 100*Down
-                                      | Key.Home -> scrollX.Value <- (float)crt.AbsoluteNumCharCurrent
-                                      | Key.C -> scrollX.Value <- (float)crt.AbsoluteNumCharCurrent
-                                                 scrollY.Value <- (float)crt.AbsoluteNumLineCurrent                                     
+
+                                      | Key.Home -> scrollX.Value <- 0.0
+                                    
                                       | _ -> ignore()     // Left one Page
+
+                                      do flagShift <- true
             
             | ModifierKeys.Alt     -> match e.Key with   // System Only
-                                      | _ -> ignore()                                                      
+                                      | _ -> ignore()  
+                                      
+                                      do flagAlt <- true
 
             | ModifierKeys.Control -> match e.Key with
                                       | Key.Home -> crt.AbsoluteNumLineCurrent <- 0
                                                     crt.AbsoluteNumCharCurrent <- 0
                                                     do isCrtInsideWindow() |> ignore
 
-                                      | Key.End  -> crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntNumberOfTotalLinesEstimation 
-                                                    let indexArr = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage  
-                                                    do crt.AbsoluteNumCharCurrent <- lenghtArr.[indexArr] 
+                                      | Key.End  -> crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntNumberOfTotalLinesEstimation                                                 
                                                     do isCrtInsideWindow() |> ignore
 
                                       | Key.PageUp   -> crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage * 10 
@@ -324,6 +333,8 @@ type MyTextBox() as this  =
                                       | Key.O        -> myMenu.Visibility <- Visibility.Visible
                                       | Key.F        -> openFind.Trigger()
                                       | _ -> ignore()
+
+                                      do flagControl <- true
 
             | _ ->                    match e.Key with
                                       | Key.Escape -> openUpdateMMF.BlnStopSearch <- true
@@ -367,8 +378,20 @@ type MyTextBox() as this  =
                                                      do isCrtInsideWindow() |> ignore
 
                                       | Key.Insert -> blnInsert <- not blnInsert
-                                      | _ -> ()
+                                                      do isCrtInsideWindow() |> ignore
+                                      | _ -> ignore()
             set_Caret()
+            do Thread.Sleep(0)
+
+
+    let canvasKeyUp (e : KeyEventArgs ) =
+ 
+            match Keyboard.Modifiers with
+            | ModifierKeys.Shift   -> do flagShift <- false           
+            | ModifierKeys.Alt     -> do flagAlt <- false                                                     
+            | ModifierKeys.Control -> do flagControl <- false
+            | _ -> ignore()                    
+
             do Thread.Sleep(0)
 
 
@@ -650,7 +673,10 @@ type MyTextBox() as this  =
 
 
 
-    let crtEventTextInput(e : TextCompositionEventArgs) = ignore()   // crt.LastChar
+    let crtEventTextInput(e : TextCompositionEventArgs) = 
+        let chr = e.Text
+        
+        ignore()   // crt.LastChar
 
 
 
@@ -680,14 +706,19 @@ type MyTextBox() as this  =
             
             //do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
 
-            do canvasMain.KeyDown.Add(fun e ->  if blnCrtFocus 
+            // DO NOT USE TWO BELOW EVENTS FOR CATCH CHAR/INPUT
+            do canvasMain.KeyDown.Add(fun e ->  if blnCrtFocus  // Privent of duplicate action // If cursor not visiable will be work this code...
                                                    then blnCrtFocus <-false
-                                                   else canvasKeyDown (e))          
-            
-            do crt.EventTxtKeyDown.Add(fun e -> do blnCrtFocus <- true
-                                                canvasKeyDown (e))
+                                                   else do canvasKeyDown (e)) 
+            do crt.EventTxtKeyDown.Add(fun e -> do blnCrtFocus <- true   // Privent of duplicate action 
+                                                do canvasKeyDown (e))    // it works if cursor is visiable.
 
-            do crt.EventTextInput.Add(fun e -> crtEventTextInput (e))
+                                                   
+            do canvasMain.KeyUp.Add(fun e ->   canvasKeyUp (e))   // Drop all flages shift, alt, controls only                                                
+            do crt.EventTxtKeyUp.Add(fun e ->  do canvasKeyUp (e))            
+
+            // CATCH INPUT CHAR
+            do crt.EventTextInput.Add(fun e -> crtEventTextInput (e))    // Use this event for catch new char with right encoding.
 
             do set_Caret()
        

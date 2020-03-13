@@ -707,14 +707,14 @@ type MyTextBox() as this  =
             //do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
 
             // DO NOT USE TWO BELOW EVENTS FOR CATCH CHAR/INPUT
-            do canvasMain.KeyDown.Add(fun e ->  if blnCrtFocus  // Privent of duplicate action // If cursor not visiable will be work this code...
+            do canvasMain.KeyDown.Add(fun e ->  if blnCrtFocus  // Prevent of duplicate action // If cursor, not visible will be work this code...
                                                    then blnCrtFocus <-false
                                                    else do canvasKeyDown (e)) 
-            do crt.EventTxtKeyDown.Add(fun e -> do blnCrtFocus <- true   // Privent of duplicate action 
-                                                do canvasKeyDown (e))    // it works if cursor is visiable.
+            do crt.EventTxtKeyDown.Add(fun e -> do blnCrtFocus <- true   // Prevent of duplicate action 
+                                                do canvasKeyDown (e))    // it works if cursor is visible.
 
                                                    
-            do canvasMain.KeyUp.Add(fun e ->   canvasKeyUp (e))   // Drop all flages shift, alt, controls only                                                
+            do canvasMain.KeyUp.Add(fun e ->   canvasKeyUp (e))   // Drop all flags “shift”, “alt”, “controls” only                                                 
             do crt.EventTxtKeyUp.Add(fun e ->  do canvasKeyUp (e))            
 
             // CATCH INPUT CHAR

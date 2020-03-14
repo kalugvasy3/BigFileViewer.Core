@@ -185,18 +185,29 @@ type MyTextBox() as this  =
             
             if e.MouseDevice.LeftButton.ToString() = "Pressed" && Keyboard.Modifiers = ModifierKeys.Shift then
                  
-                if crt.AbsoluteNumLineCurrent = openUpdateMMF.IntLastLineOnPage - 1  then scrollY.Value <- scrollY.Value + 3.0
-                                                                                          crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntLastLineOnPage
-                if crt.AbsoluteNumLineCurrent = openUpdateMMF.IntFirstLineOnPage then scrollY.Value <- scrollY.Value - 3.0
-                                                                                      crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntFirstLineOnPage
-                if crt.AbsoluteNumCharCurrent = openUpdateMMF.IntLastCharOnPage  then scrollX.Value <- scrollX.Value + 3.0
-                if crt.AbsoluteNumCharCurrent = openUpdateMMF.IntFirstCharOnPage then scrollX.Value <- scrollX.Value - 3.0
+                if crt.AbsoluteNumLineCurrent >= openUpdateMMF.IntLastLineOnPage - 1  then 
+                                                        do scrollY.Value <- scrollY.Value + 3.0
+                                                        do crt.AbsoluteNumLineCurrent <- (int)scrollY.Value + openUpdateMMF.IntVertCountLinesOnPage
+                if crt.AbsoluteNumLineCurrent <= openUpdateMMF.IntFirstLineOnPage then 
+                                                        do scrollY.Value <- scrollY.Value - 3.0
+                                                        do crt.AbsoluteNumLineCurrent <- (int)scrollY.Value
+                if crt.AbsoluteNumCharCurrent >= openUpdateMMF.IntLastCharOnPage  then 
+                                                        do scrollX.Value <- scrollX.Value + 3.0
+                                                        do crt.AbsoluteNumCharCurrent <- (int)scrollX.Value + openUpdateMMF.IntHorizCountCharsOnPage
+                if crt.AbsoluteNumCharCurrent <= openUpdateMMF.IntFirstCharOnPage then 
+                                                        do scrollX.Value <- scrollX.Value - 3.0
+                                                        do crt.AbsoluteNumCharCurrent <- (int)scrollX.Value
+                do Thread.Sleep(0)
                 setMousePositionForMoving() 
                 //spCurrentSelectionByMouse()
 
             let intRelativeX = (int)((Mouse.GetPosition(canvasSelected).X + myFonts.Tb_FontSize / 4.0) * myFonts.CoeffFont_Widh / myFonts.Tb_FontSize)
             let intRelativeY = (int)(Mouse.GetPosition(canvasSelected).Y  * myFonts.CoeffFont_High / myFonts.Tb_FontSize)
-            tbXY.Text <- "X:" + (intRelativeX + openUpdateMMF.IntFirstCharOnPage).ToString("0,0") + "   Y:" + (intRelativeY + openUpdateMMF.IntFirstLineOnPage).ToString("0,0");
+            
+            do this.Dispatcher.Invoke(new Action ( fun () -> tbXY.Text <- "X:" + (intRelativeX + openUpdateMMF.IntFirstCharOnPage).ToString("0,0") 
+                                                                               + "   Y:" + (intRelativeY + openUpdateMMF.IntFirstLineOnPage).ToString("0,0")))
+            
+            
             //do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
             //do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas
             //do Thread.Sleep(0) 
@@ -214,7 +225,7 @@ type MyTextBox() as this  =
             do scrollX.LargeChange <- float (openUpdateMMF.IntHorizCountCharsOnPage / 2);
             do tbX.Text <- "X: " + openUpdateMMF.IntFirstCharOnPage.ToString("0,0") + " of " + ((int)scrollX.Maximum).ToString("0,0") 
             do Thread.Sleep(0)
-
+            
 
 
     let initYScroll() = 
@@ -226,7 +237,7 @@ type MyTextBox() as this  =
             do scrollY.LargeChange <- float (openUpdateMMF.IntVertCountLinesOnPage / 2)   // number lines per page/2
             do tbY.Text <- "Y: " + openUpdateMMF.IntFirstLineOnPage.ToString("0,0") + " of " + ((int)scrollY.Maximum).ToString("0,0") + "   (" + openUpdateMMF.IntVertCountLinesOnPage.ToString() + ")";     
             do Thread.Sleep(0)
-
+            
 
 
     let updateUserClock (blnVisible : bool) =
@@ -450,7 +461,8 @@ type MyTextBox() as this  =
                                       | Key.Insert -> blnInsert <- not blnInsert
                                                       do isCrtInsideWindow() |> ignore
                                       | _ -> ignore()
-            set_Caret()
+
+            do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
             do Thread.Sleep(0)
 
 

@@ -38,8 +38,8 @@
         <TextBlock Height="11" HorizontalAlignment="Right" Margin="0,0,40,2" Name="tbXY" Text="X:0 Y:0" VerticalAlignment="Bottom"  FontFamily="Courier New" Foreground="DeepSkyBlue" FontSize="11" />
 
         
-        <ScrollBar x:Name="scrollX"  VerticalAlignment="Bottom" Margin="0,0,17,0" Height="17" Orientation="Horizontal" Opacity="0.4"  Background="LightGray" BorderThickness="0" BorderBrush="DarkGray" SmallChange="1" />
-        <ScrollBar x:Name="scrollY" HorizontalAlignment="Right" Margin="0,0,0,17" Background="LightGray" Opacity="0.4"  BorderThickness="0" BorderBrush="DarkGray" SmallChange="1"   />
+        <ScrollBar x:Name="scrollX"  VerticalAlignment="Bottom" Margin="0,0,17,0" Height="17" Orientation="Horizontal" Opacity="0.3"  Background="LightGray" BorderThickness="0" BorderBrush="DarkGray" SmallChange="1" />
+        <ScrollBar x:Name="scrollY" HorizontalAlignment="Right" Margin="0,0,0,17" Background="LightGray" Opacity="0.3"  BorderThickness="0" BorderBrush="DarkGray" SmallChange="1"   />
 
         
 

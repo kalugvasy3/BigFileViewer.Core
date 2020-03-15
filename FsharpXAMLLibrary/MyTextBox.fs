@@ -353,7 +353,7 @@ type MyTextBox() as this  =
            match posX, posY with   
            // 0,  0   is default behavior.
 
-           | -1,  0 -> scrollX.Value <- (float)crt.AbsoluteNumCharCurrent
+           | -1,  0 -> scrollX.Value <- (float)crt.AbsoluteNumCharCurrent                                        
            
            |  0, -1 -> scrollY.Value <- (float)crt.AbsoluteNumLineCurrent
            
@@ -373,7 +373,7 @@ type MyTextBox() as this  =
            | -1, +1 -> scrollX.Value <- (float)crt.AbsoluteNumCharCurrent
                        scrollY.Value <- (float)(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage + 1)
            | _ ,  _ -> ignore()
-           
+
            (posX, posY)
 
 
@@ -459,7 +459,7 @@ type MyTextBox() as this  =
 
                                       | Key.Insert -> blnInsert <- not blnInsert
                                                       do isCrtInsideWindow() |> ignore
-                                      | _ when ((int)e.Key >= 40) ->  do isCrtInsideWindow() |> ignore
+                                      | _ when ((int)e.Key >= 18) ->  do isCrtInsideWindow() |> ignore
 
                                       | _ -> ignore()
 
@@ -746,7 +746,6 @@ type MyTextBox() as this  =
             // CATCH INPUT CHAR
             do crt.EventTextInput.Add(fun e -> crtEventTextInput (e))    // Use this event for catch new char with right encoding.
 
-            // Set Caret "crt"
             do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
             do Thread.Sleep(0)
        

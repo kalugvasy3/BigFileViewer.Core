@@ -76,9 +76,6 @@ type MyTextBox() as this  =
                                         GC.Collect()
 
 
-
-
-
  
 
     //Function "Set Caret" to Absolute Position   
@@ -122,7 +119,6 @@ type MyTextBox() as this  =
 
 
 
-
     let setMousePositionForMoving() =
        do pointMouseLeftButtonPressed <- Mouse.GetPosition(canvasSelected)
        let p = Mouse.GetPosition(txtBlock) 
@@ -130,11 +126,10 @@ type MyTextBox() as this  =
        do crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntFirstLineOnPage + (int)(p.Y / myFonts.Tb_FontSize * myFonts.CoeffFont_High); 
        do crt.AbsoluteNumCharCurrent <- openUpdateMMF.IntFirstCharOnPage + (int)((p.X +  myFonts.Tb_FontSize / 4.0) / myFonts.Tb_FontSize * myFonts.CoeffFont_Widh);
 
-
-       //if (Keyboard.Modifiers != ModifierKeys.Shift) {
-       //    intAbsolutSelectVertStart = intAbsolutCaretVertCurrent;   // Save/Select Start Position for Selection
-       //    intAbsolutSelectHorizStart = intAbsolutCaretHorizCurrent; // Save/Select Start Position for Selection
-       //}
+       // ...Start position refresh each movment till press SHIFT
+       if Keyboard.Modifiers <> ModifierKeys.Shift then
+           do intAbsolutSelectVertStart <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
+           do intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent // Save/Select Start Position for Selection     
 
        do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
 
@@ -271,12 +266,16 @@ type MyTextBox() as this  =
             this.Dispatcher.InvokeAsync(new Action ( fun _ ->
                  do openUpdateMMF.BlnStopSearch <- true
                  do updateUserClock(false) 
-                 Thread.Sleep(10)
+                 Thread.Sleep(0)
                  let deltaY = scrollX.ActualHeight
                  let curr = Mouse.GetPosition(scrollY)
                  let iy = int (scrollY.Maximum *  (curr.Y - deltaY) / (scrollY.ActualHeight - 2.0 * deltaY) )
-                 Thread.Sleep(10)
-                 scrollY.Value <- float iy 
+                 Thread.Sleep(0)
+                 scrollY.Value <- float iy
+                 
+                 if (int)scrollY.Value >= openUpdateMMF.IntNumberOfTotalLinesEstimation then
+                     do scrollY.Value <- float openUpdateMMF.IntNumberOfTotalLinesEstimation - 1.0
+
                  )) |> ignore 
                                                             
 
@@ -284,12 +283,12 @@ type MyTextBox() as this  =
             this.Dispatcher.InvokeAsync(new Action ( fun _ ->
                  do openUpdateMMF.BlnStopSearch <- true
                  do updateUserClock(false) 
-                 Thread.Sleep(10)
+                 Thread.Sleep(0)
 
                  let deltaX = scrollY.ActualWidth
                  let curr = Mouse.GetPosition(scrollX)
                  let ix = int (scrollX.Maximum *  (curr.X - deltaX) / (scrollX.ActualWidth - 2.0 * deltaX))
-                 Thread.Sleep(10)
+                 Thread.Sleep(0)
                  scrollX.Value <- float ix 
                  )) |> ignore
 
@@ -382,13 +381,13 @@ type MyTextBox() as this  =
  
             match Keyboard.Modifiers with
             | ModifierKeys.Shift   -> match e.Key with
-                                      | Key.Tab -> scrollX.Value <-  scrollX.Value - 4.0       // Right one Page
+                                      | Key.Tab -> scrollX.Value <-  scrollX.Value - 4.0       
 
-                                      | Key.PageUp -> scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage * 100.0        // 100*Up
+                                      | Key.PageUp -> scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage * 10.0        // 100*Up
 
-                                      | Key.PageDown -> scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage * 100.0      // 100*Down
+                                      | Key.PageDown -> scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage * 10.0      // 100*Down
 
-                                      | Key.Home -> scrollX.Value <- 0.0
+                                    //  | Key.Home -> scrollX.Value <- 0.0
                                     
                                       | _ -> ignore()     // Left one Page
 
@@ -460,6 +459,8 @@ type MyTextBox() as this  =
 
                                       | Key.Insert -> blnInsert <- not blnInsert
                                                       do isCrtInsideWindow() |> ignore
+                                      | _ when ((int)e.Key >= 40) ->  do isCrtInsideWindow() |> ignore
+
                                       | _ -> ignore()
 
             do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
@@ -468,17 +469,6 @@ type MyTextBox() as this  =
 
     let canvasKeyUp (e : KeyEventArgs ) =                 
         do Thread.Sleep(0)
-
-
-    //let canvasKeyDown (e : KeyEventArgs ) = 
-            
-    //        if crt.X >= openUpdateMMF.IntFirstCharOnPage &&
-    //           crt.X <= openUpdateMMF.IntLastCharOnPage &&
-    //           crt.Y >= openUpdateMMF.IntFirstLineOnPage &&
-    //           crt.Y <= openUpdateMMF.IntLastLineOnPage
-    //        then ignore()
-    //        else crtKeyDown(e)
- 
 
 
     let openFileTXT (files) =
@@ -700,6 +690,7 @@ type MyTextBox() as this  =
  
 
     let crtEventTextInput(e : TextCompositionEventArgs) = 
+        
         let chr = e.Text
         
         ignore()   // crt.LastChar
@@ -738,6 +729,9 @@ type MyTextBox() as this  =
             do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e) ) //setMousePositionForMoving()
             do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightUp(e) )            
 
+            //do canvasMain.KeyUp.Add(fun e ->   canvasKeyUp (e))   // Drop all flags “shift”, “alt”, “controls” only                                                 
+            //do crt.EventTxtKeyUp.Add(fun e ->  do canvasKeyUp (e))  
+
 
             //do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
 
@@ -745,17 +739,16 @@ type MyTextBox() as this  =
             do canvasMain.KeyDown.Add(fun e ->  if blnCrtFocus  // Prevent of duplicate action // If cursor, not visible will be work this code...
                                                    then blnCrtFocus <-false
                                                    else do canvasKeyDown (e)) 
+            
             do crt.EventTxtKeyDown.Add(fun e -> do blnCrtFocus <- true   // Prevent of duplicate action 
                                                 do canvasKeyDown (e))    // it works if cursor is visible.
-
-                                                   
-            do canvasMain.KeyUp.Add(fun e ->   canvasKeyUp (e))   // Drop all flags “shift”, “alt”, “controls” only                                                 
-            do crt.EventTxtKeyUp.Add(fun e ->  do canvasKeyUp (e))            
 
             // CATCH INPUT CHAR
             do crt.EventTextInput.Add(fun e -> crtEventTextInput (e))    // Use this event for catch new char with right encoding.
 
-            do setMousePositionForMoving()
+            // Set Caret "crt"
+            do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
+            do Thread.Sleep(0)
        
             //do crt.Focusable <- true
             //do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself

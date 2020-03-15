@@ -319,7 +319,7 @@ type OpenUpdateMMF() as _this   =
                                 else (new StringBuilder(),0)               
                                      
              
-                 | false -> match (curentI < nextBlockFirstLine - currentBlockFirstLine ) with
+                 | false -> match (curentI < nextBlockFirstLine - currentBlockFirstLine || arrayOfBlockInfo.Length = 1 ) with
                             |  true  -> if  curentI < refListCurrentSbAll.Value.Count && curentI >=0
                                             then ((refListCurrentSbAll.Value).[curentI], (refListCurrentSbAll.Value).[curentI].Length)
                                             else  (new StringBuilder(),0)

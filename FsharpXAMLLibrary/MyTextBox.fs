@@ -54,7 +54,10 @@ type MyTextBox() as this  =
 
     let mutable intAbsolutSelectVertStart = 0
     let mutable intAbsolutSelectHorizStart = 0
-    
+ 
+    let mutable intAbsolutSelectVertStop = 0
+    let mutable intAbsolutSelectHorizStop = 0
+
     do canvasMain.Children.Add(crt) |> ignore
 
     let mutable myMenu : MyMenu = (this.Content)?myMenu
@@ -120,7 +123,7 @@ type MyTextBox() as this  =
 
 
     let setMousePositionForMoving() =
-       do pointMouseLeftButtonPressed <- Mouse.GetPosition(canvasSelected)
+
        let p = Mouse.GetPosition(txtBlock) 
 
        do crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntFirstLineOnPage + (int)(p.Y / myFonts.Tb_FontSize * myFonts.CoeffFont_High); 
@@ -129,25 +132,38 @@ type MyTextBox() as this  =
        // ...Start position refresh each movment till press SHIFT
        if Keyboard.Modifiers <> ModifierKeys.Shift then
            do intAbsolutSelectVertStart <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
-           do intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent // Save/Select Start Position for Selection     
+           do intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent // Save/Select Start Position for Selection 
+       else
+           do intAbsolutSelectVertStop <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
+           do intAbsolutSelectHorizStop <- crt.AbsoluteNumCharCurrent // Save/Select Start Position for Selection 
 
        do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
 
        //do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
        //do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas
 
+    
+    
+    let spCurrentSelectionByMouse() = let p = Mouse.GetPosition(canvasMain)
+                                      ()
 
 
 
+    let mouseLeftDown(e: MouseButtonEventArgs) =  
+        do setMousePositionForMoving()
+        
+   
 
-    let mouseLeftDown(e: MouseButtonEventArgs) =  do setMousePositionForMoving()
 
-    let mouseLeftUp(e: MouseButtonEventArgs) =    ()
+    let mouseLeftUp(e: MouseButtonEventArgs) =   
+        do intAbsolutSelectVertStop <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
+        do intAbsolutSelectHorizStop <- crt.AbsoluteNumCharCurrent // Save/Select Start Position for Selection 
+
+
     let mouseRightDown(e: MouseButtonEventArgs) = ()
     let mouseRightUp(e: MouseButtonEventArgs) =   ()
 
-    let spCurrentSelectionByMouse() = let p = Mouse.GetPosition(canvasMain)
-                                      ()
+
    
    
    
@@ -178,7 +194,7 @@ type MyTextBox() as this  =
   
     let mouseMove(e:MouseEventArgs) = 
             
-            if e.MouseDevice.LeftButton.ToString() = "Pressed" && Keyboard.Modifiers = ModifierKeys.Shift then
+            if e.MouseDevice.LeftButton.ToString() = "Pressed"  then           //&& Keyboard.Modifiers = ModifierKeys.Shift
                  
                 if crt.AbsoluteNumLineCurrent >= openUpdateMMF.IntLastLineOnPage - 1  then 
                                                         do scrollY.Value <- scrollY.Value + 3.0
@@ -195,6 +211,10 @@ type MyTextBox() as this  =
                 do Thread.Sleep(0)
                 setMousePositionForMoving() 
                 //spCurrentSelectionByMouse()
+
+
+
+            // Inform Section - Status
 
             let intRelativeX = (int)((Mouse.GetPosition(canvasSelected).X + myFonts.Tb_FontSize / 4.0) * myFonts.CoeffFont_Widh / myFonts.Tb_FontSize)
             let intRelativeY = (int)(Mouse.GetPosition(canvasSelected).Y  * myFonts.CoeffFont_High / myFonts.Tb_FontSize)

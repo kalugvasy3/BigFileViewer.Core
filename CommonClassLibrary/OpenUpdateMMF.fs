@@ -20,6 +20,7 @@ open System.IO.MemoryMappedFiles
 open System.Windows.Controls
 open System.Threading
 
+//open System.Data.SQLite
 
 type OpenUpdateMMF() as _this   = 
 
@@ -234,9 +235,8 @@ type OpenUpdateMMF() as _this   =
                                                 Thread.Sleep(200)
 
     //let db = new SQLiteAccess()
-    //let dbOpen() = 
-             
-    //        db.ConnectionString <- @"Data Source=:memory:"  //       Data Source=C:\Users\kalugv\Documents\TMP.apv
+    //let dbOpen() =            
+    //        db.ConnectionString <- @"Data Source=:memory:"  //       Data Source=TMP.apv   \\Data Source=:memory:
     //        db.OpenDBConnection() |> ignore
     //        db.SbSqlCommandText <- new StringBuilder(@"DROP TABLE IF EXISTS [MYTMP]")
     //        db.ExecuteNonQuery(false) |> ignore       
@@ -276,7 +276,9 @@ type OpenUpdateMMF() as _this   =
                     //    | false -> sb.Append(" UNION ").Append(System.Environment.NewLine) |> ignore
                     //    | true -> ignore()                              
 
+                    //let mutable numEffect = 0
                     //if countSelect > 0 then db.ExecuteNonQuery(sb, false) |> ignore
+                    //                        do numEffect <- db.IntNumberOfRow
 
                     match intMinLinesPerBloc > countLine with
                     | true -> do intMinLinesPerBloc <- countLine

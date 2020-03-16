@@ -27,8 +27,8 @@
     <Compile Include="DataCommon.fs" />
     <EmbeddedResource Include="MyMenu.xaml" />
     <Compile Include="MyMenu.fs" />
-    <Compile Include="OpenUpdateMMF.fs" />
     <Compile Include="SQLiteAccess.fs" />
+    <Compile Include="OpenUpdateMMF.fs" />
     <EmbeddedResource Include="SelectedRectangle.xaml" />
     <Compile Include="SelectedRectangle.fs" />
     <Compile Include="SelectedPositions.fs" />

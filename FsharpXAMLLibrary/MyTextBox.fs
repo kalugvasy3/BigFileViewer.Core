@@ -121,37 +121,38 @@ type MyTextBox() as this  =
         do Thread.Sleep(0)
 
 
-
-    let setMousePositionForMoving() =
-
-       let p = Mouse.GetPosition(txtBlock) 
-
-       do crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntFirstLineOnPage + (int)(p.Y / myFonts.Tb_FontSize * myFonts.CoeffFont_High); 
-       do crt.AbsoluteNumCharCurrent <- openUpdateMMF.IntFirstCharOnPage + (int)((p.X +  myFonts.Tb_FontSize / 4.0) / myFonts.Tb_FontSize * myFonts.CoeffFont_Widh);
-
-       // ...Start position refresh each movment till press SHIFT
-       if Keyboard.Modifiers <> ModifierKeys.Shift then
-           do intAbsolutSelectVertStart <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
-           do intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent // Save/Select Start Position for Selection 
-       else
-           do intAbsolutSelectVertStop <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
-           do intAbsolutSelectHorizStop <- crt.AbsoluteNumCharCurrent // Save/Select Start Position for Selection 
-
-       do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
-
-       //do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
-       //do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas
-
-    
-    
     let spCurrentSelectionByMouse() = let p = Mouse.GetPosition(canvasMain)
                                       ()
 
 
+    let setMousePositionForMoving() =
+        let p = Mouse.GetPosition(txtBlock) 
+       
+        do crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntFirstLineOnPage + (int)(p.Y / myFonts.Tb_FontSize * myFonts.CoeffFont_High); 
+        do crt.AbsoluteNumCharCurrent <- openUpdateMMF.IntFirstCharOnPage + (int)((p.X +  myFonts.Tb_FontSize / 4.0) / myFonts.Tb_FontSize * myFonts.CoeffFont_Widh);
+       
+        // ...Start position refresh each movment till press SHIFT
+        if Keyboard.Modifiers <> ModifierKeys.Shift && Mouse.LeftButton.ToString() <> "Pressed"  then
+            do intAbsolutSelectVertStart  <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
+            do intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent   // Save/Select Start Position for Selection 
+        else
+            do intAbsolutSelectVertStop  <- crt.AbsoluteNumLineCurrent    // Save/Select Start Position for Selection
+            do intAbsolutSelectHorizStop <- crt.AbsoluteNumCharCurrent    // Save/Select Start Position for Selection 
+        
+        do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
+       
+
+        if Keyboard.Modifiers = ModifierKeys.Shift || Mouse.LeftButton.ToString() = "Pressed"  then
+            do spCurrentSelectionByMouse()
+        
+
+        //do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
+        //do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas
+ 
+
 
     let mouseLeftDown(e: MouseButtonEventArgs) =  
-        do setMousePositionForMoving()
-        
+        do setMousePositionForMoving()     
    
 
 

@@ -121,8 +121,12 @@ type MyTextBox() as this  =
         do Thread.Sleep(0)
 
 
-    let spCurrentSelectionByMouse() = let p = Mouse.GetPosition(canvasMain)
-                                      ()
+    let spCurrentSelectionByMouse() = if intAbsolutSelectVertStart <> intAbsolutSelectVertStop || intAbsolutSelectHorizStart <> intAbsolutSelectHorizStop 
+                                         then
+                                             //Build rextangle
+                                             ()
+                                         else
+                                            ignore()
 
 
     let setMousePositionForMoving() =
@@ -131,20 +135,22 @@ type MyTextBox() as this  =
         do crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntFirstLineOnPage + (int)(p.Y / myFonts.Tb_FontSize * myFonts.CoeffFont_High); 
         do crt.AbsoluteNumCharCurrent <- openUpdateMMF.IntFirstCharOnPage + (int)((p.X +  myFonts.Tb_FontSize / 4.0) / myFonts.Tb_FontSize * myFonts.CoeffFont_Widh);
        
-        // ...Start position refresh each movment till press SHIFT
+        // ...Start position refresh each movment, till press SHIFT OR Left Pressed
         if Keyboard.Modifiers <> ModifierKeys.Shift && Mouse.LeftButton.ToString() <> "Pressed"  then
             do intAbsolutSelectVertStart  <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
             do intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent    
         else
             do intAbsolutSelectVertStop  <- crt.AbsoluteNumLineCurrent    // Save/Select Current Position for Selection
             do intAbsolutSelectHorizStop <- crt.AbsoluteNumCharCurrent    
-        
-        do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
-       
 
-        if Keyboard.Modifiers = ModifierKeys.Shift || Mouse.LeftButton.ToString() = "Pressed"  then
-            do spCurrentSelectionByMouse()
-        
+        if Keyboard.Modifiers = ModifierKeys.Shift || Mouse.LeftButton.ToString() = "Pressed"  
+        then
+            do spCurrentSelectionByMouse()   // Create Selected rectangle(s)
+        else
+            do  intAbsolutSelectVertStop <- intAbsolutSelectVertStart 
+            do  intAbsolutSelectHorizStop <- intAbsolutSelectHorizStart 
+
+        do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
 
         //do Keyboard.Focus(crt) |> ignore       // focus caretCanvas (textbox) itself
         //do crt.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down)) |> ignore    // move focus down to caret inside caretCanvas

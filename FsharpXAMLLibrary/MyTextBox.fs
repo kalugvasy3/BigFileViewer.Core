@@ -134,10 +134,10 @@ type MyTextBox() as this  =
         // ...Start position refresh each movment till press SHIFT
         if Keyboard.Modifiers <> ModifierKeys.Shift && Mouse.LeftButton.ToString() <> "Pressed"  then
             do intAbsolutSelectVertStart  <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
-            do intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent   // Save/Select Start Position for Selection 
+            do intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent    
         else
-            do intAbsolutSelectVertStop  <- crt.AbsoluteNumLineCurrent    // Save/Select Start Position for Selection
-            do intAbsolutSelectHorizStop <- crt.AbsoluteNumCharCurrent    // Save/Select Start Position for Selection 
+            do intAbsolutSelectVertStop  <- crt.AbsoluteNumLineCurrent    // Save/Select Current Position for Selection
+            do intAbsolutSelectHorizStop <- crt.AbsoluteNumCharCurrent    
         
         do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
        

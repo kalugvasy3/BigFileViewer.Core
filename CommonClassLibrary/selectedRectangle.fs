@@ -25,8 +25,8 @@ type  SelectedRectangle()  as this =
 
     member x.RecBrush  with get() = myRec.Fill  and set(v) = myRec.Fill <- v
     
-    member x.RecX with get() = tr.X  and set(v) = tr.X   <- v
-    member x.RecY with get() = tr.Y and set(v) = tr.Y <- v 
+    member x.TrX with get() = tr.X  and set(v) = tr.X   <- v
+    member x.TrY with get() = tr.Y and set(v) = tr.Y <- v 
     member x.Opacity with get() = myRec.Opacity and set(v) = myRec.Opacity <- v
 
     member x.SelectedRectangle(rW, rH, trX, trY , br, opt) =

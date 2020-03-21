@@ -95,7 +95,6 @@ type OpenUpdateMMF() as _this   =
 
 
 
-
     // Calculate   Current block by FirstLine on Page
     let calculateCurrentBlock (sReal) =  
             let mutable iC = 0
@@ -306,13 +305,15 @@ type OpenUpdateMMF() as _this   =
 
     let initCurrentWindowArray(i : int) =   // i - number of line         
 
-            if arrayOfBlockInfo.Length > 0 && arrayOfBlockInfo.Length >= int longCurrentBlock + 1   then
+            if arrayOfBlockInfo.Length > 0 && arrayOfBlockInfo.Length > int longCurrentBlock   
+            then
                  let currentBlockFirstLine : int = firstLine(int longCurrentBlock)  // length 
                  let curentI : int = i + intFirstLineOnPage - currentBlockFirstLine 
              
                  let previousBlockFirsLine : int =  firstLine(int longCurrentBlock - 1)
                  let nextBlockFirstLine : int = firstLine(int longCurrentBlock + 1)
                  Thread.Sleep(0)
+
                  match curentI < 0 with
                  | true ->  let prevI = currentBlockFirstLine + curentI - previousBlockFirsLine   // currentBlockFirstLine - 1 is previous
                             if (arrayOfBlockInfo.[int longCurrentBlock - 1] / 2  > prevI) then do intHysteresis <- -1
@@ -321,17 +322,30 @@ type OpenUpdateMMF() as _this   =
                                 else (new StringBuilder(),0)               
                                      
              
-                 | false -> match (curentI < nextBlockFirstLine - currentBlockFirstLine || arrayOfBlockInfo.Length = 1 ) with
-                            |  true  -> if  curentI < refListCurrentSbAll.Value.Count && curentI >=0
-                                            then ((refListCurrentSbAll.Value).[curentI], (refListCurrentSbAll.Value).[curentI].Length)
-                                            else  (new StringBuilder(),0)
+                 | false -> match (curentI < nextBlockFirstLine - currentBlockFirstLine,  arrayOfBlockInfo.Length ) with
+                            |  true, _  -> if  curentI < refListCurrentSbAll.Value.Count && curentI >=0
+                                           then ((refListCurrentSbAll.Value).[curentI], (refListCurrentSbAll.Value).[curentI].Length)
+                                           else  (new StringBuilder(),0)
              
-                            |  false -> let nextI = curentI + currentBlockFirstLine - nextBlockFirstLine + 1
-                                        if (nextI > arrayOfBlockInfo.[int longCurrentBlock + 1] / 2) then do intHysteresis <- +1
-                                        if nextI - 1  < refListNextSbAll.Value.Count &&  nextI  > 0 // if have not loaded yet 
-                                            then ((refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ], (refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ].Length)
-                                            else (new StringBuilder(),0)
-                 else (new StringBuilder(),0)
+                            |  false, 1 -> let nextI = curentI + currentBlockFirstLine + 1
+                                           do intHysteresis <- 0
+                                           if nextI - 1  < refListNextSbAll.Value.Count &&  nextI  > 0 // if have not loaded yet 
+                                           then ((refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ], (refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ].Length)
+                                           else (new StringBuilder(),0)
+
+                            |  false, 2 -> let nextI = curentI + currentBlockFirstLine - nextBlockFirstLine + 1
+                                           do intHysteresis <- 0
+                                           if nextI - 1  < refListNextSbAll.Value.Count &&  nextI  > 0 // if have not loaded yet 
+                                           then ((refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ], (refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ].Length)
+                                           else (new StringBuilder(),0)
+
+                            |  false, _ -> let nextI = curentI + currentBlockFirstLine - nextBlockFirstLine + 1
+                                           if (nextI > arrayOfBlockInfo.[int longCurrentBlock + 1] / 2) then do intHysteresis <- +1
+                                           if nextI - 1  < refListNextSbAll.Value.Count &&  nextI  > 0 // if have not loaded yet 
+                                           then ((refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ], (refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ].Length)
+                                           else (new StringBuilder(),0)
+
+            else (new StringBuilder(),0)
  
 
     let updateArrayPresentWindow () =   
@@ -348,26 +362,24 @@ type OpenUpdateMMF() as _this   =
                                 blnContinueContentFromMMF <- false
                                 Thread.Sleep(10) //Very important - STOP ALL Thread
 
+                                do refListCurrentSbAll <- ref (new  List<StringBuilder>())
+                                do refListPreviousSbAll <- ref (new  List<StringBuilder>())
+                                do refListNextSbAll <- ref (new  List<StringBuilder>())
+
+
                                 match ( longCurrentBlock > 0L , longCurrentBlock < longNumberOfBlocks - 1L) with
                                 // ONE BLOCK ONLY
-                                | (false, false) ->  do refListCurrentSbAll <- ref (new  List<StringBuilder>())
-                                                     do getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, true, "C")
+                                | (false, false) ->  do getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, true, "C")
                                                      //[async { getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, false, "C") }] |> Async.Parallel |> Async.Ignore |> Async.Start 
                                 // TWO BLOCKS ONLY 
-                                | (true, false)  ->  do refListCurrentSbAll <- ref (new  List<StringBuilder>())
-                                                     do refListNextSbAll <- ref (new  List<StringBuilder>())
-                                                     
-                                                     do getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, true,"C")
+                                | (true, false)  ->  do getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, true,"C")
                                                      do getContentFromMMF (refListNextSbAll , int longCurrentBlock + 1, true, true,"N")
 
                                                      //[async { getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, false,"C") };
                                                      //async { getContentFromMMF (refListNextSbAll , int longCurrentBlock + 1, true, false,"N")} ] |> Async.Parallel |> Async.Ignore |> Async.Start 
                                
                                 // THREE OR MORE                      
-                                | (_ , _ )       ->  do refListCurrentSbAll <- ref (new  List<StringBuilder>())
-                                                     do refListPreviousSbAll <- ref (new  List<StringBuilder>())
-                                                     do refListNextSbAll <- ref (new  List<StringBuilder>())
-                                                     if longCurrentBlock = 0L then longCurrentBlock <- 1L
+                                | (_ , _ )       ->  if longCurrentBlock = 0L then longCurrentBlock <- 1L
                                                      if longCurrentBlock = longNumberOfBlocks - 1L then longCurrentBlock <- longNumberOfBlocks - 2L 
 
                                                      do getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, true, "C")
@@ -501,7 +513,7 @@ type OpenUpdateMMF() as _this   =
                  //| _ when r > 0.03125 && r <= 0.0625    -> longOfset <- longOfset * 32L;
                  //| _ when r > 0.0625 && r <= 0.125    -> longOfset <- longOfset * 16L;
                  //| _ when r > 0.125 && r <= 0.25    -> longOfset <- longOfset * 8L;
-                 | _ when r > 0.25 && r <= 0.5    -> longOfset <- longOfset * 4L;  
+                 | _ when r <= 0.5    -> longOfset <- longOfset * 4L;  
                  | _ when r > 0.5  && r <= 1.0    -> longOfset <- longOfset * 2L;   
                  | _ when r > 1.0  && r <= 2.0    -> ignore();                     
                  | _ when r > 2.0  && r <= 4.0    -> longOfset <- longOfset / 2L;  

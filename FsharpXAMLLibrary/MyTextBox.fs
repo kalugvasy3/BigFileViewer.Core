@@ -154,31 +154,6 @@ type MyTextBox() as this  =
 
         let mutable rect = new SelectedRectangle();
 
-        //if intBeginChar > intEndChar 
-        //then
-        //    let intTmp = intBeginChar.Value
-        //    intBeginChar.Value <- intEndChar.Value
-        //    intEndChar.Value <- intTmp
-
-        //if ((intBeginChar.Value > openUpdateMMF.IntLastCharOnPage ) ||
-        //    (intEndChar.Value < openUpdateMMF.IntFirstCharOnPage) ||
-        //    (intLine.Value < openUpdateMMF.IntFirstLineOnPage) ||
-        //    (intLine.Value >= openUpdateMMF.IntLastLineOnPage )) 
-        //then
-        //    rect.RecW <- 0.0
-        //    rect.RecH <- 0.0
-        //    rect.RecBrush <- new SolidColorBrush(Colors.Transparent)
-        //    rect
-        //else    
-
-        //intBeginChar.Value <- if intBeginChar.Value > openUpdateMMF.IntFirstCharOnPage - 1 
-        //                      then intBeginChar.Value
-        //                      else openUpdateMMF.IntFirstCharOnPage
-
-        //intEndChar.Value   <- if intEndChar.Value > openUpdateMMF.IntFirstCharOnPage + 1 
-        //                      then intEndChar.Value
-        //                      else openUpdateMMF.IntFirstCharOnPage
-
         let iBChar = intBeginChar.Value - openUpdateMMF.IntFirstCharOnPage
         let iEChar = intEndChar.Value - openUpdateMMF.IntFirstCharOnPage;
 
@@ -186,11 +161,13 @@ type MyTextBox() as this  =
 
         rect.TrX <- myFonts.Tb_FontSize * (float)iBChar / myFonts.CoeffFont_Widh
         rect.TrY <- myFonts.Tb_FontSize * (float)iLine / myFonts.CoeffFont_High    
-
+ 
         rect.RecH <- myFonts.Tb_FontSize /  myFonts.CoeffFont_High
+        
         if (iBChar - iEChar = 0) 
         then rect.RecW <- myFonts.Tb_FontSize / myFonts.CoeffFont_Widh / 3.0
-        else rect.RecW <- (float)(iEChar - iBChar) * myFonts.Tb_FontSize / myFonts.CoeffFont_Widh
+        else  let w = (float)(iEChar - iBChar) * myFonts.Tb_FontSize / myFonts.CoeffFont_Widh
+              rect.RecW <- Math.Max(0.0, w)
         rect
 
     let mutable mapOfSelectedPosition = new MapOfSelectPosition()
@@ -213,51 +190,80 @@ type MyTextBox() as this  =
              c.Children.Clear()
 
              // End Selecting Or Selected
-            
-             for iCurrentLine = openUpdateMMF.IntFirstLineOnPage to openUpdateMMF.IntLastLineOnPage - 1 do
-                 do Thread.Sleep(0)           
-             
-                 let lst = mapOf.Get(iCurrentLine)  // if no value by iCurrentLine it return Empty List
-            
+
+
+             for mapRec in mapOf.MapOfSP do
+                 let lst  = mapRec.Value
                  for sp  in lst  do
-                     
                      let (intStartLine, intStartChar,intStopLine, intStopChar) = sp.Get
-                     let lStopLine = Math.Min(intStopLine, openUpdateMMF.IntLastCharOnPage)
+                     
+                     let mutable startCycle = 0
+                     let mutable stopCycle = 0
+
+                     if intStartLine >= openUpdateMMF.IntFirstLineOnPage &&  intStartLine <= openUpdateMMF.IntLastLineOnPage 
+                     then startCycle <- intStartLine 
+                     
+                     if intStartLine <= openUpdateMMF.IntFirstLineOnPage  
+                     then startCycle <- openUpdateMMF.IntFirstLineOnPage
+
+                     if intStopLine >= openUpdateMMF.IntFirstLineOnPage &&  intStopLine <= openUpdateMMF.IntLastLineOnPage 
+                     then stopCycle <- intStopLine 
+
+                     if intStopLine >= openUpdateMMF.IntLastLineOnPage  
+                     then stopCycle <- openUpdateMMF.IntLastLineOnPage
+
                   
-                     for iCurrenSelectLine = intStartLine to lStopLine  do
+                     for iCurrenSelectLine = startCycle to stopCycle  do
                          //Maximum Lenght Current Line.
-                         let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iCurrenSelectLine - openUpdateMMF.IntFirstLineOnPage]                     
+                         let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, iCurrenSelectLine - openUpdateMMF.IntFirstLineOnPage)
+                         let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iC]                     
  
                          let mutable iStartCh = intStartChar
                          let mutable iStopCh = intStopChar
 
-                         // Left
-                         let mutable iActualLeft =  Math.Min(intStartChar, openUpdateMMF.IntLastCharOnPage) 
-                         do iActualLeft <- Math.Min(iActualLeft, iLen) 
-                         do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage)                                           
+                         let mutable iActualLeft = intStartChar
+                         let mutable iActualRight = intStopChar
 
-                         let mutable iActualRight = Math.Min(iLen,openUpdateMMF.IntLastCharOnPage)
-                         do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage) 
+                         if (intStartLine = intStopLine) 
+                         then 
+                             do iActualLeft <- Math.Min(intStartChar, iLen)
+                             do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage) 
+                             do iActualLeft <- Math.Min(iActualLeft, openUpdateMMF.IntLastCharOnPage)
+
+                             do iActualRight <- Math.Min(intStopChar, iLen) 
+                             do iActualRight <- Math.Min(iActualRight, openUpdateMMF.IntLastCharOnPage)
+                             do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage)
+
+                         else
+                             do iActualLeft <- Math.Min(intStartChar, iLen)
+                             do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage) 
+
+                             do iActualRight <- Math.Min(openUpdateMMF.IntLastCharOnPage, iLen)
+                             do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage) 
+                             do iActualRight <- Math.Min(iActualRight, openUpdateMMF.IntLastCharOnPage)
+                     
 
                          if (iCurrenSelectLine = intStartLine) 
-                         then do iStartCh <- iActualLeft
-                              do iStopCh  <- iActualRight
+                         then 
+                             do iStartCh <- iActualLeft
+                             do iStopCh  <- iActualRight
+                    
+
+                         if  (iCurrenSelectLine <> intStartLine && iCurrenSelectLine <> intStopLine)
+                         then
+                             do iStartCh <- openUpdateMMF.IntFirstCharOnPage
+                             do iStopCh  <- iActualRight 
+
+                     // Must be less the Last Char On Page
                       
-                         do iActualRight <- Math.Min(iLen,openUpdateMMF.IntLastCharOnPage)
-                         do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage) 
 
-                         if  (iCurrenSelectLine <> intStartLine)
-                         then do iStartCh <- openUpdateMMF.IntFirstCharOnPage
-                              do iStopCh  <- iActualRight 
-
-                       // Must be less the Last Char On Page
-                         do iActualRight <- Math.Min(iLen,openUpdateMMF.IntLastCharOnPage)
-                         do iActualRight <- Math.Min(iActualRight, intStopChar)
-                         do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage)
-
-                         if (iCurrenSelectLine = lStopLine) 
-                         then do iStartCh <- openUpdateMMF.IntFirstCharOnPage
-                              do iStopCh  <- iActualRight
+                         if (iCurrenSelectLine = intStopLine && iCurrenSelectLine <> intStartLine) 
+                         then 
+                             do iActualRight <- Math.Min(iLen,openUpdateMMF.IntLastCharOnPage)
+                             do iActualRight <- Math.Min(iActualRight, intStopChar)
+                             do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage)
+                             do iStartCh <- openUpdateMMF.IntFirstCharOnPage
+                             do iStopCh  <- iActualRight
             
                          // rectungle  must be here
                          let mutable rect = set_Rectangle(ref iCurrenSelectLine, ref iStartCh, ref iStopCh, myBrush)
@@ -271,9 +277,6 @@ type MyTextBox() as this  =
 
 
     let currentcurrentCanvasSelecting()   =       
-            
-            if blnUpdateReady then
-                let colr = Colors.Indigo
 
                 let mutable intStartLine = intAbsolutSelectVertStart       
                 let mutable intStartChar = intAbsolutSelectHorizStart    
@@ -334,14 +337,13 @@ type MyTextBox() as this  =
                     do intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent
                     do intAbsolutSelectVertCurrent <- intAbsolutSelectVertStart
                     do intAbsolutSelectHorizCurrent <- intAbsolutSelectHorizStart
-                    
-                    do mapOfSelectingPosition.Empty()
                 else
                     do intAbsolutSelectVertCurrent  <- crt.AbsoluteNumLineCurrent    // Save/Select Current Position for Selection
                     do intAbsolutSelectHorizCurrent <- crt.AbsoluteNumCharCurrent    
         
                 do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
        
+                do mapOfSelectingPosition.Empty()
 
                 if Keyboard.Modifiers = ModifierKeys.Shift || Mouse.LeftButton = MouseButtonState.Pressed  then  //Mouse.LeftButton = MouseButtonState.Pressed 
                     if intAbsolutSelectVertStart <> intAbsolutSelectVertCurrent ||
@@ -411,19 +413,19 @@ type MyTextBox() as this  =
                 if crt.AbsoluteNumLineCurrent >= openUpdateMMF.IntLastLineOnPage - 1  then 
                                                         do scrollY.Value <- scrollY.Value + 1.0 //3.0
                                                         do crt.AbsoluteNumLineCurrent <- (int)scrollY.Value + openUpdateMMF.IntVertCountLinesOnPage
-                                                        do blnUpdateReady <- false
+                                                        
                 if crt.AbsoluteNumLineCurrent <= openUpdateMMF.IntFirstLineOnPage then 
                                                         do scrollY.Value <- scrollY.Value - 1.0 // 3.0
                                                         do crt.AbsoluteNumLineCurrent <- (int)scrollY.Value
-                                                        do blnUpdateReady <- false
+                                                        
                 if crt.AbsoluteNumCharCurrent >= openUpdateMMF.IntLastCharOnPage  then 
                                                         do scrollX.Value <- scrollX.Value + 1.0 // 3.0
                                                         do crt.AbsoluteNumCharCurrent <- (int)scrollX.Value + openUpdateMMF.IntHorizCountCharsOnPage
-                                                        do blnUpdateReady <- false
+                                                        
                 if crt.AbsoluteNumCharCurrent <= openUpdateMMF.IntFirstCharOnPage then 
                                                         do scrollX.Value <- scrollX.Value - 1.0 // 3.0
                                                         do crt.AbsoluteNumCharCurrent <- (int)scrollX.Value
-                                                        do blnUpdateReady <- false
+                                                        
                 do Thread.Sleep(10)               
                 do setMousePositionForMoving()  
 
@@ -492,8 +494,7 @@ type MyTextBox() as this  =
 
                  do updateSelect(mapOfSelectingPosition,"")
                  do updateSelect(mapOfSelectedPosition,"Selected")
-                 set_Caret()
-                 do blnUpdateReady <- true)) |> ignore                                            
+                 set_Caret())) |> ignore                                            
 
                   } ] |> Async.Parallel |> Async.Ignore |> Async.Start                                  
 

@@ -193,44 +193,80 @@ type MyTextBox() as this  =
         else rect.RecW <- (float)(iEChar - iBChar) * myFonts.Tb_FontSize / myFonts.CoeffFont_Widh
         rect
 
-    let mapOfSelectedPosition = new MapOfSelectedPosition()
+    let mutable mapOfSelectedPosition = new MapOfSelectPosition()
+    let mutable mapOfSelectingPosition = new MapOfSelectPosition()
 
+    let updateSelect(mapOf : MapOfSelectPosition, typeOfSelecting : String) =                 
 
-    let updateSelectingPosition() = ()
+        if mapOf.IsEmpty() 
+        then () 
+        else
+             let mutable c = new Canvas()  // This approach increase performance in 4..6 times // do not need to invalidate Rec which we already added
+             let mutable myBrush = new SolidColorBrush(Colors.LightBlue)
+             do c <- canvasSelecting   
+            
+             match typeOfSelecting with
+             | "Selected" -> do c <- canvasSelected                           
+                             do myBrush <- new SolidColorBrush(Colors.LimeGreen)   // Colors.LightBlue; Colors.Aquamarine; 
+             |_ -> ()
+            
+             c.Children.Clear()
 
+             // End Selecting Or Selected
+            
+             for iCurrentLine = openUpdateMMF.IntFirstLineOnPage to openUpdateMMF.IntLastLineOnPage - 1 do
+                 do Thread.Sleep(0)           
+             
+                 let lst = mapOf.Get(iCurrentLine)  // if no value by iCurrentLine it return Empty List
+            
+                 for sp  in lst  do
+                     
+                     let (intStartLine, intStartChar,intStopLine, intStopChar) = sp.Get
+                     let lStopLine = Math.Min(intStopLine, openUpdateMMF.IntLastCharOnPage)
+                  
+                     for iCurrenSelectLine = intStartLine to lStopLine  do
+                         //Maximum Lenght Current Line.
+                         let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iCurrenSelectLine - openUpdateMMF.IntFirstLineOnPage]                     
+ 
+                         let mutable iStartCh = intStartChar
+                         let mutable iStopCh = intStopChar
 
-       
+                         // Left
+                         let mutable iActualLeft =  Math.Min(intStartChar, openUpdateMMF.IntLastCharOnPage) 
+                         do iActualLeft <- Math.Min(iActualLeft, iLen) 
+                         do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage)                                           
 
-       //for i = intStartLine to intStopLine do 
-       //    let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[i - (int)scrollY.Value]
-           
-       //    if i = intStartLine && intStartLine <> intStopLine then
+                         let mutable iActualRight = Math.Min(iLen,openUpdateMMF.IntLastCharOnPage)
+                         do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage) 
 
-       //        if  intStartChar >= iLen then do intStartChar <- iLen
-       //        do rect <- set_Rectangle(ref i ,ref intStartChar, ref iLen, myBrush);
-       //        do mapOfSelectedPosition.Add(i, intStartChar, iLen) |> ignore
+                         if (iCurrenSelectLine = intStartLine) 
+                         then do iStartCh <- iActualLeft
+                              do iStopCh  <- iActualRight
+                      
+                         do iActualRight <- Math.Min(iLen,openUpdateMMF.IntLastCharOnPage)
+                         do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage) 
 
-       //    if (i = intStartLine && intStartLine = intStopLine) then
+                         if  (iCurrenSelectLine <> intStartLine)
+                         then do iStartCh <- openUpdateMMF.IntFirstCharOnPage
+                              do iStopCh  <- iActualRight 
 
-       //        if (intStopChar >= iLen) then intStopChar <- iLen
-       //        if (intStartChar >= iLen) then intStartChar <- iLen
-       //        do rect <- set_Rectangle(ref i, ref intStartChar, ref intStopChar, myBrush)
-       //        do mapOfSelectedPosition.Add(i, intStartChar, intStopChar) |> ignore
+                       // Must be less the Last Char On Page
+                         do iActualRight <- Math.Min(iLen,openUpdateMMF.IntLastCharOnPage)
+                         do iActualRight <- Math.Min(iActualRight, intStopChar)
+                         do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage)
 
-       //    if (i = intStopLine && intStartLine <> intStopLine) then
-       //        if (intStopChar >= iLen) then intStopChar <- iLen
-       //        do rect <- set_Rectangle(ref i, ref 0, ref intStopChar, myBrush);
-       //        do mapOfSelectedPosition.Add(i, 0, intStopChar) |> ignore
-
-       //    if (intStartLine < i && i < intStopLine) then
-       //        do rect <- set_Rectangle(ref i, ref 0, ref iLen, myBrush);
-       //        do mapOfSelectedPosition.Add(i, 0, iLen) |> ignore
-
-       //    let mutable cc = new Canvas();
-
-       //    this.Dispatcher.Invoke(new Action(fun () -> do c.Children.Add(rect) |> ignore
-       //                                                do c.Children.Add(cc) |> ignore
-       //                                                do c <- cc))
+                         if (iCurrenSelectLine = lStopLine) 
+                         then do iStartCh <- openUpdateMMF.IntFirstCharOnPage
+                              do iStopCh  <- iActualRight
+            
+                         // rectungle  must be here
+                         let mutable rect = set_Rectangle(ref iCurrenSelectLine, ref iStartCh, ref iStopCh, myBrush)
+                         do rect.Opacity <- 0.4
+                   
+                         let mutable cc = new Canvas();
+                         this.Dispatcher.Invoke(new Action(fun () -> do c.Children.Add(rect) |> ignore
+                                                                     do c.Children.Add(cc) |> ignore
+                                                                     do c <- cc))
 
 
 
@@ -273,68 +309,17 @@ type MyTextBox() as this  =
                     intStopChar <- intTmp
              
                 if (blnPenDeSelect = false && blnRecSelect = false && blnRecDeSelect = false && blnPlaceHolder = false) then
-                    let  clr = Colors.Indigo
-                    let mutable rect = new SelectedRectangle()
-                    do rect.Opacity <- 0.2;
-
-                    let myBrush = new SolidColorBrush(clr)
-                    //do myBrush.Freeze();
-
-                    let mutable c = new Canvas()  // This approach increase performance in 4..6 times // do not need to invalidate Rec which we already added
-                    do c <- canvasSelecting
-
-                    do mapOfSelectedPosition.Empty()
-
-                    for i = intStartLine to intStopLine do 
-                        do Thread.Sleep(1)
-                        if (i - openUpdateMMF.IntFirstLineOnPage) >= 0 
-                        then 
-                            let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[i - openUpdateMMF.IntFirstLineOnPage]
-                        
-                            let iActualLeft = openUpdateMMF.IntFirstCharOnPage
-                            let iActualRight = Math.Min(iLen,openUpdateMMF.IntLastCharOnPage)
-                            let mutable iStartL = intStartLine
-                            let mutable iStopL = intStopLine
-                            let mutable iStartCh = intStartChar
-                            let mutable iStopCh = intStopChar
-
-                            if (intStopChar >= iActualRight) then iStopCh <- iActualRight
-                            if (intStartChar >= iActualRight) then iStartCh <- iActualRight
-                            if (intStopChar <= iActualLeft) then iStopCh <- iActualLeft
-                            if (intStartChar <= iActualLeft) then iStartCh <- iActualLeft
-
-                            if (i = intStartLine && intStartLine = intStopLine) then
-                                do rect <- set_Rectangle(ref i, ref iStartCh, ref iStopCh, myBrush)
-                                // Map must include absolute number
-                                do mapOfSelectedPosition.Add(i, intStartChar, intStopChar) |> ignore
-
-
-                            if i = intStartLine && intStartLine < intStopLine then                              
-                                do rect <- set_Rectangle(ref i ,ref iStartCh, ref iActualRight, myBrush);
-                                // Map must include absolute number
-                                do mapOfSelectedPosition.Add(i, intStartChar, iLen) |> ignore
-
-                            if (i = intStopLine && intStartLine < intStopLine) then
-                                do rect <- set_Rectangle(ref i, ref iActualLeft, ref iStopCh, myBrush);
-                                // Map must include absolute number
-                                do mapOfSelectedPosition.Add(i, 0, intStopChar) |> ignore
-
-                            if (intStartLine < i && i < intStopLine) then
-                                do rect <- set_Rectangle(ref i, ref iActualLeft, ref iActualRight, myBrush);
-                                // Map must include absolute number
-                                do mapOfSelectedPosition.Add(i, 0, iLen) |> ignore
-
-                            let mutable cc = new Canvas();
-                            this.Dispatcher.Invoke(new Action(fun () -> do c.Children.Add(rect) |> ignore
-                                                                        do c.Children.Add(cc) |> ignore
-                                                                        do c <- cc))
-
+                    
+                    do mapOfSelectingPosition.Empty()
+                    do mapOfSelectingPosition.Add(intStartLine, intStartLine, intStartChar, intStopLine, intStopChar) |> ignore
+                ()
 
 
     let mutable blnMouseLeftPressed = false
 
 
     let setMousePositionForMoving() =
+        
 
         if Mouse.RightButton.ToString() <> "Pressed" 
            then   
@@ -342,15 +327,15 @@ type MyTextBox() as this  =
        
                 do crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntFirstLineOnPage + (int)(p.Y / myFonts.Tb_FontSize * myFonts.CoeffFont_High)
                 do crt.AbsoluteNumCharCurrent <- openUpdateMMF.IntFirstCharOnPage + (int)((p.X +  myFonts.Tb_FontSize / 4.0) / myFonts.Tb_FontSize * myFonts.CoeffFont_Widh)
-       
-                // ...Start position refresh each movment till press SHIFT
-                do this.Dispatcher.Invoke(new Action ( fun () -> do canvasSelecting.Children.Clear()))
+
                 if Keyboard.Modifiers <> ModifierKeys.Shift && blnMouseLeftPressed  then                   
                     
                     do intAbsolutSelectVertStart  <- crt.AbsoluteNumLineCurrent   // Save/Select Start Position for Selection
                     do intAbsolutSelectHorizStart <- crt.AbsoluteNumCharCurrent
                     do intAbsolutSelectVertCurrent <- intAbsolutSelectVertStart
                     do intAbsolutSelectHorizCurrent <- intAbsolutSelectHorizStart
+                    
+                    do mapOfSelectingPosition.Empty()
                 else
                     do intAbsolutSelectVertCurrent  <- crt.AbsoluteNumLineCurrent    // Save/Select Current Position for Selection
                     do intAbsolutSelectHorizCurrent <- crt.AbsoluteNumCharCurrent    
@@ -358,10 +343,11 @@ type MyTextBox() as this  =
                 do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
        
 
-                if Keyboard.Modifiers = ModifierKeys.Shift || Mouse.LeftButton = MouseButtonState.Pressed && blnUpdateReady  then  //Mouse.LeftButton = MouseButtonState.Pressed 
+                if Keyboard.Modifiers = ModifierKeys.Shift || Mouse.LeftButton = MouseButtonState.Pressed  then  //Mouse.LeftButton = MouseButtonState.Pressed 
                     if intAbsolutSelectVertStart <> intAbsolutSelectVertCurrent ||
                        intAbsolutSelectHorizStart <> intAbsolutSelectHorizCurrent
-                    then do currentcurrentCanvasSelecting() 
+                    then do currentcurrentCanvasSelecting()
+                         do updateSelect(mapOfSelectingPosition,"")
   
             else ignore()
   
@@ -377,7 +363,8 @@ type MyTextBox() as this  =
 
         do this.Dispatcher.Invoke(new Action ( fun () -> do canvasSelecting.Children.Clear()))
         do blnMouseLeftPressed <- true
-        do setMousePositionForMoving()      
+        do setMousePositionForMoving()  
+        
 
     let mouseLeftUp(e: MouseButtonEventArgs) = 
         do blnMouseLeftPressed <- false
@@ -502,6 +489,9 @@ type MyTextBox() as this  =
             this.Dispatcher.InvokeAsync(new Action ( fun _ ->                                                    
                  do openUpdateMMF.UpdateCurrentWindow(ref txtBlock  , ref lenghtArr, blnChange, myMenu.TxtFind) |> ignore
                  //if myMenu.TxtFind.Trim() = "" then do openUpdateMMF.BlnStopSearch <- true 
+
+                 do updateSelect(mapOfSelectingPosition,"")
+                 do updateSelect(mapOfSelectedPosition,"Selected")
                  set_Caret()
                  do blnUpdateReady <- true)) |> ignore                                            
 
@@ -782,6 +772,8 @@ type MyTextBox() as this  =
             // Final Thread
             let finalThreadDoWOrk(x : bool) = 
                                     do this.Dispatcher.Invoke(new Action ( fun () -> 
+                                                do mapOfSelectedPosition <- new MapOfSelectPosition()
+                                                do mapOfSelectingPosition <- new MapOfSelectPosition()
 
                                                 do updateUserClock (false)
                                                 do update(true)

@@ -340,7 +340,7 @@ type OpenUpdateMMF() as _this   =
                                            else (new StringBuilder(),0)
 
                             |  false, _ -> let nextI = curentI + currentBlockFirstLine - nextBlockFirstLine + 1
-                                           if (nextI > arrayOfBlockInfo.[int longCurrentBlock + 1] / 2) then do intHysteresis <- +1
+                                           if (nextI > arrayOfBlockInfo.[Math.Min(int longCurrentBlock + 1, arrayOfBlockInfo.Length - 1 )] / 2) then do intHysteresis <- +1
                                            if nextI - 1  < refListNextSbAll.Value.Count &&  nextI  > 0 // if have not loaded yet 
                                            then ((refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ], (refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ].Length)
                                            else (new StringBuilder(),0)
@@ -517,11 +517,11 @@ type OpenUpdateMMF() as _this   =
                  | _ when r > 0.5  && r <= 1.0    -> longOfset <- longOfset * 2L;   
                  | _ when r > 1.0  && r <= 2.0    -> ignore();                     
                  | _ when r > 2.0  && r <= 4.0    -> longOfset <- longOfset / 2L;  
-                 | _ when r > 4.0  && r <= 8.0    -> longOfset <- longOfset / 4L;
-                 | _ when r > 8.0  && r <= 16.0   -> longOfset <- longOfset / 8L;
+                 //| _ when r > 4.0  && r <= 8.0    -> longOfset <- longOfset / 4L;
+                 //| _ when r > 8.0  && r <= 16.0   -> longOfset <- longOfset / 8L;
                  //| _ when r > 16.0  && r <= 32.0   -> longOfset <- longOfset / 16L;
                  //| _ when r > 32.0  && r <= 64.0   -> longOfset <- longOfset / 32L;
-                 | _ when r > 16.0                -> longOfset <- longOfset / 16L; 
+                 | _ when r > 4.0                -> longOfset <- longOfset / 4L; 
                  | _ ->  longOfset <- 0L
                          do strReturn <- "One or more line(s) exceed "+ intLimitCharsPerLine.ToString("0,0") + " chars, use Pro Version" 
             else longOfset <- 3L * longOfset 

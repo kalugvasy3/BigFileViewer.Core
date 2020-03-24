@@ -146,6 +146,7 @@ type MyTextBox() as this  =
     let mutable blnPenDeSelect = false
     let mutable blnRecSelect = false
     let mutable blnRecDeSelect = false
+    let mutable blnAppend = false
 
 
     // Create selectedRectangle
@@ -195,27 +196,31 @@ type MyTextBox() as this  =
              for mapRec in mapOf.MapOfSP do
                  let lst  = mapRec.Value
                  for sp  in lst  do
-                     let (intStartLine, intStartChar,intStopLine, intStopChar) = sp.Get
+                     let (intStartLine, intStartChar,intStopLine, intStopChar, blnAppend) = sp.Get
+                     //intStartChar,intStopLine - can be negative, but it only means each line has same value . -1 last char on the line
                      
                      let mutable startCycle = 0
                      let mutable stopCycle = 0
-
+                     
+                     if intStartLine >  openUpdateMMF.IntLastLineOnPage 
+                     then startCycle <- openUpdateMMF.IntLastLineOnPage + 1
+                     
                      if intStartLine >= openUpdateMMF.IntFirstLineOnPage &&  intStartLine <= openUpdateMMF.IntLastLineOnPage 
                      then startCycle <- intStartLine 
                      
-                     if intStartLine <= openUpdateMMF.IntFirstLineOnPage  
-                     then startCycle <- openUpdateMMF.IntFirstLineOnPage
+                     if intStartLine < openUpdateMMF.IntFirstLineOnPage  
+                     then startCycle <- openUpdateMMF.IntFirstLineOnPage - 1
 
                      if intStopLine >= openUpdateMMF.IntFirstLineOnPage &&  intStopLine <= openUpdateMMF.IntLastLineOnPage 
                      then stopCycle <- intStopLine 
 
-                     if intStopLine >= openUpdateMMF.IntLastLineOnPage  
-                     then stopCycle <- openUpdateMMF.IntLastLineOnPage
+                     if intStopLine > openUpdateMMF.IntLastLineOnPage  
+                     then stopCycle <- openUpdateMMF.IntLastLineOnPage + 1
 
                   
                      for iCurrenSelectLine = startCycle to stopCycle  do
                          //Maximum Lenght Current Line.
-                         let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, iCurrenSelectLine - openUpdateMMF.IntFirstLineOnPage)
+                         let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, Math.Max(iCurrenSelectLine - openUpdateMMF.IntFirstLineOnPage, 0))
                          let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iC]                     
  
                          let mutable iStartCh = intStartChar
@@ -314,7 +319,7 @@ type MyTextBox() as this  =
                 if (blnPenDeSelect = false && blnRecSelect = false && blnRecDeSelect = false && blnPlaceHolder = false) then
                     
                     do mapOfSelectingPosition.Empty()
-                    do mapOfSelectingPosition.Add(intStartLine, intStartLine, intStartChar, intStopLine, intStopChar) |> ignore
+                    do mapOfSelectingPosition.Add(intStartLine, intStartLine, intStartChar, intStopLine, intStopChar, blnAppend) |> ignore
                 ()
 
 
@@ -713,6 +718,11 @@ type MyTextBox() as this  =
 
     let openFileTXT (files) =
             openUpdateMMF.Mmf <- null
+            canvasSelected.Children.Clear |> ignore
+            canvasSelecting.Children.Clear |> ignore 
+            mapOfSelectedPosition.Empty()
+            mapOfSelectingPosition.Empty()
+
             GC.Collect()
             
             // We MUST create  TaskScheduler and Synchronization Context
@@ -958,6 +968,8 @@ type MyTextBox() as this  =
     member x.IntFirstLineOnPage with get() = (int)scrollY.Value and set(v) = scrollY.Value <- (double)v
 
     member x.OpenUpdateMMF with get() = openUpdateMMF   
+
+    member x.BlnAppend with get() = blnAppend and set(v) = blnAppend <-v
 
     member x.BlnPlaceHolder with get() = blnPlaceHolder and set(v) = blnPlaceHolder <-v
     member x.BlnPenDeSelect with get() = blnPenDeSelect and set(v) = blnPenDeSelect <-v

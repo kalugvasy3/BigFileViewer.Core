@@ -39,7 +39,7 @@ type OpenUpdateMMF() as _this   =
     let mutable intVertCountLinesOnPage = 0 
     let mutable intHorizCountCharsOnPage = 0 
     let mutable intMinLinesPerBloc = 0  // see init function 
-    let mutable intLimitCharsPerLine = int  (2.0 ** 22.0)  // 4M  // 4M restriction...
+    let mutable intLimitCharsPerLine = int  (2.0 ** 24.0)  // 4M  // 4M restriction...
 
     let mutable longCurrentBlock = 0L
 
@@ -161,7 +161,7 @@ type OpenUpdateMMF() as _this   =
                                   do countLine <- countLine + 1 
                                   Thread.Sleep(0) // Must be Zero - it just point which can be used for interupr read ....
                             
-                            Thread.Sleep(1)
+                            Thread.Sleep(0)
 
                             // Last line in Block + First line in Next Block
                             if (blnContinueContentFromMMF || direction = "I") then 
@@ -220,7 +220,7 @@ type OpenUpdateMMF() as _this   =
             do arrayPresentWindow  <- [|(new StringBuilder(), 0)|]
             do longTotalDocSize <- 0L
             do longNumberOfBlocks <- 0L
-            do longOfset <- int64 (2.0 ** 26.0)  // 2.0 ** 27.0 - 134217728L  // preliminary read 128M  // DO NOT CHANGE !!!!
+            do longOfset <- int64 (2.0 ** 25.0)  // 2.0 ** 27.0 - 134217728L  // preliminary read 128M  // DO NOT CHANGE !!!!
 
 
 

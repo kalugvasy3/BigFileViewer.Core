@@ -209,13 +209,13 @@ type MyTextBox() as this  =
                      then startCycle <- intStartLine 
                      
                      if intStartLine < openUpdateMMF.IntFirstLineOnPage  
-                     then startCycle <- openUpdateMMF.IntFirstLineOnPage - 1
+                     then startCycle <- openUpdateMMF.IntFirstLineOnPage 
 
                      if intStopLine >= openUpdateMMF.IntFirstLineOnPage &&  intStopLine <= openUpdateMMF.IntLastLineOnPage 
                      then stopCycle <- intStopLine 
 
                      if intStopLine > openUpdateMMF.IntLastLineOnPage  
-                     then stopCycle <- openUpdateMMF.IntLastLineOnPage + 1
+                     then stopCycle <- openUpdateMMF.IntLastLineOnPage - 1 
 
                   
                      for iCurrenSelectLine = startCycle to stopCycle  do
@@ -416,19 +416,19 @@ type MyTextBox() as this  =
             if Keyboard.Modifiers = ModifierKeys.Shift || Mouse.LeftButton = MouseButtonState.Pressed  then           //&& Keyboard.Modifiers = ModifierKeys.Shift
                  
                 if crt.AbsoluteNumLineCurrent >= openUpdateMMF.IntLastLineOnPage - 1  then 
-                                                        do scrollY.Value <- scrollY.Value + 1.0 //3.0
+                                                        do scrollY.Value <- scrollY.Value + 3.0 //3.0
                                                         do crt.AbsoluteNumLineCurrent <- (int)scrollY.Value + openUpdateMMF.IntVertCountLinesOnPage
                                                         
                 if crt.AbsoluteNumLineCurrent <= openUpdateMMF.IntFirstLineOnPage then 
-                                                        do scrollY.Value <- scrollY.Value - 1.0 // 3.0
+                                                        do scrollY.Value <- scrollY.Value - 3.0 // 3.0
                                                         do crt.AbsoluteNumLineCurrent <- (int)scrollY.Value
                                                         
                 if crt.AbsoluteNumCharCurrent >= openUpdateMMF.IntLastCharOnPage  then 
-                                                        do scrollX.Value <- scrollX.Value + 1.0 // 3.0
+                                                        do scrollX.Value <- scrollX.Value + 3.0 // 3.0
                                                         do crt.AbsoluteNumCharCurrent <- (int)scrollX.Value + openUpdateMMF.IntHorizCountCharsOnPage
                                                         
                 if crt.AbsoluteNumCharCurrent <= openUpdateMMF.IntFirstCharOnPage then 
-                                                        do scrollX.Value <- scrollX.Value - 1.0 // 3.0
+                                                        do scrollX.Value <- scrollX.Value - 3.0 // 3.0
                                                         do crt.AbsoluteNumCharCurrent <- (int)scrollX.Value
                                                         
                 do Thread.Sleep(10)               
@@ -491,15 +491,20 @@ type MyTextBox() as this  =
             this.Dispatcher.InvokeAsync(new Action ( fun _ -> 
                  do initXScroll()
                  if blnChange then do initYScroll() 
-                 set_Caret())) |> ignore
+                 )) |> ignore
 
             this.Dispatcher.InvokeAsync(new Action ( fun _ ->                                                    
                  do openUpdateMMF.UpdateCurrentWindow(ref txtBlock  , ref lenghtArr, blnChange, myMenu.TxtFind) |> ignore
-                 //if myMenu.TxtFind.Trim() = "" then do openUpdateMMF.BlnStopSearch <- true 
+                 )) |> ignore                                            
 
-                 do updateSelect(mapOfSelectingPosition,"")
-                 do updateSelect(mapOfSelectedPosition,"Selected")
-                 set_Caret())) |> ignore                                            
+            this.Dispatcher.InvokeAsync(new Action ( fun _ ->                                                    
+                 do updateSelect(mapOfSelectingPosition,""))) |> ignore 
+
+            this.Dispatcher.InvokeAsync(new Action ( fun _ ->                                                    
+                 do updateSelect(mapOfSelectedPosition,"Selected"))) |> ignore 
+ 
+            this.Dispatcher.InvokeAsync(new Action ( fun _ ->                                                    
+                 do set_Caret())) |> ignore 
 
                   } ] |> Async.Parallel |> Async.Ignore |> Async.Start                                  
 
@@ -574,7 +579,7 @@ type MyTextBox() as this  =
 
     let canvasWheel (e : MouseWheelEventArgs) =
             match Keyboard.Modifiers with
-            | ModifierKeys.Shift -> scrolXWheel(e)
+            | ModifierKeys.Alt -> scrolXWheel(e)
             | ModifierKeys.Control -> ()
             | _ -> scrolYWheel(e)
             do Thread.Sleep(0)

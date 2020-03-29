@@ -40,9 +40,11 @@ type BigFileViewer() as this  =
     let mutable bigGrid : Grid  = (this.Content)?bigGrid
     let mutable winHolder : Window = new Window()
 
+    
+
     let createNewFind() =
         let mutable quickFind = new QuickFind()
-        do quickFind.InitMyTextBox(&myTextBox) 
+        do quickFind.InitMyTextBox(ref myTextBox) 
 
     let minHeight = 730.0
     let minWidth = 512.0
@@ -79,6 +81,10 @@ type BigFileViewer() as this  =
     do myTextBox.ScaleCurrnet.Add(fun e ->  scaleCurrnet(e))
 
     do this.MouseWheel.Add(fun e -> canvasWheel(e))
+    
+ 
+    do myControlPanelLeft.MyTextBox <- ref myTextBox
+
 
     let deltaAdjVert =  4.0 * (float)System.Windows.SystemParameters.Border
                       + 4.0 * (float)System.Windows.SystemParameters.FixedFrameHorizontalBorderHeight 

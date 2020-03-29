@@ -8,20 +8,22 @@ open System.Windows.Controls
     
 open  System.Windows
 open  System.Windows.Shapes
-open  System.Windows.Controls
+
 open  System.Windows.Controls.Primitives
 open  System.Windows.Input
-open  System.Windows.Media
-open  System.Windows.Media.Imaging
+//open  System.Windows.Media
+//open  System.Windows.Media.Imaging
 open  System.Windows.Threading
 
 open System.IO
 open System.Windows.Markup
 open System.Xaml
 open System.Reflection
-open System.Windows.Media
+
 open Utilities
 open Microsoft.FSharp.Control
+open System.Windows
+open FsharpXAMLLibrary
 
 
 type ControlPanelLeft()  as this = 
@@ -29,9 +31,9 @@ type ControlPanelLeft()  as this =
 
     do this.Content <- contentAsXamlObjectFromAssembly("FsharpXAMLLibrarySupport","ControlPanelLeft") // Load XAML
 
-    let mutable btnAppearance : Button =  this.Content?btnAppearance 
+    //let mutable btnAppearance : Button =  this.Content?btnAppearance 
     let mutable btnGroupOperation : Button =  this.Content?btnGroupOperation 
-    let mutable btnHandArrow : Button =  this.Content?btnHandArrow 
+    //let mutable btnHandArrow : Button =  this.Content?btnHandArrow 
     
     //Group SELECT
     let mutable grpSelect : GroupBox =  this.Content?grpSelect 
@@ -54,40 +56,91 @@ type ControlPanelLeft()  as this =
     let mutable btnDeLineRight : Button =  this.Content?btnDeLineRight 
 
     //Group Special
-    let mutable grpSpecial : GroupBox =  this.Content?grpSpecial 
+    //let mutable grpSpecial : GroupBox =  this.Content?grpSpecial 
     let mutable btnPenDeSelect : Button =  this.Content?btnPenDeSelect
     let mutable btnRecDeSelect : Button =  this.Content?btnRecDeSelect 
     let mutable btnRecSelect : Button =  this.Content?btnRecSelect 
     let mutable btnPlaceHolder : Button =  this.Content?btnPlaceHolder     
-   
+    let mutable btnCopyGroup : Button =  this.Content?btnCopyGroup 
+
+    let mutable myTextBox  = ref (new MyTextBox())
+
    //Group FORMAT
-    let mutable grpFormat : GroupBox =  this.Content?grpFormat 
-    let mutable btnFormat : Button =  this.Content?btnFormat 
-    let mutable btnDeFormat : Button =  this.Content?btnDeFormat 
-    let mutable btnFormatByPunctuationChar : Button =  this.Content?btnFormatByPunctuationChar 
-    let mutable btnRemoveContinuouslySpace : Button =  this.Content?btnRemoveContinuouslySpace
+    //let mutable grpFormat : GroupBox =  this.Content?grpFormat 
+    //let mutable btnFormat : Button =  this.Content?btnFormat 
+    //let mutable btnDeFormat : Button =  this.Content?btnDeFormat 
+    //let mutable btnFormatByPunctuationChar : Button =  this.Content?btnFormatByPunctuationChar 
+    //let mutable btnRemoveContinuouslySpace : Button =  this.Content?btnRemoveContinuouslySpace
 
+    
 
+    let colorChange(btn : Button ref, brDef : Media.SolidColorBrush   ) = 
+                                  if btn.Value.Foreground = (brDef :> Media.Brush)
+                                  then btn.Value.Foreground <- System.Windows.Media.Brushes.Red
+                                  else btn.Value.Foreground <- brDef
+    
+    let blnColorChange(btn : Button ref) = 
+                               if btn.Value.Foreground = (Media.Brushes.DarkBlue :> Media.Brush) ||  btn.Value.Foreground = (Media.Brushes.White :> Media.Brush)
+                               then false
+                               else true
 
-//    let systemInfo() =  let myComputer =  new Microsoft.VisualBasic.Devices.ComputerInfo() 
-//                        let totalAvailable  = myComputer.AvailablePhysicalMemory 
-//                        let mutable intOS = 32
-//                        if Environment.Is64BitOperatingSystem then intOS <- 64
-//                        let intTotalMemory = System.GC.GetTotalMemory(false)
-//                        do statusSystemBar.Content <- "OS:X" + intOS.ToString() + " Used Memory - " + intTotalMemory.ToString("0,0") + " ( Available " + totalAvailable.ToString("0,0") + " )";
-//                        do statusDocSizeBar.Content <- " ( " + longTotalDocSize.ToString() + " bytes) ";
-//  
-//    do systemInfo()
-//
-//    // Add Event - Selection Changed
-//    let eventStatusSystem = new Event<MouseEventArgs>() 
-//    do statusSystem.MouseLeftButtonDown.Add(fun e ->
-//                                                 do systemInfo() 
-//                                                 eventStatusSystem.Trigger(e)
-//                                           )
-//
-//    member x.EventStatusSystem  =  eventStatusSystem.Publish 
-//    member x.LongTotalDocSize  with set(v) = longTotalDocSize <- v
-//                                             do systemInfo()
+    do btnGroupOperation.Click.Add(fun _ -> colorChange(ref btnGroupOperation, Media.Brushes.DarkBlue)  |> ignore
+                                            do grpDeSelect.IsEnabled <- blnColorChange (ref btnGroupOperation)
+                                            do btnRecSelect.Foreground <- Media.Brushes.DarkBlue
+                                            do btnPenDeSelect.Foreground <- Media.Brushes.White
+                                            do btnRecDeSelect.Foreground <- Media.Brushes.White
+                                            do btnPlaceHolder.Foreground <- Media.Brushes.DarkBlue
+                                            do myTextBox.Value.BlnGroupOperation <- blnColorChange(ref btnGroupOperation))
 
+    do btnDeLeftUp.Click.Add(fun _    -> myTextBox.Value.BtnCommand("DeLeftUp")) 
+    do btnDeLineLeft.Click.Add(fun _  -> myTextBox.Value.BtnCommand("DeLineLeft")) 
+    do btnDeLineRight.Click.Add(fun _ -> myTextBox.Value.BtnCommand("DeLineRight")) 
+    do btnDeRightDown.Click.Add(fun _ -> myTextBox.Value.BtnCommand("DeRightDown"))
+    do btnDeSelectAll.Click.Add(fun _ -> myTextBox.Value.BtnCommand("DeSelectAll"))
+    do btnDeSelectLine.Click.Add(fun _-> myTextBox.Value.BtnCommand("DeSelectLine"))
+    
+
+    
+    do btnLeftUp.Click.Add(fun _      -> myTextBox.Value.BtnCommand("LeftUp")) 
+    do btnLineLeft.Click.Add(fun _    -> myTextBox.Value.BtnCommand("LineLeft")) 
+    do btnLineRight.Click.Add(fun _   -> myTextBox.Value.BtnCommand("LineRight")) 
+    do btnRightDown.Click.Add(fun _   -> myTextBox.Value.BtnCommand("RightDown"))
+    do btnSelectAll.Click.Add(fun _   -> myTextBox.Value.BtnCommand("SelectAll"))
+    do btnSelectLine.Click.Add(fun _  -> myTextBox.Value.BtnCommand("SelectLine"))
+
+    do btnFindReplace.Click.Add(fun _ -> myTextBox.Value.BtnCommand("FindReplace"))
+    do btnCopyGroup.Click.Add(fun _   -> myTextBox.Value.BtnCommand("CopyGroup"))
+
+    do btnPlaceHolder.Click.Add(fun _  -> colorChange(ref btnPlaceHolder, Media.Brushes.DarkBlue)
+                                          do btnRecSelect.Foreground <- Media.Brushes.DarkBlue
+                                          do btnPenDeSelect.Foreground <- Media.Brushes.White
+                                          do btnRecDeSelect.Foreground <- Media.Brushes.White
+                                          do myTextBox.Value.BlnPlaceHolder <- blnColorChange(ref btnPlaceHolder))
+                                          
+    do btnRecSelect.Click.Add(fun _    -> colorChange(ref btnRecSelect,  Media.Brushes.DarkBlue)
+                                          do btnPlaceHolder.Foreground <- Media.Brushes.DarkBlue
+                                          do btnPenDeSelect.Foreground <- Media.Brushes.White
+                                          do btnRecDeSelect.Foreground <- Media.Brushes.White
+                                          do myTextBox.Value.BlnRecSelect <- blnColorChange(ref btnRecSelect) )
+
+    do btnPenDeSelect.Click.Add(fun _  -> colorChange(ref btnPenDeSelect,  Media.Brushes.White)
+                                          do btnRecSelect.Foreground <- Media.Brushes.DarkBlue
+                                          do btnPlaceHolder.Foreground <- Media.Brushes.DarkBlue
+                                          do btnRecDeSelect.Foreground <- Media.Brushes.White
+                                          do myTextBox.Value.BlnPenDeSelect <- blnColorChange(ref btnPenDeSelect) )
+    
+    do btnRecDeSelect.Click.Add(fun _  -> colorChange(ref btnRecDeSelect,  Media.Brushes.White)
+                                          do btnRecSelect.Foreground <- Media.Brushes.DarkBlue
+                                          do btnPenDeSelect.Foreground <- Media.Brushes.White
+                                          do btnPlaceHolder.Foreground <- Media.Brushes.DarkBlue
+                                          do myTextBox.Value.BlnRecDeSelect <- blnColorChange(ref btnRecDeSelect))
+
+    
+    member x.MyTextBox with set(v) =  myTextBox <- v 
+
+    //member x.BlnGroupOperation with get() = blnColorChange(ref btnGroupOperation) 
+    //member x.BlnPlaceHolder    with get() = blnColorChange(ref btnPlaceHolder) 
+    //member x.BlnRecSelect      with get() = blnColorChange(ref btnRecSelect) 
+    //member x.BlnPenDeSelect    with get() = blnColorChange(ref btnPenDeSelect) 
+    //member x.BlnRecDeSelect    with get() = blnColorChange(ref btnRecDeSelect) 
 

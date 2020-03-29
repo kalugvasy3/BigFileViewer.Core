@@ -48,8 +48,8 @@ type QuickFind()  as this =
 
     do this.Content <-   contentAsXamlObjectFromAssembly("FsharpXAMLLibrarySupport","QuickFind") // Load XAML
  
-    let mutable myTextBox = new MyTextBox()
-    let mutable openUpdateMMF = new OpenUpdateMMF() 
+    let mutable myTextBox = ref ( new MyTextBox())
+    let mutable openUpdateMMF = ref ( new OpenUpdateMMF() )
 
     
     let mutable txtQuickFind : TextBox = this.Content?txtQuickFind 
@@ -58,8 +58,8 @@ type QuickFind()  as this =
     let mutable stackPanel : StackPanel = this.Content?stackPanel
 
     let findInText (x : int*int) = let (iLine, iChar) = x
-                                   do myTextBox.IntFirstLineOnPage <- iLine
-                                   do myTextBox.IntFirstCharOnPage <- iChar
+                                   do myTextBox.Value.IntFirstLineOnPage <- iLine
+                                   do myTextBox.Value.IntFirstCharOnPage <- iChar
 
     let addNewPosition(x: int*int , str: string) = 
                                    let mutable txt = new MyTextBlock()
@@ -78,8 +78,9 @@ type QuickFind()  as this =
     do btnFindAll.Click.Add(fun _ -> findAll())                                
     do btnFindNext.Click.Add(fun _ -> findNext())  
     
-    member x.InitMyTextBox(txt : MyTextBox byref) = do myTextBox <- txt
-                                                    do openUpdateMMF <- txt.OpenUpdateMMF
+    member x.InitMyTextBox(txt : MyTextBox ref ) =
+                        do myTextBox <- txt
+                        do openUpdateMMF <- txt.Value.OpenUpdateMMF
   
                                                             
   

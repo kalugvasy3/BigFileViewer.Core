@@ -38,6 +38,7 @@ type MyTextBox() as this  =
     let mutable myFonts = new  CommonClassLibrary.Fonts()
     let mutable myTouch = new CommonClassLibrary.Touch()
     let mutable crt = new CommonClassLibrary.CaretCanvas()
+    let mutable myMenu : MyMenu = (this.Content)?myMenu
 
     let mutable blnInsert = false
 
@@ -49,9 +50,8 @@ type MyTextBox() as this  =
     let mutable scrollX : ScrollBar = (this.Content)?scrollX
     let mutable scrollY : ScrollBar = (this.Content)?scrollY  
 
-    let mutable pointMouseLeftButtonPressed: Point = new Point();
-    let mutable intPressedPositionY = 0
-    let mutable intPressedPositionX = 0
+    let mutable mapOfSelectedPosition = new MapOfSelectPosition()
+    let mutable mapOfSelectingPosition = new MapOfSelectPosition()
 
     let mutable intAbsolutSelectVertStart = 0
     let mutable intAbsolutSelectHorizStart = 0
@@ -61,12 +61,6 @@ type MyTextBox() as this  =
 
     let mutable blnUpdateReady = true
 
-    do canvasMain.Children.Add(crt) |> ignore
-
-    let mutable myMenu : MyMenu = (this.Content)?myMenu
-    do myMenu.HostUserControl <- this
-
-
     let mutable tbX : TextBlock = (this.Content)?tbX
     let mutable tbY : TextBlock = (this.Content)?tbY
     let mutable tbXY : TextBlock = (this.Content)?tbXY
@@ -74,6 +68,7 @@ type MyTextBox() as this  =
 
     let mutable statusBar = ref (new StatusBarSystem())
     let mutable lenghtArr = new List<int>()
+    
     do lenghtArr.Add(0)
 
     let openFind = new Event<_>() 
@@ -128,20 +123,6 @@ type MyTextBox() as this  =
 
 // Mouse Section - Move. Set. Selected
 
-
-    
-    let mutable pointMouseLeftButtonPressed = Point()
-    let mutable intPressedPositionY = 0
-    let mutable intPressedPositionX = 0
-    
-    let mutable intAbsolutSelectVertStart = 0
-    let mutable intAbsolutSelectHorizStart = 0
-
-    let mutable intNextAbsolutSelectionLine = 0
-    let mutable intNextAbsolutSelectionHorizont = 0
-
-
-
     let mutable blnPlaceHolder = false
     let mutable blnPenDeSelect = false
     let mutable blnRecSelect = false
@@ -149,10 +130,19 @@ type MyTextBox() as this  =
     let mutable blnAppend = false
 
 
+
+
     // Create selectedRectangle
 
     let set_Rectangle(intLine : int ref, intBeginChar: int ref, intEndChar: int ref, myBrush : Brush) =
+        
+        let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, Math.Max(intLine.Value - openUpdateMMF.IntFirstLineOnPage, 0))
+        let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iC] 
+        
+        if intEndChar.Value = openUpdateMMF.IntMaxCharsInLine 
+        then intEndChar.Value <- iLen
 
+        //openUpdateMMF.IntMaxCharsInLine
         let mutable rect = new SelectedRectangle();
 
         let iBChar = intBeginChar.Value - openUpdateMMF.IntFirstCharOnPage
@@ -171,13 +161,12 @@ type MyTextBox() as this  =
               rect.RecW <- Math.Max(0.0, w)
         rect
 
-    let mutable mapOfSelectedPosition = new MapOfSelectPosition()
-    let mutable mapOfSelectingPosition = new MapOfSelectPosition()
+
 
     let updateSelect(mapOf : MapOfSelectPosition, typeOfSelecting : String) =                 
 
         if mapOf.IsEmpty() 
-        then () 
+        then canvasSelecting.Children.Clear() 
         else
              let mutable c = new Canvas()  // This approach increase performance in 4..6 times // do not need to invalidate Rec which we already added
              let mutable myBrush = new SolidColorBrush(Colors.LightBlue)
@@ -872,6 +861,34 @@ type MyTextBox() as this  =
     do myMenu.EventGoTo.Add(fun (y,x) -> goto (y ,x))
  
  
+    let btnCommand(strCommand : string) =
+
+        let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, Math.Max(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage, 0))
+        let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iC] 
+
+        let lastLine = openUpdateMMF.IntNumberOfTotalLinesEstimation
+  
+        do mapOfSelectingPosition.Empty()
+
+        match strCommand with
+        | "DeLeftUp" -> ignore()
+        | "DeLineLeft" -> ignore()  
+        | "DeLineRight" -> ignore() 
+        | "DeRightDown" -> ignore() 
+        | "DeSelectAll" -> () 
+        | "DeSelectLine" -> ignore() 
+        | "LeftUp"    -> do mapOfSelectingPosition.Add(0, 0, 0, crt.AbsoluteNumLineCurrent, crt.AbsoluteNumCharCurrent , blnAppend) |> ignore  
+        | "LineLeft"  -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, 0, crt.AbsoluteNumLineCurrent, crt.AbsoluteNumCharCurrent , blnAppend) |> ignore 
+        | "LineRight" -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, crt.AbsoluteNumCharCurrent, crt.AbsoluteNumLineCurrent, iLen , blnAppend) |> ignore  
+        | "RightDown" -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, crt.AbsoluteNumCharCurrent, lastLine, openUpdateMMF.IntMaxCharsInLine , blnAppend) |> ignore 
+        | "SelectAll" ->  do mapOfSelectingPosition.Add(0, 0, 0, lastLine, 0, blnAppend) |> ignore  
+        | "SelectLine" -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, 0, crt.AbsoluteNumLineCurrent, iLen , blnAppend) |> ignore  
+        | "FindReplace" -> ignore()
+        | "CopyGroup" -> ignore()
+        | _  -> ignore()
+
+        update(false)  
+        
  
  
 
@@ -913,12 +930,13 @@ type MyTextBox() as this  =
             do canvasMain.MouseLeftButtonDown.Add(fun e -> mouseLeftDown(e) ) //setMousePositionForMoving()
             do canvasMain.MouseLeftButtonDown.Add(fun e -> mouseLeftUp(e) )
             do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e) ) //setMousePositionForMoving()
-            do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightUp(e) )            
+            do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightUp(e) ) 
+            
+            do canvasMain.Children.Add(crt) |> ignore
+            do myMenu.HostUserControl <- this
 
             //do canvasMain.KeyUp.Add(fun e ->   canvasKeyUp (e))   // Drop all flags “shift”, “alt”, “controls” only                                                 
             //do crt.EventTxtKeyUp.Add(fun e ->  do canvasKeyUp (e))  
-
-
             //do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
 
             // DO NOT USE TWO BELOW EVENTS FOR CATCH CHAR/INPUT
@@ -972,14 +990,16 @@ type MyTextBox() as this  =
     member x.IntFirstCharOnPage with get() = (int)scrollX.Value and set(v) = scrollX.Value <- (double)v
     member x.IntFirstLineOnPage with get() = (int)scrollY.Value and set(v) = scrollY.Value <- (double)v
 
-    member x.OpenUpdateMMF with get() = openUpdateMMF   
+    member x.OpenUpdateMMF with get() = ref openUpdateMMF   
 
-    member x.BlnAppend with get() = blnAppend and set(v) = blnAppend <-v
+    member x.BlnGroupOperation with get() = blnAppend and set(v) = blnAppend <-v
 
     member x.BlnPlaceHolder with get() = blnPlaceHolder and set(v) = blnPlaceHolder <-v
     member x.BlnPenDeSelect with get() = blnPenDeSelect and set(v) = blnPenDeSelect <-v
     member x.BlnRecSelect with get() = blnRecSelect and set(v) = blnRecSelect <-v
     member x.BlnRecDeSelect with get() = blnRecDeSelect and set(v) = blnRecDeSelect <-v
+
+    member x.BtnCommand(strCommand : string) = btnCommand(strCommand)
 
 
 

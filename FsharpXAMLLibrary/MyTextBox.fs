@@ -971,7 +971,7 @@ type MyTextBox() as this  =
         let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, Math.Max(crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage, 0))
         let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iC] 
 
-        let lastLine = openUpdateMMF.IntNumberOfTotalLinesEstimation
+        let lastLine = openUpdateMMF.IntNumberOfTotalLinesEstimation - 1
   
         do mapOfSelectingPosition.Empty()
 
@@ -986,7 +986,7 @@ type MyTextBox() as this  =
         | "LineLeft"  -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, 0, crt.AbsoluteNumLineCurrent, crt.AbsoluteNumCharCurrent , blnAppend) |> ignore 
         | "LineRight" -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, crt.AbsoluteNumCharCurrent, crt.AbsoluteNumLineCurrent, iLen , blnAppend) |> ignore  
         | "RightDown" -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, crt.AbsoluteNumCharCurrent, lastLine, openUpdateMMF.IntMaxCharsInLine , blnAppend) |> ignore 
-        | "SelectAll" ->  do mapOfSelectingPosition.Add(0, 0, 0, lastLine, 0, blnAppend) |> ignore  
+        | "SelectAll" ->  do mapOfSelectingPosition.Add(0, 0, 0, lastLine, openUpdateMMF.IntMaxCharsInLine, blnAppend) |> ignore  
         | "SelectLine" -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, 0, crt.AbsoluteNumLineCurrent, iLen , blnAppend) |> ignore  
         | "FindReplace" -> ignore()
         | "CopyGroup" -> ignore()

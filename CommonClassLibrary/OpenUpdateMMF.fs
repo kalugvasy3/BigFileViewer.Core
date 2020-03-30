@@ -512,17 +512,18 @@ type OpenUpdateMMF() as _this   =
             then
                  match r with
                  //| _ when r > 0.03125 && r <= 0.0625    -> longOfset <- longOfset * 32L;
-                 //| _ when r > 0.0625 && r <= 0.125    -> longOfset <- longOfset * 16L;
-                 //| _ when r > 0.125 && r <= 0.25    -> longOfset <- longOfset * 8L;
-                 | _ when r <= 0.5    -> longOfset <- longOfset * 4L;  
+                 | _ when r <= 0.125    -> longOfset <- longOfset * 16L;
+                 | _ when r > 0.125 && r <= 0.25    -> longOfset <- longOfset * 8L;
+                 | _ when r > 0.25 && r <= 0.50   -> longOfset <- longOfset * 4L;  
                  | _ when r > 0.5  && r <= 1.0    -> longOfset <- longOfset * 2L;   
                  | _ when r > 1.0  && r <= 2.0    -> ignore();                     
-                 | _ when r > 2.0  && r <= 4.0    -> longOfset <- longOfset / 2L;  
+                 
+                 //| _ when r > 2.0  && r <= 4.0    -> longOfset <- longOfset / 2L;  
                  //| _ when r > 4.0  && r <= 8.0    -> longOfset <- longOfset / 4L;
                  //| _ when r > 8.0  && r <= 16.0   -> longOfset <- longOfset / 8L;
                  //| _ when r > 16.0  && r <= 32.0   -> longOfset <- longOfset / 16L;
                  //| _ when r > 32.0  && r <= 64.0   -> longOfset <- longOfset / 32L;
-                 | _ when r > 4.0                -> longOfset <- longOfset / 4L; 
+                 | _ when r > 2.0                -> longOfset <- longOfset / 2L; 
                  | _ ->  longOfset <- 0L
                          do strReturn <- "One or more line(s) exceed "+ intLimitCharsPerLine.ToString("0,0") + " chars, use Pro Version" 
             else longOfset <- 3L * longOfset 

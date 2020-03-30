@@ -220,7 +220,7 @@ type OpenUpdateMMF() as _this   =
             do arrayPresentWindow  <- [|(new StringBuilder(), 0)|]
             do longTotalDocSize <- 0L
             do longNumberOfBlocks <- 0L
-            do longOfset <- int64 (2.0 ** 25.0)  // 2.0 ** 27.0 - 134217728L  // preliminary read 128M  // DO NOT CHANGE !!!!
+            do longOfset <- int64 (2.0 ** 24.0)  // 2.0 ** 27.0 - 134217728L  // preliminary read 128M  // DO NOT CHANGE !!!!
 
 
 

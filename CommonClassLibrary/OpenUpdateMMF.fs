@@ -501,7 +501,8 @@ type OpenUpdateMMF() as _this   =
 
  
  
-    let investigate() =        
+    let investigate() = 
+         do GC.Collect() 
          let numLines = refListTestbAll.Value.Count 
          let minLines = intMinLinesPerBloc
          let r = float numLines / float minLines 
@@ -512,9 +513,9 @@ type OpenUpdateMMF() as _this   =
             then
                  match r with
                  //| _ when r > 0.03125 && r <= 0.0625    -> longOfset <- longOfset * 32L;
-                 | _ when r <= 0.125    -> longOfset <- longOfset * 16L;
-                 | _ when r > 0.125 && r <= 0.25    -> longOfset <- longOfset * 8L;
-                 | _ when r > 0.25 && r <= 0.50   -> longOfset <- longOfset * 4L;  
+                 | _ when r <= 0.5    -> longOfset <- longOfset * 4L;
+                 //| _ when r > 0.125 && r <= 0.25    -> longOfset <- longOfset * 8L;
+                 //| _ when r > 0.25 && r <= 0.50   -> longOfset <- longOfset * 4L;  
                  | _ when r > 0.5  && r <= 1.0    -> longOfset <- longOfset * 2L;   
                  | _ when r > 1.0  && r <= 2.0    -> ignore();                     
                  

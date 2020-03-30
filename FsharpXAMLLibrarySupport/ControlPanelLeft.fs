@@ -72,17 +72,27 @@ type ControlPanelLeft()  as this =
     //let mutable btnFormatByPunctuationChar : Button =  this.Content?btnFormatByPunctuationChar 
     //let mutable btnRemoveContinuouslySpace : Button =  this.Content?btnRemoveContinuouslySpace
 
+    // It is for FREE version
+    do btnGroupOperation.IsEnabled <- false
+    do btnPlaceHolder.IsEnabled <- false
     
 
     let colorChange(btn : Button ref, brDef : Media.SolidColorBrush   ) = 
-                                  if btn.Value.Foreground = (brDef :> Media.Brush)
-                                  then btn.Value.Foreground <- System.Windows.Media.Brushes.Red
-                                  else btn.Value.Foreground <- brDef
+            if btn.Value.Foreground = (brDef :> Media.Brush)
+            then btn.Value.Foreground <- System.Windows.Media.Brushes.Red
+            else btn.Value.Foreground <- brDef
     
     let blnColorChange(btn : Button ref) = 
-                               if btn.Value.Foreground = (Media.Brushes.DarkBlue :> Media.Brush) ||  btn.Value.Foreground = (Media.Brushes.White :> Media.Brush)
-                               then false
-                               else true
+            if btn.Value.Foreground = (Media.Brushes.DarkBlue :> Media.Brush) ||  btn.Value.Foreground = (Media.Brushes.White :> Media.Brush)
+            then false
+            else true
+
+    let updateBooleanMyTextBox() =
+            do myTextBox.Value.BlnGroupOperation <- blnColorChange(ref btnGroupOperation)
+            do myTextBox.Value.BlnPlaceHolder <- blnColorChange(ref btnPlaceHolder)
+            do myTextBox.Value.BlnRecSelect <- blnColorChange(ref btnRecSelect)
+            do myTextBox.Value.BlnPenDeSelect <- blnColorChange(ref btnPenDeSelect)
+            do myTextBox.Value.BlnRecDeSelect <- blnColorChange(ref btnRecDeSelect)
 
     do btnGroupOperation.Click.Add(fun _ -> colorChange(ref btnGroupOperation, Media.Brushes.DarkBlue)  |> ignore
                                             do grpDeSelect.IsEnabled <- blnColorChange (ref btnGroupOperation)
@@ -90,7 +100,7 @@ type ControlPanelLeft()  as this =
                                             do btnPenDeSelect.Foreground <- Media.Brushes.White
                                             do btnRecDeSelect.Foreground <- Media.Brushes.White
                                             do btnPlaceHolder.Foreground <- Media.Brushes.DarkBlue
-                                            do myTextBox.Value.BlnGroupOperation <- blnColorChange(ref btnGroupOperation))
+                                            do updateBooleanMyTextBox())
 
     do btnDeLeftUp.Click.Add(fun _    -> myTextBox.Value.BtnCommand("DeLeftUp")) 
     do btnDeLineLeft.Click.Add(fun _  -> myTextBox.Value.BtnCommand("DeLineLeft")) 
@@ -115,25 +125,25 @@ type ControlPanelLeft()  as this =
                                           do btnRecSelect.Foreground <- Media.Brushes.DarkBlue
                                           do btnPenDeSelect.Foreground <- Media.Brushes.White
                                           do btnRecDeSelect.Foreground <- Media.Brushes.White
-                                          do myTextBox.Value.BlnPlaceHolder <- blnColorChange(ref btnPlaceHolder))
+                                          do updateBooleanMyTextBox())
                                           
     do btnRecSelect.Click.Add(fun _    -> colorChange(ref btnRecSelect,  Media.Brushes.DarkBlue)
                                           do btnPlaceHolder.Foreground <- Media.Brushes.DarkBlue
                                           do btnPenDeSelect.Foreground <- Media.Brushes.White
                                           do btnRecDeSelect.Foreground <- Media.Brushes.White
-                                          do myTextBox.Value.BlnRecSelect <- blnColorChange(ref btnRecSelect) )
+                                          do updateBooleanMyTextBox())
 
     do btnPenDeSelect.Click.Add(fun _  -> colorChange(ref btnPenDeSelect,  Media.Brushes.White)
                                           do btnRecSelect.Foreground <- Media.Brushes.DarkBlue
                                           do btnPlaceHolder.Foreground <- Media.Brushes.DarkBlue
                                           do btnRecDeSelect.Foreground <- Media.Brushes.White
-                                          do myTextBox.Value.BlnPenDeSelect <- blnColorChange(ref btnPenDeSelect) )
+                                          do updateBooleanMyTextBox() )
     
     do btnRecDeSelect.Click.Add(fun _  -> colorChange(ref btnRecDeSelect,  Media.Brushes.White)
                                           do btnRecSelect.Foreground <- Media.Brushes.DarkBlue
                                           do btnPenDeSelect.Foreground <- Media.Brushes.White
                                           do btnPlaceHolder.Foreground <- Media.Brushes.DarkBlue
-                                          do myTextBox.Value.BlnRecDeSelect <- blnColorChange(ref btnRecDeSelect))
+                                          do updateBooleanMyTextBox())
 
     
     member x.MyTextBox with set(v) =  myTextBox <- v 

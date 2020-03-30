@@ -39,7 +39,7 @@ type OpenUpdateMMF() as _this   =
     let mutable intVertCountLinesOnPage = 0 
     let mutable intHorizCountCharsOnPage = 0 
     let mutable intMinLinesPerBloc = 0  // see init function 
-    let mutable intLimitCharsPerLine = int  (2.0 ** 24.0)  // 4M  // 4M restriction...
+    let mutable intLimitCharsPerLine = int  (2.0 ** 23.0)  // 4M  // 4M restriction...
 
     let mutable longCurrentBlock = 0L
 
@@ -360,7 +360,7 @@ type OpenUpdateMMF() as _this   =
                      | false -> do longCurrentBlock <- (int64) calcBlock
                                 
                                 blnContinueContentFromMMF <- false
-                                Thread.Sleep(10) //Very important - STOP ALL Thread
+                                Thread.Sleep(0) //Very important - STOP ALL Thread - MUST BE "0"
 
                                 do refListCurrentSbAll <- ref (new  List<StringBuilder>())
                                 do refListPreviousSbAll <- ref (new  List<StringBuilder>())
@@ -372,11 +372,12 @@ type OpenUpdateMMF() as _this   =
                                 | (false, false) ->  do getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, true, "C")
                                                      //[async { getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, false, "C") }] |> Async.Parallel |> Async.Ignore |> Async.Start 
                                 // TWO BLOCKS ONLY 
-                                | (true, false)  ->  do getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, true,"C")
-                                                     do getContentFromMMF (refListNextSbAll , int longCurrentBlock + 1, true, true,"N")
+                                //| (true, false)  ->  
+                                //          do getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, true,"C")
+                                //          do getContentFromMMF (refListNextSbAll , int longCurrentBlock + 1, true, true,"N")
 
-                                                     //[async { getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, false,"C") };
-                                                     //async { getContentFromMMF (refListNextSbAll , int longCurrentBlock + 1, true, false,"N")} ] |> Async.Parallel |> Async.Ignore |> Async.Start 
+                                //[async { getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, false,"C") };
+                                //async { getContentFromMMF (refListNextSbAll , int longCurrentBlock + 1, true, false,"N")} ] |> Async.Parallel |> Async.Ignore |> Async.Start 
                                
                                 // THREE OR MORE                      
                                 | (_ , _ )       ->  if longCurrentBlock = 0L then longCurrentBlock <- 1L

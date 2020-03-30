@@ -206,67 +206,156 @@ type MyTextBox() as this  =
                      if intStopLine > openUpdateMMF.IntLastLineOnPage  
                      then stopCycle <- openUpdateMMF.IntLastLineOnPage - 1 
 
-                  
-                     for iCurrenSelectLine = startCycle to stopCycle  do
-                         //Maximum Lenght Current Line.
-                         let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, Math.Max(iCurrenSelectLine - openUpdateMMF.IntFirstLineOnPage, 0))
-                         let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iC]                     
+                     let mutable iStartCh = Math.Abs( intStartChar)
+                     let mutable iStopCh = Math.Abs( intStopChar)
+                     let mutable iActualLeft = Math.Abs( intStartChar)
+                     let mutable iActualRight = Math.Abs( intStopChar )                   
+                     
+                     if  intStartChar>= 0 && intStopChar>=0 then
+                         for iCurrenSelectLine = startCycle to stopCycle  do
+                         
+                                 //Maximum Lenght Current Line.
+                                 let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, Math.Max(iCurrenSelectLine - openUpdateMMF.IntFirstLineOnPage, 0))
+                                 let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iC]                     
  
-                         let mutable iStartCh = intStartChar
-                         let mutable iStopCh = intStopChar
+                                 if (intStartLine = intStopLine) 
+                                 then 
+                                     do iActualLeft <- Math.Min(intStartChar, iLen)
+                                     do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage) 
+                                     do iActualLeft <- Math.Min(iActualLeft, openUpdateMMF.IntLastCharOnPage)
 
-                         let mutable iActualLeft = intStartChar
-                         let mutable iActualRight = intStopChar
+                                     do iActualRight <- Math.Min(intStopChar, iLen) 
+                                     do iActualRight <- Math.Min(iActualRight, openUpdateMMF.IntLastCharOnPage)
+                                     do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage)
 
-                         if (intStartLine = intStopLine) 
-                         then 
-                             do iActualLeft <- Math.Min(intStartChar, iLen)
-                             do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage) 
-                             do iActualLeft <- Math.Min(iActualLeft, openUpdateMMF.IntLastCharOnPage)
+                                 else
+                                     do iActualLeft <- Math.Min(intStartChar, iLen)
+                                     do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage) 
 
-                             do iActualRight <- Math.Min(intStopChar, iLen) 
-                             do iActualRight <- Math.Min(iActualRight, openUpdateMMF.IntLastCharOnPage)
-                             do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage)
-
-                         else
-                             do iActualLeft <- Math.Min(intStartChar, iLen)
-                             do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage) 
-
-                             do iActualRight <- Math.Min(openUpdateMMF.IntLastCharOnPage, iLen)
-                             do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage) 
-                             do iActualRight <- Math.Min(iActualRight, openUpdateMMF.IntLastCharOnPage)
+                                     do iActualRight <- Math.Min(openUpdateMMF.IntLastCharOnPage, iLen)
+                                     do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage) 
+                                     do iActualRight <- Math.Min(iActualRight, openUpdateMMF.IntLastCharOnPage)
                      
 
-                         if (iCurrenSelectLine = intStartLine) 
-                         then 
-                             do iStartCh <- iActualLeft
-                             do iStopCh  <- iActualRight
+                                 if (iCurrenSelectLine = intStartLine) 
+                                 then 
+                                     do iStartCh <- iActualLeft
+                                     do iStopCh  <- iActualRight
                     
 
-                         if  (iCurrenSelectLine <> intStartLine && iCurrenSelectLine <> intStopLine)
-                         then
-                             do iStartCh <- openUpdateMMF.IntFirstCharOnPage
-                             do iStopCh  <- iActualRight 
+                                 if  (iCurrenSelectLine <> intStartLine && iCurrenSelectLine <> intStopLine)
+                                 then
+                                     do iStartCh <- openUpdateMMF.IntFirstCharOnPage
+                                     do iStopCh  <- iActualRight 
 
-                     // Must be less the Last Char On Page
+                                 // Must be less the Last Char On Page
                       
 
-                         if (iCurrenSelectLine = intStopLine && iCurrenSelectLine <> intStartLine) 
-                         then 
-                             do iActualRight <- Math.Min(iLen,openUpdateMMF.IntLastCharOnPage)
-                             do iActualRight <- Math.Min(iActualRight, intStopChar)
+                                 if (iCurrenSelectLine = intStopLine && iCurrenSelectLine <> intStartLine) 
+                                 then 
+                                     do iActualRight <- Math.Min(iLen,openUpdateMMF.IntLastCharOnPage)
+                                     do iActualRight <- Math.Min(iActualRight, intStopChar)
+                                     do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage)
+                                     do iStartCh <- openUpdateMMF.IntFirstCharOnPage
+                                     do iStopCh  <- iActualRight
+                                
+                                 let mutable rect = set_Rectangle(ref iCurrenSelectLine, ref iStartCh, ref iStopCh, myBrush)
+                                 do rect.Opacity <- 0.4
+                              
+                                 let mutable cc = new Canvas();
+                                 this.Dispatcher.Invoke(new Action(fun () -> do c.Children.Add(rect) |> ignore
+                                                                             do c.Children.Add(cc) |> ignore
+                                                                             do c <- cc))
+
+
+                     // Selection Column ...
+                         
+                     if  intStartChar <= 0 && intStopChar <= 0 && intStartLine = intStopLine then
+                         
+                         for iCurrenSelectLine = openUpdateMMF.IntFirstLineOnPage to openUpdateMMF.IntLastLineOnPage  do
+
+                             let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, Math.Max(iCurrenSelectLine - openUpdateMMF.IntFirstLineOnPage, 0))
+                             let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iC]                     
+
+                             do iActualLeft <- Math.Min(- intStartChar, iLen)
+                             do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage) 
+                             do iActualLeft <- Math.Min(iActualLeft, openUpdateMMF.IntLastCharOnPage)
+                         
+                             do iActualRight <- Math.Min(- intStopChar, iLen) 
+                             do iActualRight <- Math.Min(iActualRight, openUpdateMMF.IntLastCharOnPage)
                              do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage)
-                             do iStartCh <- openUpdateMMF.IntFirstCharOnPage
-                             do iStopCh  <- iActualRight
-            
-                         // rectungle  must be here
-                         let mutable rect = set_Rectangle(ref iCurrenSelectLine, ref iStartCh, ref iStopCh, myBrush)
-                         do rect.Opacity <- 0.4
                    
-                         let mutable cc = new Canvas();
-                         this.Dispatcher.Invoke(new Action(fun () -> do c.Children.Add(rect) |> ignore
-                                                                     do c.Children.Add(cc) |> ignore
-                                                                     do c <- cc))
+                             do iStartCh <- iActualLeft
+                             do iStopCh  <- iActualRight
+
+                             // rectungle  must be here
+                             let mutable rect = set_Rectangle(ref iCurrenSelectLine, ref iStartCh, ref iStopCh, myBrush)
+                             do rect.Opacity <- 0.4
+                   
+                             let mutable cc = new Canvas();
+                             this.Dispatcher.Invoke(new Action(fun () -> do c.Children.Add(rect) |> ignore
+                                                                         do c.Children.Add(cc) |> ignore
+                                                                         do c <- cc))
+
+
+
+
+                     if  intStartChar <= 0 && intStopChar <= 0 && intStartChar = intStopChar then
+           
+                        for iCurrenSelectLine = intStartLine to intStopLine  do
+
+                            let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, Math.Max(iCurrenSelectLine - openUpdateMMF.IntFirstLineOnPage, 0))
+                            let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iC]                     
+
+                            do iActualLeft <- Math.Min(0, iLen)
+                            do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage) 
+                            do iActualLeft <- Math.Min(iActualLeft, openUpdateMMF.IntLastCharOnPage)
+
+                            do iActualRight <- iLen 
+                            do iActualRight <- Math.Min(iActualRight, openUpdateMMF.IntLastCharOnPage)
+                            do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage)
+                   
+                            do iStartCh <- iActualLeft
+                            do iStopCh  <- iActualRight
+
+                            // rectungle  must be here
+                            let mutable rect = set_Rectangle(ref iCurrenSelectLine, ref iStartCh, ref iStopCh, myBrush)
+                            do rect.Opacity <- 0.4
+                   
+                            let mutable cc = new Canvas();
+                            this.Dispatcher.Invoke(new Action(fun () -> do c.Children.Add(rect) |> ignore
+                                                                        do c.Children.Add(cc) |> ignore
+                                                                        do c <- cc))
+
+
+                     if  intStartChar <= 0 && intStopChar <= 0 && intStartChar <> intStopChar && intStartLine <> intStopLine then
+
+                        for iCurrenSelectLine = intStartLine to intStopLine  do
+
+                            let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, Math.Max(iCurrenSelectLine - openUpdateMMF.IntFirstLineOnPage, 0))
+                            let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iC]                     
+
+                            do iActualLeft <- - intStartChar
+                            do iActualLeft <- Math.Min(iActualLeft, iLen)
+                            do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage) 
+                            do iActualLeft <- Math.Min(iActualLeft, openUpdateMMF.IntLastCharOnPage)
+
+                            do iActualRight <- - intStopChar 
+                            do iActualRight <- Math.Min(iActualRight, iLen)
+                            do iActualRight <- Math.Min(iActualRight, openUpdateMMF.IntLastCharOnPage)
+                            do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage)
+                   
+                            do iStartCh <- iActualLeft
+                            do iStopCh  <- iActualRight
+
+                            // rectungle  must be here
+                            let mutable rect = set_Rectangle(ref iCurrenSelectLine, ref iStartCh, ref iStopCh, myBrush)
+                            do rect.Opacity <- 0.4
+                   
+                            let mutable cc = new Canvas();
+                            this.Dispatcher.Invoke(new Action(fun () -> do c.Children.Add(rect) |> ignore
+                                                                        do c.Children.Add(cc) |> ignore
+                                                                        do c <- cc))
 
 
 
@@ -305,11 +394,27 @@ type MyTextBox() as this  =
                     intStartChar <- intStopChar
                     intStopChar <- intTmp
              
+                // Normal Select
                 if (blnPenDeSelect = false && blnRecSelect = false && blnRecDeSelect = false && blnPlaceHolder = false) then
                     
                     do mapOfSelectingPosition.Empty()
                     do mapOfSelectingPosition.Add(intStartLine, intStartLine, intStartChar, intStopLine, intStopChar, blnAppend) |> ignore
-                ()
+                
+
+                // Rect Select
+                if (blnPenDeSelect = false && blnRecSelect = true && blnRecDeSelect = false && blnPlaceHolder = false) then
+                    
+                    do mapOfSelectingPosition.Empty()
+
+                    // Rectungle
+                    if intStartLine = intStopLine && intStartChar <> intStopChar then
+                        do mapOfSelectingPosition.Add(intStartLine, intStartLine, - intStartChar, intStopLine, - intStopChar, blnAppend) |> ignore
+
+                    if intStartLine <> intStopLine && intStartChar = intStopChar then
+                        do mapOfSelectingPosition.Add(intStartLine, intStartLine, - crt.AbsoluteNumCharCurrent , intStopLine, - crt.AbsoluteNumCharCurrent, blnAppend) |> ignore
+
+                    if intStartLine <> intStopLine && intStartChar <> intStopChar then
+                        do mapOfSelectingPosition.Add(intStartLine, intStartLine, - intStartChar , intStopLine, - intStopChar, blnAppend) |> ignore
 
 
     let mutable blnMouseLeftPressed = false

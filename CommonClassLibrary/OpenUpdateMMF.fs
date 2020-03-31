@@ -513,9 +513,9 @@ type OpenUpdateMMF() as _this   =
             then
                  match r with
                  //| _ when r > 0.03125 && r <= 0.0625    -> longOfset <- longOfset * 32L;
-                 | _ when r <= 0.5    -> longOfset <- longOfset * 4L;
+                 | _ when r <= 0.25    -> longOfset <- longOfset * 8L;
                  //| _ when r > 0.125 && r <= 0.25    -> longOfset <- longOfset * 8L;
-                 //| _ when r > 0.25 && r <= 0.50   -> longOfset <- longOfset * 4L;  
+                 | _ when r > 0.25 && r <= 0.50   -> longOfset <- longOfset * 4L;  
                  | _ when r > 0.5  && r <= 1.0    -> longOfset <- longOfset * 2L;   
                  | _ when r > 1.0  && r <= 2.0    -> ignore();                     
                  
@@ -678,6 +678,9 @@ type OpenUpdateMMF() as _this   =
     [<CLIEvent>]
     member x.EventBlockChanged =  eventBlockChanged.Publish
 
+
+    member x.CalculateCurrentBlock (sReal) = calculateCurrentBlock (sReal)  //"R" ignore
+    member x.FirstLine(iBlock : int) = firstLine(iBlock) 
 
     member x.IntFirstLineOnPage 
            with get()= intFirstLineOnPage and 

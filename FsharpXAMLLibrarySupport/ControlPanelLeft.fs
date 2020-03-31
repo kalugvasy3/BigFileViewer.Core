@@ -65,6 +65,8 @@ type ControlPanelLeft()  as this =
 
     let mutable myTextBox  = ref (new MyTextBox())
 
+    let findReplace = new Event<_>()
+
    //Group FORMAT
     //let mutable grpFormat : GroupBox =  this.Content?grpFormat 
     //let mutable btnFormat : Button =  this.Content?btnFormat 
@@ -118,7 +120,7 @@ type ControlPanelLeft()  as this =
     do btnSelectAll.Click.Add(fun _   -> myTextBox.Value.BtnCommand("SelectAll"))
     do btnSelectLine.Click.Add(fun _  -> myTextBox.Value.BtnCommand("SelectLine"))
 
-    do btnFindReplace.Click.Add(fun _ -> myTextBox.Value.BtnCommand("FindReplace"))
+    do btnFindReplace.Click.Add(fun _ ->  do findReplace.Trigger())
     do btnCopyGroup.Click.Add(fun _   -> myTextBox.Value.BtnCommand("CopyGroup"))
 
     do btnPlaceHolder.Click.Add(fun _  -> colorChange(ref btnPlaceHolder, Media.Brushes.DarkBlue)
@@ -147,6 +149,12 @@ type ControlPanelLeft()  as this =
 
     
     member x.MyTextBox with set(v) =  myTextBox <- v 
+
+
+
+
+    [<CLIEvent>]
+    member x.FindReplace = findReplace.Publish 
 
     //member x.BlnGroupOperation with get() = blnColorChange(ref btnGroupOperation) 
     //member x.BlnPlaceHolder    with get() = blnColorChange(ref btnPlaceHolder) 

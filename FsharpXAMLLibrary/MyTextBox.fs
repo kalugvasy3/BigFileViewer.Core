@@ -71,7 +71,7 @@ type MyTextBox() as this  =
     
     do lenghtArr.Add(0)
 
-    let openFind = new Event<_>() 
+    //let openFind = new Event<_>() 
     let scaleCurrnet = new Event<float>()
     
     let unLoaded(e : RoutedEventArgs) = if openUpdateMMF.Mmf <> null then openUpdateMMF.Mmf.Dispose() 
@@ -612,11 +612,11 @@ type MyTextBox() as this  =
                  let deltaY = scrollX.ActualHeight
                  let curr = Mouse.GetPosition(scrollY)
                  let iy = int (scrollY.Maximum *  (curr.Y - deltaY) / (scrollY.ActualHeight - 2.0 * deltaY) )
-                 Thread.Sleep(0)
-                 scrollY.Value <- float iy
                  
-                 if (int)scrollY.Value >= openUpdateMMF.IntNumberOfTotalLinesEstimation then
-                     do scrollY.Value <- float openUpdateMMF.IntNumberOfTotalLinesEstimation - 1.0
+                 //We must set scroll Y at once ...
+                 if iy >= openUpdateMMF.IntNumberOfTotalLinesEstimation 
+                 then do scrollY.Value <- float openUpdateMMF.IntNumberOfTotalLinesEstimation - 1.0
+                 else scrollY.Value <- float iy
 
                  )) |> ignore 
                                                             
@@ -756,7 +756,7 @@ type MyTextBox() as this  =
                                                         do isCrtInsideWindow() |> ignore
 
                                       | Key.O        -> myMenu.Visibility <- Visibility.Visible
-                                      | Key.F        -> openFind.Trigger()
+                                      //| Key.F        -> openFind.Trigger()
                                       | _ -> ignore()
 
 
@@ -988,7 +988,6 @@ type MyTextBox() as this  =
         | "RightDown" -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, crt.AbsoluteNumCharCurrent, lastLine, openUpdateMMF.IntMaxCharsInLine , blnAppend) |> ignore 
         | "SelectAll" ->  do mapOfSelectingPosition.Add(0, 0, 0, lastLine, openUpdateMMF.IntMaxCharsInLine, blnAppend) |> ignore  
         | "SelectLine" -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, 0, crt.AbsoluteNumLineCurrent, iLen , blnAppend) |> ignore  
-        | "FindReplace" -> ignore()
         | "CopyGroup" -> ignore()
         | _  -> ignore()
 
@@ -1087,8 +1086,8 @@ type MyTextBox() as this  =
 
     [<CLIEvent>]
     member x.ScaleCurrnet =   scaleCurrnet.Publish
-    [<CLIEvent>]
-    member x.OpenFind = openFind.Publish
+    //[<CLIEvent>]
+    //member x.OpenFind = openFind.Publish
 
     member x.StatusBar with get() = statusBar and set(v)= statusBar <- v 
 

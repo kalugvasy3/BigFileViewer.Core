@@ -5,16 +5,16 @@
 
              xmlns:FsharpXAMLLibrary="clr-namespace:FsharpXAMLLibrary;assembly=FsharpXAMLLibrary"
 
-             mc:Ignorable="d" MinHeight="100" MinWidth="400">
+             mc:Ignorable="d" MinHeight="23" MinWidth="400">
     <Grid>
-        <TextBox x:Name="txtQuickFind" Height="22" VerticalAlignment="Top" Margin="0,0,184,0" />
-        <Button x:Name="btnFindAll" Content="Find All" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,0" Width="60"/>
-        <Button x:Name="btnStop" Content="Stop All" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,62,0" Width="60"/>
-        <Button x:Name="btnFindNext" Content="Find Next" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" ToolTip="From Current position to below ..." Margin="0,0,123,0" Width="60"/>
+        <TextBox x:Name="txtQuickFind" Height="22" VerticalAlignment="Top" Margin="0,0,62,0" />
+        <!--<Button x:Name="btnFindAll" Content="Find All" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,1,0" Width="60"/>-->
+        <!--<Button x:Name="btnStop" Content="Stop All" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,62,0" Width="60"/>-->
+        <Button x:Name="btnFindNext" Content="Find Next" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" ToolTip="From Current position to below ..." Margin="0,0,1,0" Width="60"/>
 
-        <StackPanel x:Name="stackPanel" Background="#FFF3F1F1" Margin="0,27" Orientation="Vertical"/>
-        <ProgressBar x:Name="progressBar" Height="22"  VerticalAlignment="Bottom" />
-        <CommonClassLibrary:UserClock x:Name="userClk" />
+        <!--<StackPanel x:Name="stackPanel" Background="#FFF3F1F1" Orientation="Vertical" Margin="0,27,0,0"/>-->
+        <!--<ProgressBar x:Name="progressBar" Height="22"  VerticalAlignment="Bottom"  />
+        <CommonClassLibrary:UserClock x:Name="userClk" />-->
     </Grid>
 
 </UserControl>

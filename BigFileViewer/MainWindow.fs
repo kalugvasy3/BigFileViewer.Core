@@ -37,6 +37,8 @@ do this.Unloaded.Add(fun _ -> this <- null
 
 do this.SizeChanged.Add(fun _ ->  ucMainWindow.WinHolder <- this)
 
+///do this.Unloaded.Add(fun _ -> Environment.Exit(Environment.ExitCode))
+
 [<STAThread>] 
 [<EntryPoint>]
 

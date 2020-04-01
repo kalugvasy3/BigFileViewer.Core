@@ -28,6 +28,7 @@ open Utilities
 open Microsoft.FSharp.Control
 open System.Text
 open System.Threading
+open System.Threading.Tasks
 
 type private MyTextBlock() as this = 
      inherit UserControl()
@@ -56,14 +57,15 @@ type QuickFind()  as this =
     let mutable refListTestbAll = ref (new  List<StringBuilder>())
     
     let mutable txtQuickFind : TextBox = this.Content?txtQuickFind 
-    let mutable btnFindAll : Button = this.Content?btnFindAll
+    ///let mutable btnFindAll : Button = this.Content?btnFindAll
     let mutable btnFindNext : Button = this.Content?btnFindNext
-    let mutable btnStop : Button = this.Content?btnStop
-    let mutable stackPanel : StackPanel = this.Content?stackPanel  
-    let mutable userClkl : UserClock = this.Content?userClk
-    let mutable progressBar : ProgressBar = this.Content?progressBar
+    ///let mutable btnStop : Button = this.Content?btnStop
+    //let mutable stackPanel : StackPanel = this.Content?stackPanel  
+    //let mutable userClkl : UserClock = this.Content?userClk
+    //let mutable progressBar : ProgressBar = this.Content?progressBar
 
     let typeOfFind = new Event<bool>() 
+    //let eventSysInfoStart = new Event<float>() 
 
     let findInText (x : int*int) = let (iLine, iChar) = x
                                    do myTextBox.Value.IntFirstLineOnPage <- iLine  //Screen will be updated automaticaly
@@ -74,28 +76,27 @@ type QuickFind()  as this =
                                    txt.Position <- x
                                    txt.Text <- x.ToString() + "  " + str
                                    txt.MouseLeftButtonDown.Add(fun _ -> findInText(txt.Position)) 
-                                   stackPanel.Children.Add(txt)
+                                   //stackPanel.Children.Add(txt)
+    
 
-
-    do progressBar.Minimum <- 0.0
-    do progressBar.Maximum <- 100.0
-
-    let progressBar(iBlock : int) = 
-                   this.Dispatcher.Invoke(new Action(fun () -> 
-                           if openUpdateMMF.Value.LongNumberOfBlocks <> 0L then
-                               let fcurent = ((iBlock + 1) * 100) / (int)openUpdateMMF.Value.LongNumberOfBlocks
-                               if (fcurent % 5 = 0) then  do progressBar.Value <- (float fcurent)
-                                                          do Thread.Sleep(200) 
-                               if fcurent = 100 then do progressBar.Value <- 0.0   
-                                                        Thread.Sleep(200) ))
 
     let mutable prevFindBlock = -1
     let mutable blnStopSearch = false
+
+    let progressBar(iBlock : int) = 
+                   if openUpdateMMF.Value.LongNumberOfBlocks <> 0L then
+                       let fcurent = ((iBlock + 1) * 100) / (int)openUpdateMMF.Value.LongNumberOfBlocks
+                       do openUpdateMMF.Value.SetEventSysInfoStart(float fcurent)
+                       do Thread.Sleep(0) 
+                       if fcurent >= 100 then do openUpdateMMF.Value.SetEventSysInfoStart(0.0)   
+                                              Thread.Sleep(200)
  
     let loadAndSearch(iBlock, str : string, blnAll : bool) =      
              let mutable intStartLine : int = 0
              let mutable intStartChar : int = openUpdateMMF.Value.IntFirstCharOnPage
-                 
+             
+             progressBar(iBlock)
+
              match  iBlock - (int)openUpdateMMF.Value.LongCurrentBlock with
              | -1 -> do refListTestbAll  <- openUpdateMMF.Value.RefListPreviousSbAll
                      do prevFindBlock <- (int)openUpdateMMF.Value.LongCurrentBlock  - 1
@@ -129,6 +130,7 @@ type QuickFind()  as this =
                           let listResult = new List<int*int*string>()
 
                           for iL = intStartLine to linesInBlock - 1 do
+                              Thread.Sleep(0)
                               if (blnContinue || blnAll) && not blnStopSearch then
                                   let len =   refListTestbAll.Value.[iL].Length - intStartChar - str.Length 
                                   let mutable oneStr = "" 
@@ -146,8 +148,8 @@ type QuickFind()  as this =
                                           blnContinue <- false
                                           listResult.Add(iy , ix, partOfString)
                                       else intStartChar <- -str.Length
-                          Thread.Sleep(0)
-                          progressBar(iBlock)
+                          Thread.Sleep(10)
+                          //progressBarSub(iBlock)
                           listResult
              find()     
 
@@ -155,21 +157,22 @@ type QuickFind()  as this =
 
 
 
-    let findNext(str : string) =    
+    let findNextString(str : string) =    
 
          let mutable endBlock = (int)openUpdateMMF.Value.LongNumberOfBlocks - 1  // base on 0 block
-         let rec loop n =           
+         let rec loop n = 
+             Thread.Sleep(10)
              if n <= endBlock &&  str.Trim() <> "" && not blnStopSearch then
                  let lstResult = loadAndSearch(n, str, false)
                  if lstResult.Count = 0 
                      then loop (n + 1)
                      else
                          let (iy , ix, partStr) = lstResult.[0]
-                         if iy >= 0 then progressBar(-1)
+                         if iy >= 0 then //progressBarSub(-1)
                                          (iy , ix) 
-                                    else progressBar(n + 1)
+                                    else //progressBarSub(n + 1)
                                          loop (n + 1)
-             else  do progressBar(-1)
+             else  //do progressBarSub(-1)
                    do blnStopSearch <- false
                    (-1 , -1)  
                    
@@ -189,19 +192,39 @@ type QuickFind()  as this =
     let mutable isaveLine = 0
     let mutable isaveChar = 0
 
+    let findTask () =
+        // We MUST create  TaskScheduler and Synchronization Context
+        let uiThread : TaskScheduler = TaskScheduler.FromCurrentSynchronizationContext();          
 
-    let findNext() =
-           do this.Dispatcher.Invoke(new Action(fun () -> do userClkl.Visibility <- Visibility.Visible))
-           do myTextBox.Value.TextSearch <- txtQuickFind.Text.Trim()
-           do typeOfFind.Trigger(false)
-           do blnFindAll <- false
-           let (iLine, iChar) = findNext(txtQuickFind.Text.Trim())
-           isaveLine <- iLine
-           isaveChar <- iChar
-           do myTextBox.Value.IntFirstLineOnPage <- iLine
-           do myTextBox.Value.IntFirstCharOnPage <- iChar
-           do this.Dispatcher.Invoke(new Action(fun () -> do userClkl.Visibility <- Visibility.Collapsed ))
-                           
+        // Show Clock - disable  AllowDrop
+    
+        do this.Dispatcher.Invoke(new Action ( fun () -> 
+                                     // do userClkl.Visibility <- Visibility.Visible
+                                      do myTextBox.Value.TextSearch <- txtQuickFind.Text.Trim()
+                                      Thread.Sleep(10)
+                                      do typeOfFind.Trigger(false)
+                                      do blnFindAll <- false))
+
+        // Main Thread 
+        let mainThreadLoadFile () =  
+                    do this.Dispatcher.Invoke(new Action ( fun () -> 
+
+                                            let (iLine, iChar) = findNextString(txtQuickFind.Text.Trim())
+                                            isaveLine <- iLine
+                                            isaveChar <- iChar
+                                            do myTextBox.Value.IntFirstLineOnPage <- iLine
+                                            do myTextBox.Value.IntFirstCharOnPage <- iChar))
+                    true                           
+    
+        // Final Thread
+        let finalThreadDoWOrk(x : bool) = 
+                                do this.Dispatcher.Invoke(new Action ( fun () -> () )) //do userClkl.Visibility <- Visibility.Collapsed))
+    
+        // Create Task                                
+        let mainThreadDoWorkTask = Task<bool>.Factory.StartNew(fun () -> mainThreadLoadFile())            
+
+        // It MUST be  Synchronization with Context
+        do mainThreadDoWorkTask.ContinueWith( fun ( t : Task<bool> ) -> finalThreadDoWOrk(t.Result), uiThread ) |> ignore
 
 
     
@@ -233,21 +256,22 @@ type QuickFind()  as this =
 
 
 
-    do txtQuickFind.TextChanged.Add(fun _ -> stackPanel.Children.Clear() )     
-    do this.Dispatcher.Invoke(new Action(fun () -> do userClkl.Visibility <- Visibility.Collapsed ))
+    //do txtQuickFind.TextChanged.Add(fun _ -> stackPanel.Children.Clear() )     
+    //do this.Dispatcher.Invoke(new Action(fun () -> do userClkl.Visibility <- Visibility.Collapsed ))
     
-    do btnFindAll.Click.Add(fun _ -> findAll())                               
+    //do btnFindAll.Click.Add(fun _ -> findAll())                               
     
-    do btnFindNext.Click.Add(fun _ -> findNext()  )
+    do btnFindNext.Click.Add(fun _ -> findTask ()  )
 
-    do btnStop.Click.Add(fun _ -> do blnStopSearch <- true) 
+    //do btnStop.Click.Add(fun _ -> do blnStopSearch <- true) 
 
-    do this.Unloaded.Add(fun _ -> do blnStopSearch <- true
-                                  do myTextBox.Value.TextSearch <- ""
-                                  do Thread.Sleep(0)
-                                  do myTextBox.Value.IntFirstLineOnPage <- isaveLine
-                                  do myTextBox.Value.IntFirstCharOnPage <- isaveChar
-                                  )
+    do this.Unloaded.Add(fun _ -> do this.Dispatcher.Invoke(new Action ( fun () -> 
+                                                  do blnStopSearch <- true
+                                                  do myTextBox.Value.TextSearch <- ""
+                                                  do openUpdateMMF.Value.SetEventSysInfoStart(0.0)
+                                                  do Thread.Sleep(100)
+                                                  
+                                  )))
     
     [<CLIEvent>]
     member x.TypeOfFind =   typeOfFind.Publish    

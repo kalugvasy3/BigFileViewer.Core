@@ -228,10 +228,10 @@ type OpenUpdateMMF() as _this   =
     let progressBar(iBlock : int) = 
                    if longNumberOfBlocks <> 0L then
                        let fcurent = ((iBlock + 1) * 100) / (int)longNumberOfBlocks
-                       if (fcurent % 5 = 0) then  do eventSysInfoStart.Trigger(float fcurent)
-                                                  do Thread.Sleep(200) 
-                       if fcurent = 100 then do eventSysInfoStart.Trigger(0.0)   
-                                                Thread.Sleep(200)
+                       do eventSysInfoStart.Trigger(float fcurent)
+                       do Thread.Sleep(0) 
+                       if fcurent >= 100 then do eventSysInfoStart.Trigger(0.0)   
+                                              Thread.Sleep(200)
 
     //let db = new SQLiteAccess()
     //let dbOpen() =            
@@ -338,7 +338,13 @@ type OpenUpdateMMF() as _this   =
                                            if nextI - 1  < refListNextSbAll.Value.Count &&  nextI  > 0 // if have not loaded yet 
                                            then ((refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ], (refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ].Length)
                                            else (new StringBuilder(),0)
-
+                           
+                            |  false, 3 -> let nextI = curentI + currentBlockFirstLine - nextBlockFirstLine + 1
+                                           do intHysteresis <- 0
+                                           if nextI - 1  < refListNextSbAll.Value.Count &&  nextI  > 0 // if have not loaded yet 
+                                           then ((refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ], (refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ].Length)
+                                           else (new StringBuilder(),0)
+                            
                             |  false, _ -> let nextI = curentI + currentBlockFirstLine - nextBlockFirstLine + 1
                                            if (nextI > arrayOfBlockInfo.[Math.Min(int longCurrentBlock + 1, arrayOfBlockInfo.Length - 1 )] / 2) then do intHysteresis <- +1
                                            if nextI - 1  < refListNextSbAll.Value.Count &&  nextI  > 0 // if have not loaded yet 
@@ -681,6 +687,8 @@ type OpenUpdateMMF() as _this   =
     [<CLIEvent>]
     member x.EventBlockChanged =  eventBlockChanged.Publish
 
+
+    member x.SetEventSysInfoStart(prg: float) = eventSysInfoStart.Trigger(prg)
 
     member x.CalculateCurrentBlock (sReal) = calculateCurrentBlock (sReal)  //"R" ignore
     member x.FirstLine(iBlock : int) = firstLine(iBlock) 

@@ -859,10 +859,13 @@ type MyTextBox() as this  =
                                          do openUpdateMMF.InitArrayOfBlock() // <- it is Async Process 
                                          
                                          match openUpdateMMF.LongNumberOfBlocks with
-                                          | 0L | 1L -> do openUpdateMMF.GetContentFromMMF(openUpdateMMF.RefListCurrentSbAll, 0, true, false,"C") 
+                                          | 0L | 1L -> 
+                                                  do openUpdateMMF.LongCurrentBlock  <- 0L
+                                                  do openUpdateMMF.GetContentFromMMF(openUpdateMMF.RefListCurrentSbAll, 0, true, false,"C") 
 
-                                          | 2L -> do openUpdateMMF.GetContentFromMMF(openUpdateMMF.RefListNextSbAll , 1, true, false,"N")
-                                                  do openUpdateMMF.GetContentFromMMF(openUpdateMMF.RefListCurrentSbAll, 0, true, true,"C")                                                 
+                                         // | 2L -> do openUpdateMMF.LongCurrentBlock  <- 0L
+                                         //        do openUpdateMMF.GetContentFromMMF(openUpdateMMF.RefListNextSbAll , 1, true, false,"N")
+                                         //         do openUpdateMMF.GetContentFromMMF(openUpdateMMF.RefListCurrentSbAll, 0, true, true,"C")                                                 
 
                                           | _ ->  do openUpdateMMF.LongCurrentBlock  <- 1L
                                                   do openUpdateMMF.GetContentFromMMF(openUpdateMMF.RefListCurrentSbAll, 1, true, false,"C") 
@@ -1092,8 +1095,8 @@ type MyTextBox() as this  =
 
     member x.StatusBar with get() = statusBar and set(v)= statusBar <- v 
 
-    member x.IntFirstCharOnPage with get() = (int)scrollX.Value and set(v) = scrollX.Value <- (double)v
-    member x.IntFirstLineOnPage with get() = (int)scrollY.Value and set(v) = scrollY.Value <- (double)v
+    member x.IntFirstCharOnPage with get() = (int)scrollX.Value and set(v) = do this.Dispatcher.Invoke(new Action ( fun () -> scrollX.Value <- (double)v ; do update(false)))
+    member x.IntFirstLineOnPage with get() = (int)scrollY.Value and set(v) = do this.Dispatcher.Invoke(new Action ( fun () ->scrollY.Value <- (double)v ; do update(false)))
 
     member x.OpenUpdateMMF with get() = ref openUpdateMMF   
 

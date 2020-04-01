@@ -186,6 +186,9 @@ type QuickFind()  as this =
     
     let mutable blnFindAll = false
 
+    let mutable isaveLine = 0
+    let mutable isaveChar = 0
+
 
     let findNext() =
            do this.Dispatcher.Invoke(new Action(fun () -> do userClkl.Visibility <- Visibility.Visible))
@@ -193,6 +196,8 @@ type QuickFind()  as this =
            do typeOfFind.Trigger(false)
            do blnFindAll <- false
            let (iLine, iChar) = findNext(txtQuickFind.Text.Trim())
+           isaveLine <- iLine
+           isaveChar <- iChar
            do myTextBox.Value.IntFirstLineOnPage <- iLine
            do myTextBox.Value.IntFirstCharOnPage <- iChar
            do this.Dispatcher.Invoke(new Action(fun () -> do userClkl.Visibility <- Visibility.Collapsed ))
@@ -236,6 +241,13 @@ type QuickFind()  as this =
     do btnFindNext.Click.Add(fun _ -> findNext()  )
 
     do btnStop.Click.Add(fun _ -> do blnStopSearch <- true) 
+
+    do this.Unloaded.Add(fun _ -> do blnStopSearch <- true
+                                  do myTextBox.Value.TextSearch <- ""
+                                  do Thread.Sleep(0)
+                                  do myTextBox.Value.IntFirstLineOnPage <- isaveLine
+                                  do myTextBox.Value.IntFirstCharOnPage <- isaveChar
+                                  )
     
     [<CLIEvent>]
     member x.TypeOfFind =   typeOfFind.Publish    

@@ -448,6 +448,7 @@ type OpenUpdateMMF() as _this   =
             
             let intLastCharOnPage = intFirstCharOnPage + intHorizCountCharsOnPage
             let lines = arrayPresentWindow.Length
+            
             let mutable index = 0
             do (!lenghtArr).Clear()
 
@@ -456,10 +457,12 @@ type OpenUpdateMMF() as _this   =
                 do (!lenghtArr).Add(iLen)
                 
                 if intFirstCharOnPage < iLen
-                    then  let intTmp : int = match (intLastCharOnPage <= iLen) with | true -> intHorizCountCharsOnPage | false -> (iLen - intFirstCharOnPage)
+                    then  let intTmp : int = match (intLastCharOnPage <= iLen) with 
+                                             | true -> intHorizCountCharsOnPage 
+                                             | false -> (iLen - intFirstCharOnPage )
                           let str : string = sb.ToString().Substring(intFirstCharOnPage, intTmp) + Environment.NewLine
                           do findAddTextEffect(index , str)
-                          do index<- index + iLen 
+                          do index<- index + intTmp + Environment.NewLine.Length 
                           do sbText.Append(str) |> ignore
                     else  do sbText.Append(Environment.NewLine) |> ignore               
                           do index <- index + Environment.NewLine.Length

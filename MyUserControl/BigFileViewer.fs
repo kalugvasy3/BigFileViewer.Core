@@ -11,7 +11,7 @@ open System.Windows.Input
 open System.Reflection
 open System.Threading.Tasks
 open System.Threading
-
+open System.Collections.Generic
 open System.Windows.Media
 open System.Windows.Media.Imaging
 open System.Windows.Input
@@ -40,11 +40,7 @@ type BigFileViewer() as this  =
     let mutable bigGrid : Grid  = (this.Content)?bigGrid
     let mutable winHolder : Window = new Window()
 
-    
-
-    let createNewFind() =
-        let mutable quickFind = new QuickFind()
-        do quickFind.InitMyTextBox(ref myTextBox) 
+    let mutable listOfWindow = new List<Window>()
 
     let minHeight = 730.0
     let minWidth = 512.0
@@ -96,15 +92,32 @@ type BigFileViewer() as this  =
 
 
 
-    let openFindDialog() = let uc = new QuickFind()
-                           let mutable win = new Window()
-                           do win.Name <- "Quick Find"
-                           do win.Content <- uc
-                           do win.WindowStyle <- WindowStyle.SingleBorderWindow
 
+    let createNewFind() =
+        let mutable quickFind = new QuickFind()
+        do quickFind.InitMyTextBox(ref myTextBox) 
+
+
+    let openFindDialog() = let win = new Window()
+                           let uc = new QuickFind()
+                           do uc.InitMyTextBox(ref myTextBox)
+                           do win.Content <- uc
+                           do win.Height <- 70.0
+                           do win.Width <- 500.0
+                           do win.Name <- "QuickFind"
+                           do win.Title <- "Quick Find"                                                    
+                           
+                           do uc.TypeOfFind.Add(fun x -> if x then win.Height <- 200.0 else win.Height <- 70.0 )
+
+                           do win.WindowStyle <- WindowStyle.SingleBorderWindow
+                           do win.Show()
+                           do listOfWindow.Add(win)
                            ignore()
 
 
+    do myControlPanelLeft.FindReplace.Add(fun _ -> openFindDialog()) 
+
+    do this.Unloaded.Add(fun _ -> for w in listOfWindow do w.Close())
 
 
         // Synchronized UserControl size with Window

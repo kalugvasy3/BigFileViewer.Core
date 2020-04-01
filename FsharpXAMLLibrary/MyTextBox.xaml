@@ -48,7 +48,7 @@
 
         </Canvas>
 
-        <CommonClassLibrary:MyMenu x:Name="myMenu" />
+        <!--<CommonClassLibrary:MyMenu x:Name="myMenu" />-->
 
 
     </Grid>

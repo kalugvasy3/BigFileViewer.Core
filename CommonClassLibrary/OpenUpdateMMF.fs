@@ -747,7 +747,7 @@ type OpenUpdateMMF() as _this   =
            with get()= blnThreadAllowRunnig and 
                 set(v)=blnThreadAllowRunnig <-v 
 
-    member x.ArrayPresentWindow  
+    member x.ArrayPresentWindow     
            with get()= arrayPresentWindow and 
                 set(v)=arrayPresentWindow <-v 
 

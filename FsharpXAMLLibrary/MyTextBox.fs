@@ -38,7 +38,7 @@ type MyTextBox() as this  =
     let mutable myFonts = new  CommonClassLibrary.Fonts()
     let mutable myTouch = new CommonClassLibrary.Touch()
     let mutable crt = new CommonClassLibrary.CaretCanvas()
-    let mutable myMenu : MyMenu = (this.Content)?myMenu
+    //let mutable myMenu : MyMenu = (this.Content)?myMenu
 
     let mutable blnInsert = false
 
@@ -579,6 +579,7 @@ type MyTextBox() as this  =
                             canvasMain.AllowDrop <- true ) |> ignore
             do Thread.Sleep(0)
     
+    let mutable textSearch = ""
 
     let update(blnChange : bool) =  
         [ async {
@@ -588,7 +589,7 @@ type MyTextBox() as this  =
                  )) |> ignore
 
             this.Dispatcher.InvokeAsync(new Action ( fun _ ->                                                    
-                 do openUpdateMMF.UpdateCurrentWindow(ref txtBlock  , ref lenghtArr, blnChange, myMenu.TxtFind) |> ignore
+                 do openUpdateMMF.UpdateCurrentWindow(ref txtBlock  , ref lenghtArr, blnChange, textSearch) |> ignore
                  )) |> ignore                                            
 
             this.Dispatcher.InvokeAsync(new Action ( fun _ ->                                                    
@@ -755,7 +756,7 @@ type MyTextBox() as this  =
                                                         if crt.AbsoluteNumLineCurrent > openUpdateMMF.IntNumberOfTotalLinesEstimation then crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntNumberOfTotalLinesEstimation
                                                         do isCrtInsideWindow() |> ignore
 
-                                      | Key.O        -> myMenu.Visibility <- Visibility.Visible
+                                      //| Key.O        -> myMenu.Visibility <- Visibility.Visible
                                       //| Key.F        -> openFind.Trigger()
                                       | _ -> ignore()
 
@@ -829,7 +830,7 @@ type MyTextBox() as this  =
 
             // Show Clock - disable  AllowDrop
             do this.Dispatcher.Invoke(new Action ( fun () -> do updateUserClock (true)
-                                                             do myMenu.Visibility <- Visibility.Collapsed
+                                                             //do myMenu.Visibility <- Visibility.Collapsed
                                                              do scrollX.Value <-0.0
                                                              do scrollY.Value <-0.0
                                                              do canvasMain.AllowDrop <- false
@@ -950,20 +951,20 @@ type MyTextBox() as this  =
                         
                            
 
-    do myMenu.EventMenu.Add(fun (c, s) ->  
-                         match c with
-                         | "Open" -> openFileTXT(s)
-                                     myMenu.Visibility <- Visibility.Collapsed
-                         | "Next" ->  nextSynchro(s : string[])
-                         | "FindChanged" -> update(false)
-                         | "Escape" -> openUpdateMMF.BlnStopSearch <- true
-                         | "Exit" -> exitApp()
-                         | _      -> ignore()
-                            ) 
+    //do myMenu.EventMenu.Add(fun (c, s) ->  
+    //                     match c with
+    //                     | "Open" -> openFileTXT(s)
+    //                                 myMenu.Visibility <- Visibility.Collapsed
+    //                     | "Next" ->  nextSynchro(s : string[])
+    //                     | "FindChanged" -> update(false)
+    //                     | "Escape" -> openUpdateMMF.BlnStopSearch <- true
+    //                     | "Exit" -> exitApp()
+    //                     | _      -> ignore()
+    //                        ) 
  
 
 
-    do myMenu.EventGoTo.Add(fun (y,x) -> goto (y ,x))
+    //do myMenu.EventGoTo.Add(fun (y,x) -> goto (y ,x))
  
  
     let btnCommand(strCommand : string) =
@@ -1037,7 +1038,7 @@ type MyTextBox() as this  =
             do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightUp(e) ) 
             
             do canvasMain.Children.Add(crt) |> ignore
-            do myMenu.HostUserControl <- this
+            //do myMenu.HostUserControl <- this
 
             //do canvasMain.KeyUp.Add(fun e ->   canvasKeyUp (e))   // Drop all flags “shift”, “alt”, “controls” only                                                 
             //do crt.EventTxtKeyUp.Add(fun e ->  do canvasKeyUp (e))  
@@ -1104,6 +1105,7 @@ type MyTextBox() as this  =
     member x.BlnRecDeSelect with get() = blnRecDeSelect and set(v) = blnRecDeSelect <-v
 
     member x.BtnCommand(strCommand : string) = btnCommand(strCommand)
+    member x.TextSearch with get() = textSearch and set(v) = textSearch <- v
 
 
 

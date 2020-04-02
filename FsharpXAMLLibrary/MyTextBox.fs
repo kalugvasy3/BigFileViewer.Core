@@ -329,18 +329,22 @@ type MyTextBox() as this  =
 
 
                      if  intStartChar <= 0 && intStopChar <= 0 && intStartChar <> intStopChar && intStartLine <> intStopLine then
+                         
+
+
+
 
                         for iCurrenSelectLine = intStartLine to intStopLine  do
 
                             let iC = Math.Min(openUpdateMMF.ArrayPresentWindow.Length - 1, Math.Max(iCurrenSelectLine - openUpdateMMF.IntFirstLineOnPage, 0))
                             let (sb :StringBuilder, iLen : int) = openUpdateMMF.ArrayPresentWindow.[iC]                     
 
-                            do iActualLeft <- - intStartChar
+                            do iActualLeft <- Math.Min(- intStartChar, - intStopChar)
                             do iActualLeft <- Math.Min(iActualLeft, iLen)
                             do iActualLeft <- Math.Max(iActualLeft, openUpdateMMF.IntFirstCharOnPage) 
                             do iActualLeft <- Math.Min(iActualLeft, openUpdateMMF.IntLastCharOnPage)
 
-                            do iActualRight <- - intStopChar 
+                            do iActualRight <- Math.Max(- intStartChar, - intStopChar) 
                             do iActualRight <- Math.Min(iActualRight, iLen)
                             do iActualRight <- Math.Min(iActualRight, openUpdateMMF.IntLastCharOnPage)
                             do iActualRight <- Math.Max(iActualRight, openUpdateMMF.IntFirstCharOnPage)

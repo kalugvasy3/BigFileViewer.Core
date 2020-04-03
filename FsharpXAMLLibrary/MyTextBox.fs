@@ -611,7 +611,7 @@ type MyTextBox() as this  =
  
     let updateDoubleY() = 
             this.Dispatcher.InvokeAsync(new Action ( fun _ ->
-                 do openUpdateMMF.BlnStopSearch <- true
+                 //do openUpdateMMF.BlnStopSearch <- true
                  do updateUserClock(false) 
                  Thread.Sleep(0)
                  let deltaY = scrollX.ActualHeight
@@ -628,7 +628,7 @@ type MyTextBox() as this  =
 
     let updateDoubleX() =
             this.Dispatcher.InvokeAsync(new Action ( fun _ ->
-                 do openUpdateMMF.BlnStopSearch <- true
+               //  do openUpdateMMF.BlnStopSearch <- true
                  do updateUserClock(false) 
                  Thread.Sleep(0)
 
@@ -767,6 +767,8 @@ type MyTextBox() as this  =
 
             | _ ->                    match e.Key with
                                       | Key.Escape -> openUpdateMMF.BlnStopSearch <- true
+                                                      Thread.Sleep(100)
+
                                       | Key.PageUp -> match isCrtInsideWindow() with
                                                         | 0 , 0 -> if crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage >=0
                                                                       then do crt.AbsoluteNumLineCurrent  <- crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage
@@ -911,50 +913,50 @@ type MyTextBox() as this  =
             openFileTXT(files)
             ()
 
-    let mutable primaryX = 0.0
-    let mutable primaryY = 0.0
+    //let mutable primaryX = 0.0
+    //let mutable primaryY = 0.0
 
-    let mutable touchX = 0.0
-    let mutable touchY = 0.0
+    //let mutable touchX = 0.0
+    //let mutable touchY = 0.0
 
  
 
-    let exitApp() = let messageBoxText = "Do You want to exit from this Application ...?\n" // _Closing(object sender, System.ComponentModel.CancelEventArgs e)
-                    let caption = "Exit"
-                    let button = MessageBoxButton.YesNo
-                    let icon = MessageBoxImage.Warning
-                    let result = MessageBox.Show(messageBoxText, caption, button, icon) 
-                    match result with
-                    | MessageBoxResult.Yes -> Environment.Exit(0)
-                    | _ -> ignore()                      // MessageBoxResult.No  -> e.Cancel = true;
+    //let exitApp() = let messageBoxText = "Do You want to exit from this Application ...?\n" // _Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    //                let caption = "Exit"
+    //                let button = MessageBoxButton.YesNo
+    //                let icon = MessageBoxImage.Warning
+    //                let result = MessageBox.Show(messageBoxText, caption, button, icon) 
+    //                match result with
+    //                | MessageBoxResult.Yes -> Environment.Exit(0)
+    //                | _ -> ignore()                      // MessageBoxResult.No  -> e.Cancel = true;
 
 
 
 
-    let goto(y ,x) = 
-                    do this.Dispatcher.Invoke(new Action ( fun () -> 
-                               match y < 0 , x < 0 with
-                                  | true  , true  -> do MessageBox.Show("Not found beyond this point \nOr Cancelled [Esc] \nOr Jumped (duble ckick) to new position...") |> ignore                                            
-                                  | false , true  -> scrollY.Value <- (float) y                                         
-                                  | true  , false -> scrollX.Value <- (float) x                                                        
-                                  | false , false -> scrollY.Value <- (float) y
-                                                     scrollX.Value <- (float) x
-                                                     do MessageBox.Show((y , x).ToString())  |> ignore  
+    //let goto(y ,x) = 
+    //                do this.Dispatcher.Invoke(new Action ( fun () -> 
+    //                           match y < 0 , x < 0 with
+    //                              | true  , true  -> do MessageBox.Show("Not found beyond this point \nOr Cancelled [Esc] \nOr Jumped (duble ckick) to new position...") |> ignore                                            
+    //                              | false , true  -> scrollY.Value <- (float) y                                         
+    //                              | true  , false -> scrollX.Value <- (float) x                                                        
+    //                              | false , false -> scrollY.Value <- (float) y
+    //                                                 scrollX.Value <- (float) x
+    //                                                 do MessageBox.Show((y , x).ToString())  |> ignore  
                                   
-                                  ))
+    //                              ))
 
 
 
 
-    let nextSynchro(s : string[]) =
-                        let uiThread : TaskScheduler = TaskScheduler.FromCurrentSynchronizationContext()          
-                        let mainThreadDoWorkTask = Task<bool>.Factory.StartNew(fun () -> ( goto(openUpdateMMF.FindNext(s.[0]))
-                                                                                           Thread.Sleep(0)     
-                                                                                           true)) 
-                        do mainThreadDoWorkTask.ContinueWith( fun ( t : Task<bool> ) -> ( 
-                                                                                          do openUpdateMMF.BlnStopSearch <- true
-                                                                                          do updateUserClock(false)
-                                                                                         ), uiThread  ) |> ignore                                                                     
+    //let nextSynchro(s : string[]) =
+    //                    let uiThread : TaskScheduler = TaskScheduler.FromCurrentSynchronizationContext()          
+    //                    let mainThreadDoWorkTask = Task<bool>.Factory.StartNew(fun () -> ( goto(openUpdateMMF.FindNext(s.[0]))
+    //                                                                                       Thread.Sleep(0)     
+    //                                                                                       true)) 
+    //                    do mainThreadDoWorkTask.ContinueWith( fun ( t : Task<bool> ) -> ( 
+    //                                                                                      do openUpdateMMF.BlnStopSearch <- true
+    //                                                                                      do updateUserClock(false)
+    //                                                                                     ), uiThread  ) |> ignore                                                                     
                         
                            
 
@@ -996,6 +998,9 @@ type MyTextBox() as this  =
         | "RightDown" -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, crt.AbsoluteNumCharCurrent, lastLine, openUpdateMMF.IntMaxCharsInLine , blnAppend) |> ignore 
         | "SelectAll" ->  do mapOfSelectingPosition.Add(0, 0, 0, lastLine, openUpdateMMF.IntMaxCharsInLine, blnAppend) |> ignore  
         | "SelectLine" -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, 0, crt.AbsoluteNumLineCurrent, iLen , blnAppend) |> ignore  
+        | "StopAll" -> do openUpdateMMF.BlnStopSearch <-true
+                       do Thread.Sleep(100)
+
         | "CopyGroup" -> ignore()
         | _  -> ignore()
 

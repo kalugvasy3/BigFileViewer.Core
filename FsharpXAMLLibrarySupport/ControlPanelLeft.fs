@@ -63,6 +63,8 @@ type ControlPanelLeft()  as this =
     let mutable btnPlaceHolder : Button =  this.Content?btnPlaceHolder     
     let mutable btnCopyGroup : Button =  this.Content?btnCopyGroup 
 
+    let mutable btnStopAllProcess : Button =  this.Content?btnStopAllProcess 
+
     let mutable myTextBox  = ref (new MyTextBox())
 
     let findReplace = new Event<_>()
@@ -111,7 +113,7 @@ type ControlPanelLeft()  as this =
     do btnDeSelectAll.Click.Add(fun _ -> myTextBox.Value.BtnCommand("DeSelectAll"))
     do btnDeSelectLine.Click.Add(fun _-> myTextBox.Value.BtnCommand("DeSelectLine"))
     
-
+    
     
     do btnLeftUp.Click.Add(fun _      -> myTextBox.Value.BtnCommand("LeftUp")) 
     do btnLineLeft.Click.Add(fun _    -> myTextBox.Value.BtnCommand("LineLeft")) 
@@ -146,6 +148,8 @@ type ControlPanelLeft()  as this =
                                           do btnPenDeSelect.Foreground <- Media.Brushes.White
                                           do btnPlaceHolder.Foreground <- Media.Brushes.DarkBlue
                                           do updateBooleanMyTextBox())
+
+    do btnStopAllProcess.Click.Add(fun _-> myTextBox.Value.BtnCommand("StopAll")) 
 
     
     member x.MyTextBox with set(v) =  myTextBox <- v 

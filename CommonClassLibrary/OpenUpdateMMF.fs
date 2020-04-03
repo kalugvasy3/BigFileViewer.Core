@@ -26,7 +26,9 @@ type OpenUpdateMMF() as _this   =
 
     let eventSysInfoStart = new Event<float>() 
     let eventBlockChanged = new Event<int*int>() 
-  
+    
+    let mutable blnStopSearch = false
+    let mutable prevFindBlock = -1
    
     let mutable intFirstLineOnPage = 0 
     let mutable intLastLineOnPage = 0 
@@ -147,7 +149,7 @@ type OpenUpdateMMF() as _this   =
                             Thread.Sleep(10)
                             
                             let mutable countLine = 0
-                            while sr.Peek() >= 0 &&  (blnContinueContentFromMMF || direction = "I") do
+                            while sr.Peek() >= 0 &&  (blnContinueContentFromMMF || direction = "I") && not blnStopSearch do
                                   let mutable sb = new StringBuilder()
                                   do sb.Append(sr.ReadLine().Replace("\t", "    ")) |> ignore   // .Replace("�", "")
                                   //do sb.Append(sr.ReadLine()) |> ignore 
@@ -287,12 +289,16 @@ type OpenUpdateMMF() as _this   =
             let mutable iTotal = 0
 
             do arrayOfBlockInfo |> Array.iteri(fun i x ->            
-                   let count = blockRead(i)
-                   do arrayOfBlockInfo.[i] <- count
-                   do iTotal <- iTotal + 1
-                   do progressBar(iTotal)  
-                   do intNumberOfTotalLinesEstimation <- intNumberOfTotalLinesEstimation  + count 
+                   if not blnStopSearch then
+                       let count = blockRead(i)
+                       do arrayOfBlockInfo.[i] <- count
+                       do iTotal <- iTotal + 1
+                       do progressBar(iTotal)  
+                       do intNumberOfTotalLinesEstimation <- intNumberOfTotalLinesEstimation  + count 
+                    else  do progressBar(0)                                                     
                  )
+
+            do blnStopSearch <- false
 
             if intNumberOfTotalLinesEstimation > 0 && intMaxCharsInLine < intLimitCharsPerLine 
                    then  do eventSysInfoStart.Trigger(0.0)
@@ -552,84 +558,84 @@ type OpenUpdateMMF() as _this   =
     //        | false -> ignore()
 
 
-    let mutable prevFindBlock = -1
+    
  
-    let loadAndSearch(iBlock, str : string) =      
-            let mutable intStartLine : int = 0
-            let mutable intStartChar : int = intFirstCharOnPage
+    //let loadAndSearch(iBlock, str : string) =      
+    //        let mutable intStartLine : int = 0
+    //        let mutable intStartChar : int = intFirstCharOnPage
                     
-            match  iBlock - (int)longCurrentBlock with
-            | -1 -> do refListTestbAll  <- refListPreviousSbAll
-                    do prevFindBlock <- (int)longCurrentBlock  - 1
-                    do intStartLine <- intFirstLineOnPage - firstLine(prevFindBlock) 
+    //        match  iBlock - (int)longCurrentBlock with
+    //        | -1 -> do refListTestbAll  <- refListPreviousSbAll
+    //                do prevFindBlock <- (int)longCurrentBlock  - 1
+    //                do intStartLine <- intFirstLineOnPage - firstLine(prevFindBlock) 
 
-            |  0 -> do refListTestbAll  <- refListCurrentSbAll
-                    do prevFindBlock <- (int)longCurrentBlock 
-                    do intStartLine <- intFirstLineOnPage - firstLine(prevFindBlock) 
+    //        |  0 -> do refListTestbAll  <- refListCurrentSbAll
+    //                do prevFindBlock <- (int)longCurrentBlock 
+    //                do intStartLine <- intFirstLineOnPage - firstLine(prevFindBlock) 
                    
 
-            |  1 -> do refListTestbAll  <- refListNextSbAll
-                    do prevFindBlock <- (int)longCurrentBlock + 1
-                    do intStartLine <- intFirstLineOnPage - firstLine(prevFindBlock) 
+    //        |  1 -> do refListTestbAll  <- refListNextSbAll
+    //                do prevFindBlock <- (int)longCurrentBlock + 1
+    //                do intStartLine <- intFirstLineOnPage - firstLine(prevFindBlock) 
 
-            |  _ -> if prevFindBlock <> iBlock then
-                       do getContentFromMMF (refListTestbAll , iBlock  , true, false , "F") 
-                       do prevFindBlock <- iBlock  
-                       do intStartLine <- 0
+    //        |  _ -> if prevFindBlock <> iBlock then
+    //                   do getContentFromMMF (refListTestbAll , iBlock  , true, false , "F") 
+    //                   do prevFindBlock <- iBlock  
+    //                   do intStartLine <- 0
             
-            do Thread.Sleep(0)
+    //        do Thread.Sleep(0)
 
-            if intStartLine < 0 then intStartLine <- 0
-            let linesInBlock : int = refListTestbAll.Value.Count
+    //        if intStartLine < 0 then intStartLine <- 0
+    //        let linesInBlock : int = refListTestbAll.Value.Count
 
-            let find() = let mutable iy = -1
-                         let mutable ix = -1
-                         let mutable blnContinue = true
+    //        let find() = let mutable iy = -1
+    //                     let mutable ix = -1
+    //                     let mutable blnContinue = true
 
-                         for iL = intStartLine to linesInBlock - 1 do
-                             if blnContinue then
-                                 let len =   refListTestbAll.Value.[iL].Length - intStartChar - str.Length 
-                                 let mutable oneStr = "" 
+    //                     for iL = intStartLine to linesInBlock - 1 do
+    //                         if blnContinue then
+    //                             let len =   refListTestbAll.Value.[iL].Length - intStartChar - str.Length 
+    //                             let mutable oneStr = "" 
 
-                                 match len < 0 with
-                                 | true -> oneStr <- ""
-                                 | false -> oneStr <- refListTestbAll.Value.[iL].ToString(intStartChar + str.Length, len) 
+    //                             match len < 0 with
+    //                             | true -> oneStr <- ""
+    //                             | false -> oneStr <- refListTestbAll.Value.[iL].ToString(intStartChar + str.Length, len) 
 
-                                 if  oneStr.Contains(str) 
-                                     then
-                                         ix <- refListTestbAll.Value.[iL].ToString().IndexOf(str, intStartChar + str.Length)
-                                         iy <- iL + firstLine(iBlock)
-                                         blnContinue <- false
-                                     else intStartChar <- -str.Length
+    //                             if  oneStr.Contains(str) 
+    //                                 then
+    //                                     ix <- refListTestbAll.Value.[iL].ToString().IndexOf(str, intStartChar + str.Length)
+    //                                     iy <- iL + firstLine(iBlock)
+    //                                     blnContinue <- false
+    //                                 else intStartChar <- -str.Length
 
-                         let nextLastLine = firstLine(iBlock + 1) - 1                        
-                         eventBlockChanged.Trigger(iBlock, nextLastLine)  // This repopulate ALL ref Blocks - see above
-                         Thread.Sleep(100) 
-                         (iy , ix) 
+    //                     let nextLastLine = firstLine(iBlock + 1) - 1                        
+    //                     eventBlockChanged.Trigger(iBlock, nextLastLine)  // This repopulate ALL ref Blocks - see above
+    //                     Thread.Sleep(100) 
+    //                     (iy , ix) 
             
-            find()     
+    //        find()     
 
             
-    let mutable blnStopSearch = false
 
 
-    let findNext(str : string) =        
-        do blnStopSearch <- false
-        let mutable endBlock = (int)longNumberOfBlocks - 1  // base on 0 block
-        let rec loop n =           
-            if n <= endBlock &&  str.Trim() <> "" && not blnStopSearch then
-                let (iy , ix) = loadAndSearch(n, str)
-                if iy >= 0 then progressBar(-1)
-                                (iy , ix) 
-                           else progressBar(n + 1)
-                                loop (n + 1)
-            else  do progressBar(-1)
-                  do blnStopSearch <- false
-                  (-1 , -1)                 
-        if str.Length > 0 
-            then 
-                 loop(calculateCurrentBlock ("R"))  
-            else (-1 , -1)
+
+    //let findNext(str : string) =        
+    //    do blnStopSearch <- false
+    //    let mutable endBlock = (int)longNumberOfBlocks - 1  // base on 0 block
+    //    let rec loop n =           
+    //        if n <= endBlock &&  str.Trim() <> "" && not blnStopSearch then
+    //            let (iy , ix) = loadAndSearch(n, str)
+    //            if iy >= 0 then progressBar(-1)
+    //                            (iy , ix) 
+    //                       else progressBar(n + 1)
+    //                            loop (n + 1)
+    //        else  do progressBar(-1)
+    //              do blnStopSearch <- false
+    //              (-1 , -1)                 
+    //    if str.Length > 0 
+    //        then 
+    //             loop(calculateCurrentBlock ("R"))  
+    //        else (-1 , -1)
 
 
     let xmlToSqLite(strNameDB : string) =      
@@ -821,7 +827,7 @@ type OpenUpdateMMF() as _this   =
            with get() = blnContinueContentFromMMF and 
                 set(v) = blnContinueContentFromMMF<-v
 
-    member x.FindNext(str : string) = findNext(str)
+    //member x.FindNext(str : string) = findNext(str)
 
     member x.RefListTestbAll 
            with get() = refListTestbAll and 
@@ -829,7 +835,9 @@ type OpenUpdateMMF() as _this   =
 
     member x.BlnStopSearch 
            with get() = blnStopSearch and 
-                set(v) = blnStopSearch <- v
+                set(v) = blnStopSearch <- v; 
+                         Thread.Sleep(100)
+                         if v then progressBar(0)
 
 
     member x.AllowSizeChange with get() = allowSizeChange

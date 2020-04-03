@@ -64,6 +64,8 @@ type QuickFind()  as this =
     //let mutable userClkl : UserClock = this.Content?userClk
     //let mutable progressBar : ProgressBar = this.Content?progressBar
 
+
+
     let typeOfFind = new Event<bool>() 
     //let eventSysInfoStart = new Event<float>() 
 
@@ -81,7 +83,6 @@ type QuickFind()  as this =
 
 
     let mutable prevFindBlock = -1
-    let mutable blnStopSearch = false
 
     let progressBar(iBlock : int) = 
                    if openUpdateMMF.Value.LongNumberOfBlocks <> 0L then
@@ -131,7 +132,7 @@ type QuickFind()  as this =
 
                           for iL = intStartLine to linesInBlock - 1 do
                               Thread.Sleep(0)
-                              if (blnContinue || blnAll) && not blnStopSearch then
+                              if (blnContinue || blnAll) && not openUpdateMMF.Value.BlnStopSearch then
                                   let len =   refListTestbAll.Value.[iL].Length - intStartChar - str.Length 
                                   let mutable oneStr = "" 
 
@@ -148,7 +149,7 @@ type QuickFind()  as this =
                                           blnContinue <- false
                                           listResult.Add(iy , ix, partOfString)
                                       else intStartChar <- -str.Length
-                          Thread.Sleep(10)
+                          Thread.Sleep(0)
                           //progressBarSub(iBlock)
                           listResult
              find()     
@@ -161,8 +162,8 @@ type QuickFind()  as this =
 
          let mutable endBlock = (int)openUpdateMMF.Value.LongNumberOfBlocks - 1  // base on 0 block
          let rec loop n = 
-             Thread.Sleep(10)
-             if n <= endBlock &&  str.Trim() <> "" && not blnStopSearch then
+             Thread.Sleep(0)
+             if n <= endBlock &&  str.Trim() <> "" && not openUpdateMMF.Value.BlnStopSearch then
                  let lstResult = loadAndSearch(n, str, false)
                  if lstResult.Count = 0 
                      then loop (n + 1)
@@ -173,10 +174,10 @@ type QuickFind()  as this =
                                     else //progressBarSub(n + 1)
                                          loop (n + 1)
              else  //do progressBarSub(-1)
-                   do blnStopSearch <- false
+                   do openUpdateMMF.Value.BlnStopSearch <- false
                    (-1 , -1)  
                    
-         do blnStopSearch <- false
+         do openUpdateMMF.Value.BlnStopSearch <- false
 
          let iCurrent = openUpdateMMF.Value.CalculateCurrentBlock ("R")
          let iEnd = openUpdateMMF.Value.ArrayOfBlockInfo.Length - 1
@@ -266,7 +267,7 @@ type QuickFind()  as this =
     //do btnStop.Click.Add(fun _ -> do blnStopSearch <- true) 
 
     do this.Unloaded.Add(fun _ -> do this.Dispatcher.Invoke(new Action ( fun () -> 
-                                                  do blnStopSearch <- true
+                                                  do openUpdateMMF.Value.BlnStopSearch <- true
                                                   do myTextBox.Value.TextSearch <- ""
                                                   do openUpdateMMF.Value.SetEventSysInfoStart(0.0)
                                                   do Thread.Sleep(100)
@@ -274,7 +275,9 @@ type QuickFind()  as this =
                                   )))
     
     [<CLIEvent>]
-    member x.TypeOfFind =   typeOfFind.Publish    
+    member x.TypeOfFind =   typeOfFind.Publish
+    
+    member x.BlnStopSearch with set(v) = openUpdateMMF.Value.BlnStopSearch <- v
 
     
     member x.InitMyTextBox(txt : MyTextBox ref ) =

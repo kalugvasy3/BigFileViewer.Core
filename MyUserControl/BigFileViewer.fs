@@ -42,7 +42,7 @@ type BigFileViewer() as this  =
 
     let mutable listOfWindows = new List<Window>()
 
-    let minHeight = 730.0
+    let minHeight = 770.0
     let minWidth = 512.0
 
     let mutable scale = 1.0
@@ -112,7 +112,7 @@ type BigFileViewer() as this  =
                 do win.Height <- 65.0
                 //do uc.TypeOfFind.Add(fun x -> if x then win.Height <- 300.0 else win.Height <- 50.0 )
 
-                do win.Unloaded.Add(fun _ -> Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Normal) )
+                do win.Unloaded.Add(fun _ -> Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background) )
                 do win.WindowStyle <- WindowStyle.SingleBorderWindow
                 do listOfWindows.Add(win)
 
@@ -121,11 +121,10 @@ type BigFileViewer() as this  =
                 do System.Windows.Threading.Dispatcher.Run()      
                 ))
        
-           do newWindowThread.SetApartmentState(ApartmentState.STA)
-           do newWindowThread.Start()
-           
+           this.Dispatcher.BeginInvoke( fun () -> 
+                                           do newWindowThread.SetApartmentState(ApartmentState.STA)
+                                           do newWindowThread.Start()) |> ignore
           
-
 
     do myControlPanelLeft.FindReplace.Add(fun _ -> openFindDialog()) 
 

@@ -507,6 +507,25 @@
                 </StackPanel>
             </GroupBox>
 
+            <Button Name="btnStopAllProcess"
+                            Width="35"
+                            Height="21"
+                            Margin="8,4,0,4"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            AllowDrop="False"
+                            BorderBrush="{x:Null}"
+                            ClickMode="Release"
+                            Content="x"
+                            Focusable="False"
+                            FontFamily="Webdings"
+                            FontSize="17"
+                            FontStyle="Normal"
+                            FontWeight="Normal"
+                            Foreground="Red"
+                            IsEnabled="True"
+                            ToolTip="Stop All Running Process ..."
+                            UseLayoutRounding="False" />
 
 
         </StackPanel>

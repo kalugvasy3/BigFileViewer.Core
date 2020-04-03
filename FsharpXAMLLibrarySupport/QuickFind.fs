@@ -193,39 +193,64 @@ type QuickFind()  as this =
     let mutable isaveLine = 0
     let mutable isaveChar = 0
 
+   // let findTask () =
+   //     // We MUST create  TaskScheduler and Synchronization Context
+   //     let uiThread : TaskScheduler = TaskScheduler.FromCurrentSynchronizationContext();          
+   //
+   //     // Show Clock - disable  AllowDrop
+   // 
+   //     do this.Dispatcher.Invoke(new Action ( fun () -> 
+   //                                  // do userClkl.Visibility <- Visibility.Visible
+   //                                   do myTextBox.Value.TextSearch <- txtQuickFind.Text.Trim()
+   //                                   Thread.Sleep(10)
+   //                                   do typeOfFind.Trigger(false)
+   //                                   do blnFindAll <- false))
+   //
+   //     // Main Thread 
+   //     let mainThreadLoadFile () =  
+   //                 do this.Dispatcher.Invoke(new Action ( fun () -> 
+   //
+   //                                         let (iLine, iChar) = findNextString(txtQuickFind.Text.Trim())
+   //                                         isaveLine <- iLine
+   //                                         isaveChar <- iChar
+   //                                         do myTextBox.Value.IntFirstLineOnPage <- iLine
+   //                                         do myTextBox.Value.IntFirstCharOnPage <- iChar))
+   //                 true                           
+   // 
+   //     // Final Thread
+   //     let finalThreadDoWOrk(x : bool) = 
+   //                             do this.Dispatcher.Invoke(new Action ( fun () -> () )) //do userClkl.Visibility <- Visibility.Collapsed))
+   // 
+   //     // Create Task                                
+   //     let mainThreadDoWorkTask = Task<bool>.Factory.StartNew(fun () -> mainThreadLoadFile())            
+   //
+   //     // It MUST be  Synchronization with Context
+   //     do mainThreadDoWorkTask.ContinueWith( fun ( t : Task<bool> ) -> finalThreadDoWOrk(t.Result), uiThread ) |> ignore
+
+
     let findTask () =
-        // We MUST create  TaskScheduler and Synchronization Context
-        let uiThread : TaskScheduler = TaskScheduler.FromCurrentSynchronizationContext();          
+            let newWindowThread = new Thread(new ThreadStart( fun _ ->
+                           
+                           do this.Dispatcher.Invoke(new Action ( fun () -> 
+                                   do myTextBox.Value.TextSearch <- txtQuickFind.Text.Trim()
+                                   Thread.Sleep(10)
+                                   do typeOfFind.Trigger(false)
+                                   do blnFindAll <- false
 
-        // Show Clock - disable  AllowDrop
-    
-        do this.Dispatcher.Invoke(new Action ( fun () -> 
-                                     // do userClkl.Visibility <- Visibility.Visible
-                                      do myTextBox.Value.TextSearch <- txtQuickFind.Text.Trim()
-                                      Thread.Sleep(10)
-                                      do typeOfFind.Trigger(false)
-                                      do blnFindAll <- false))
+                                   let (iLine, iChar) = findNextString(txtQuickFind.Text.Trim())
+                                   isaveLine <- iLine
+                                   isaveChar <- iChar
+                                   do myTextBox.Value.IntFirstLineOnPage <- iLine
+                                   do myTextBox.Value.IntFirstCharOnPage <- iChar
+                                   do System.Windows.Threading.Dispatcher.Run() 
+                                   ))
 
-        // Main Thread 
-        let mainThreadLoadFile () =  
-                    do this.Dispatcher.Invoke(new Action ( fun () -> 
-
-                                            let (iLine, iChar) = findNextString(txtQuickFind.Text.Trim())
-                                            isaveLine <- iLine
-                                            isaveChar <- iChar
-                                            do myTextBox.Value.IntFirstLineOnPage <- iLine
-                                            do myTextBox.Value.IntFirstCharOnPage <- iChar))
-                    true                           
-    
-        // Final Thread
-        let finalThreadDoWOrk(x : bool) = 
-                                do this.Dispatcher.Invoke(new Action ( fun () -> () )) //do userClkl.Visibility <- Visibility.Collapsed))
-    
-        // Create Task                                
-        let mainThreadDoWorkTask = Task<bool>.Factory.StartNew(fun () -> mainThreadLoadFile())            
-
-        // It MUST be  Synchronization with Context
-        do mainThreadDoWorkTask.ContinueWith( fun ( t : Task<bool> ) -> finalThreadDoWOrk(t.Result), uiThread ) |> ignore
+                                        
+                           ))
+                  
+            this.Dispatcher.BeginInvoke( fun () -> 
+                           do newWindowThread.SetApartmentState(ApartmentState.STA)
+                           do newWindowThread.Start()) |> ignore
 
 
     
@@ -277,7 +302,7 @@ type QuickFind()  as this =
     [<CLIEvent>]
     member x.TypeOfFind =   typeOfFind.Publish
     
-    member x.BlnStopSearch with set(v) = openUpdateMMF.Value.BlnStopSearch <- v
+    member x.BlnStopSearch with get() = openUpdateMMF.Value.BlnStopSearch and set(v) = openUpdateMMF.Value.BlnStopSearch <- v
 
     
     member x.InitMyTextBox(txt : MyTextBox ref ) =

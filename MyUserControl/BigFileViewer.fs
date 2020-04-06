@@ -101,27 +101,31 @@ type BigFileViewer() as this  =
 
     let openFindDialog() = 
            let newWindowThread = new Thread(new ThreadStart( fun _ ->
-                let win = new Window()
+                let win = new Window()                
+                
                 let uc = new QuickFind()
                 do uc.InitMyTextBox(ref myTextBox)
+                
                 do win.Content <- uc
                 do win.Height <- 200.0
                 do win.Width <- 500.0
                 do win.Name <- "QuickFind"
                 do win.Title <- "Quick Find"                                                    
                 do win.Height <- 65.0
+                //do win.Owner <- winHolder
+
                 //do uc.TypeOfFind.Add(fun x -> if x then win.Height <- 300.0 else win.Height <- 50.0 )
 
                 do win.Unloaded.Add(fun _ -> Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background) )
                 do win.WindowStyle <- WindowStyle.SingleBorderWindow
                 do listOfWindows.Add(win)
-
-                do win.Show()
-               // do listOfWindow.Add(win)
+                
+                win.Show() 
+               
                 do System.Windows.Threading.Dispatcher.Run()      
-                ))
+           ))
        
-           this.Dispatcher.BeginInvoke( fun () -> 
+           winHolder.Dispatcher.BeginInvoke( fun () -> 
                                            do newWindowThread.SetApartmentState(ApartmentState.STA)
                                            do newWindowThread.Start()) |> ignore
           

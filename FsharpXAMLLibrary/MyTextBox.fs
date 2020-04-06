@@ -1000,6 +1000,7 @@ type MyTextBox() as this  =
         | "SelectLine" -> do mapOfSelectingPosition.Add(crt.AbsoluteNumLineCurrent, crt.AbsoluteNumLineCurrent, 0, crt.AbsoluteNumLineCurrent, iLen , blnAppend) |> ignore  
         | "StopAll" -> do openUpdateMMF.BlnStopSearch <-true
                        do Thread.Sleep(100)
+                        
 
         | "CopyGroup" -> ignore()
         | _  -> ignore()

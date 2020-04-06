@@ -5,39 +5,36 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 
              mc:Ignorable="d" 
-             Height="140" Width="140">
+             Height="400" Width="200">
 
     <Grid RenderTransformOrigin="0.329,0.223"  >
 
 
-        <Menu x:Name="myMenu"  VerticalAlignment="Center" Opacity="0.95" HorizontalAlignment="Center"  Width="43" Height="150" Margin="44,0,53,-10"    >
-            <MenuItem x:Name="menuOpen" Header="_Open"  />
-            <Separator Height="11" Width="106" />
-            <MenuItem x:Name="menuFind" Header="_Find">
-                <DockPanel >
-                    <TextBox x:Name="txtFindNext" Width="86" ToolTip=" From current position to below ... "  />
-                    <Button x:Name="btnFindNext" Content="Next" Width="40"/>
-                </DockPanel>
-            </MenuItem>
-            <Separator Height="29" Width="33" />
-            <MenuItem x:Name="goTo" Header="_GoTo" Width="46">
-                <DockPanel >
-                    <TextBox x:Name="txtGoTo" Width="86" ToolTip=" Line || Line,Position ||  ,Position "  />
-                    <Button x:Name="btnGoTo" Content="GoTo" Width="40"/>
-                </DockPanel>
-            </MenuItem>
-            <Separator Height="16" Width="106" />
-            <MenuItem x:Name="menuExit" Header="_Exit"  />
+        <TreeView Height="Auto" Width="160" HorizontalAlignment="Left" Name="treeContext" VerticalAlignment="Top"  BorderThickness="1" BorderBrush="DimGray" Foreground="DimGray" Margin="0,0,0,0" FontFamily="Courier New" FontSize="11" Background="#FFF0F0F0">
+            <TreeViewItem Header="─────────────" IsEnabled="False" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
 
-            <!--<MenuItem Header="_File">
-                <MenuItem x:Name="menuOpen" Header="_Open"  />
-                <Separator />
-                <MenuItem x:Name="menuExit" Header="_Exit"  />
-            </MenuItem>
-            <MenuItem Header="_Edit">
-                <MenuItem x:Name="menuFind" Header="_Find"  />
-            </MenuItem>-->
-        </Menu>
+            <TreeViewItem Header="Open File"     Selected = "OpenFile" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="Comment (from Current Selected to End line) Or All Line ..." />
+
+            <TreeViewItem Header="─────────────" IsEnabled="False" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
+            <TreeViewItem Header="Copy   Ctrl+C" Selected="CopySelected" ClipToBounds="False"  FontFamily="Courier New" FontSize="13" ToolTip="Copy to clipboard from pointed selection  " Background="{x:Null}" Foreground="DarkBlue" Name="nameCopy" />
+            <TreeViewItem Header="─────────────" IsEnabled="False"  FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
+            <TreeViewItem Header="Find Next"          Selected = "Find" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="Uncomment Entire Line ..." />
+            <TreeViewItem Header="─────────────" IsEnabled="False" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
+            <TreeViewItem Header="GOTO line/char"          Selected = "Find" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="Uncomment Entire Line ..." IsExpanded="True" >
+                <TextBox x:Name="txtLine" Text="line" TextWrapping="NoWrap" Width="77"/>
+                <TextBox x:Name="txtPosition" Text="Char" TextWrapping="NoWrap" Width="77"/>
+            </TreeViewItem>
+            <TreeViewItem Header="─────────────" IsEnabled="False"  FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
+            <TreeViewItem Header="Stop All Thread"  Selected = "StopAllThresd" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"   ToolTip="Uncomment Entire Line ..." />
+            <TreeViewItem Header="─────────────" IsEnabled="False"  FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
+            <TreeViewItem Header="Exit" Selected = "Exit" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"   ToolTip="Comment (from Current Selected to End line) Or All Line ..." />
+            <TreeViewItem Header="─────────────" IsEnabled="False" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
+
+
+            <TreeView.RenderTransform>
+                <TranslateTransform x:Name="tr"/>
+            </TreeView.RenderTransform>
+        </TreeView>
 
     </Grid>
 

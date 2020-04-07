@@ -377,7 +377,8 @@ type OpenUpdateMMF() as _this   =
  
 
     let updateArrayPresentWindow () =   
-         do blnStopSearch <- false
+         if blnStopSearch then do Thread.Sleep(1000)
+                               do blnStopSearch <- false
          let calcBlock =  calculateCurrentBlock ("") // base on firstLineOnPage                 
          let lines = if intLastLineOnPage - intFirstLineOnPage >= 0 then intLastLineOnPage - intFirstLineOnPage else 0
          

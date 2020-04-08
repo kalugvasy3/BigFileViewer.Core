@@ -365,7 +365,7 @@ type OpenUpdateMMF() as _this   =
                                            do intHysteresis <- 0
                                            if nextI - 1  < refListNextSbAll.Value.Count &&  nextI  > 0 // if have not loaded yet 
                                            then ((refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ], (refListNextSbAll.Value).[curentI + currentBlockFirstLine - nextBlockFirstLine ].Length)
-                                           else (new StringBuilder(),0)
+                                           else (new StringBuilder(),0) 
                             
                             |  false, _ -> let nextI = curentI + currentBlockFirstLine - nextBlockFirstLine + 1
                                            if (nextI > arrayOfBlockInfo.[Math.Min(int longCurrentBlock + 1, arrayOfBlockInfo.Length - 1 )] / 2) then do intHysteresis <- +1

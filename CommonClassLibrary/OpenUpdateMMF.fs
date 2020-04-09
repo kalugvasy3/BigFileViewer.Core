@@ -148,43 +148,43 @@ type OpenUpdateMMF() as _this   =
                             do eventBlockChanged.Trigger(intBlockNumber, -1)
                             Thread.Sleep(10)
                             
-                            //let mutable countLine = 0
-                            //while sr.Peek() >= 0 &&  (blnContinueContentFromMMF || direction = "I") && not blnStopSearch do
-                            //      let mutable sb = new StringBuilder()
-                            //      do sb.Append(sr.ReadLine().Replace("\t", "    ")) |> ignore   // .Replace("�", "")
-                            //      //do sb.Append(sr.ReadLine()) |> ignore 
-                            //      let max = sb.Length
-                            //      if intMaxCharsInLine < max then intMaxCharsInLine <- max
-                                  
-                            //      match countLine, intBlockNumber with
-                            //      | 0 , 0  -> do refListSb.Value.Add(sb)  // Do not combine first/last  // Add 0 line only for 0 block
-                            //      | 0 , _  -> ignore()
-                            //      | _ , _  -> do refListSb.Value.Add(sb)   
-                            //      do countLine <- countLine + 1 
-                            //      Thread.Sleep(0) // Must be Zero - it just point which can be used for interupr read ....
-                            
-                            //Thread.Sleep(0)
-
-                            let strArr = sr.ReadToEnd().Split(Environment.NewLine)
-
                             let mutable countLine = 0
-                            let mutable sb = new StringBuilder()
-                            for str in strArr do                                 
-                                  if (blnContinueContentFromMMF || direction = "I") && not blnStopSearch then
-                                      let sb = new StringBuilder(str) //.Replace("\t", "    "))                                  
-                                      match countLine, intBlockNumber with
-                                      | 0 , 0  -> do refListSb.Value.Add(sb)  // Do not combine first/last  // Add 0 line only for 0 block
-                                      | 0 , _  -> ignore()
-                                      | _ , _  -> do refListSb.Value.Add(sb)                                                                  
-
-                                      let max = str.Length
-                                      if intMaxCharsInLine < max then intMaxCharsInLine <- max
+                            while sr.Peek() >= 0 &&  (blnContinueContentFromMMF || direction = "I") && not blnStopSearch do
+                                  let mutable sb = new StringBuilder()
+                                  do sb.Append(sr.ReadLine().Replace("\t", "    ")) |> ignore   // .Replace("�", "")
+                                  //do sb.Append(sr.ReadLine()) |> ignore 
+                                  let max = sb.Length
+                                  if intMaxCharsInLine < max then intMaxCharsInLine <- max
                                   
-                            
-                                      do countLine <- countLine + 1 
-                                      Thread.Sleep(0) // Must be Zero - it just point which can be used for interupr read ....
+                                  match countLine, intBlockNumber with
+                                  | 0 , 0  -> do refListSb.Value.Add(sb)  // Do not combine first/last  // Add 0 line only for 0 block
+                                  | 0 , _  -> ignore()
+                                  | _ , _  -> do refListSb.Value.Add(sb)   
+                                  do countLine <- countLine + 1 
+                                  Thread.Sleep(0) // Must be Zero - it just point which can be used for interupr read ....
                             
                             Thread.Sleep(0)
+
+                            //let strArr = sr.ReadToEnd().Split(Environment.NewLine)
+
+                            //let mutable countLine = 0
+                            //let mutable sb = new StringBuilder()
+                            //for str in strArr do                                 
+                            //      if (blnContinueContentFromMMF || direction = "I") && not blnStopSearch then
+                            //          let sb = new StringBuilder(str) //.Replace("\t", "    "))                                  
+                            //          match countLine, intBlockNumber with
+                            //          | 0 , 0  -> do refListSb.Value.Add(sb)  // Do not combine first/last  // Add 0 line only for 0 block
+                            //          | 0 , _  -> ignore()
+                            //          | _ , _  -> do refListSb.Value.Add(sb)                                                                  
+
+                            //          let max = str.Length
+                            //          if intMaxCharsInLine < max then intMaxCharsInLine <- max
+                                  
+                            
+                            //          do countLine <- countLine + 1 
+                            //          Thread.Sleep(0) // Must be Zero - it just point which can be used for interupr read ....
+                            
+                            //Thread.Sleep(0)
 
 
 

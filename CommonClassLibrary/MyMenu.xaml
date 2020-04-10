@@ -2,38 +2,32 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" x:Name="MyMenu" 
 
              mc:Ignorable="d" 
-             Height="400" Width="200">
+             Height="250" Width="160">
 
-    <Grid RenderTransformOrigin="0.329,0.223"  >
-
+    <Grid x:Name="grdMyMenu" RenderTransformOrigin="0.329,0.223"  >
 
         <TreeView Height="Auto" Width="160" HorizontalAlignment="Left" Name="treeContext" VerticalAlignment="Top"  BorderThickness="1" BorderBrush="DimGray" Foreground="DimGray" Margin="0,0,0,0" FontFamily="Courier New" FontSize="11" Background="#FFF0F0F0">
             <TreeViewItem Header="─────────────" IsEnabled="False" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
 
-            <TreeViewItem Header="Open File"     Selected = "OpenFile" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="Comment (from Current Selected to End line) Or All Line ..." />
+            <TreeViewItem x:Name="openFile" Header="Open File"  IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="Open File" />
 
             <TreeViewItem Header="─────────────" IsEnabled="False" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
-            <TreeViewItem Header="Copy   Ctrl+C" Selected="CopySelected" ClipToBounds="False"  FontFamily="Courier New" FontSize="13" ToolTip="Copy to clipboard from pointed selection  " Background="{x:Null}" Foreground="DarkBlue" Name="nameCopy" />
+            <TreeViewItem x:Name="copySelected" Header="Copy Selected" ClipToBounds="False"  FontFamily="Courier New" FontSize="13" ToolTip="Copy Selected to clipboard from pointed selection  " Background="{x:Null}" Foreground="DarkBlue"  />
             <TreeViewItem Header="─────────────" IsEnabled="False"  FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
-            <TreeViewItem Header="Find Next"          Selected = "Find" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="Uncomment Entire Line ..." />
+            <TreeViewItem x:Name="findWindow" Header="Find Window"      IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="Find Window Open ..." />
             <TreeViewItem Header="─────────────" IsEnabled="False" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
-            <TreeViewItem Header="GOTO line/char"          Selected = "Find" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="Uncomment Entire Line ..." IsExpanded="True" >
-                <TextBox x:Name="txtLine" Text="line" TextWrapping="NoWrap" Width="77"/>
-                <TextBox x:Name="txtPosition" Text="Char" TextWrapping="NoWrap" Width="77"/>
+            <TreeViewItem x:Name="goTo" Header="GOTO line/char"      IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="GoTo Line/Char" IsExpanded="True" >
+                <TextBox x:Name="txtGoTo" Text="" TextWrapping="NoWrap" Width="77" ToolTip="GoTo To Line (line, char)" />
             </TreeViewItem>
             <TreeViewItem Header="─────────────" IsEnabled="False"  FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
-            <TreeViewItem Header="Stop All Thread"  Selected = "StopAllThresd" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"   ToolTip="Uncomment Entire Line ..." />
+            <TreeViewItem x:Name="stopAllThread" Header="Stop All Thread"   IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"   ToolTip="Stop All search, openning file,..." />
             <TreeViewItem Header="─────────────" IsEnabled="False"  FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
-            <TreeViewItem Header="Exit" Selected = "Exit" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"   ToolTip="Comment (from Current Selected to End line) Or All Line ..." />
+            <TreeViewItem x:Name="exit" Header="Exit" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"   ToolTip="Exit From Application." />
             <TreeViewItem Header="─────────────" IsEnabled="False" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
 
-
-            <TreeView.RenderTransform>
-                <TranslateTransform x:Name="tr"/>
-            </TreeView.RenderTransform>
         </TreeView>
 
     </Grid>

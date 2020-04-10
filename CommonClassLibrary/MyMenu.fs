@@ -38,45 +38,44 @@ type  MyMenu()  as this =
     let eventMenu = new Event<string*string[]>() 
     let eventGoTo = new Event<int*int>()
 
-    let mutable menuOpen : MenuItem = this.Content?menuOpen
-    let mutable menuExit : MenuItem = this.Content?menuExit
-    
-    let mutable txtFindNext : TextBox = this.Content?txtFindNext
-    let mutable btnFindNext : Button = this.Content?btnFindNext 
+    let grdMyMenu : GridView = this.Content?grdMyMenu 
 
-    let mutable txtGoTo : TextBox = this.Content?txtGoTo 
-    let mutable btnGoTo : Button = this.Content?btnGoTo  
-
-    let mutable hostUserControl : UserControl = new UserControl()
-
-    let mutable canvasMain : Canvas = null
-
+    let mutable treeOpenFile: TreeViewItem  = this.Content?openFile 
+    let mutable treeCopySelected: TreeViewItem  = this.Content?copySelected 
+    let mutable treeFindWindow: TreeViewItem  = this.Content?findWindow 
+    let mutable treeGoTo: TreeViewItem  = this.Content?goTo 
+    let mutable txtGotTo: TextBox = this.Content?txtGotTo
+    let mutable treeStopAllThread: TreeViewItem  = this.Content?stopAllThread
+    let mutable treeExit: TreeViewItem  = this.Content?exit
     
     let mutable tr = new System.Windows.Media.TranslateTransform()       
     do this.RenderTransform <- tr 
 
+    let mutable hostUserControl : UserControl = new UserControl()
+    let mutable cnavasMain : Canvas = null
+
     let mutable prev : System.Windows.Point = new System.Windows.Point()
 
     let mouseLeftDown(e : MouseButtonEventArgs) = 
-            prev <- e.GetPosition(canvasMain)
+            prev <- e.GetPosition(cnavasMain)
             this.Visibility <- Visibility.Collapsed
 
 
     let mouseRightDown(e : MouseButtonEventArgs) =            
-            match canvasMain.AllowDrop with
-            | true -> prev <- e.GetPosition(canvasMain)
+            match cnavasMain.AllowDrop with
+            | true -> prev <- e.GetPosition(cnavasMain)
                       this.Visibility <- Visibility.Visible
 
-                      do tr.X  <-  prev.X - canvasMain.ActualWidth  / 2.0  
-                      do tr.Y  <-  prev.Y - canvasMain.ActualHeight / 2.0  
+                      do tr.X  <-  prev.X - cnavasMain.ActualWidth  / 2.0  
+                      do tr.Y  <-  prev.Y - cnavasMain.ActualHeight / 2.0  
             | _ -> ignore()
 
     
     let myMenuMove(e : MouseEventArgs) = match e.LeftButton with
                                          | MouseButtonState.Pressed -> 
-                                                 let pos = e.GetPosition(canvasMain)
-                                                 do tr.X  <-  pos.X - canvasMain.ActualWidth  / 2.0  
-                                                 do tr.Y  <-  pos.Y - canvasMain.ActualHeight / 2.0  
+                                                 let pos = e.GetPosition(cnavasMain)
+                                                 do tr.X  <-  pos.X - cnavasMain.ActualWidth  / 2.0  
+                                                 do tr.Y  <-  pos.Y - cnavasMain.ActualHeight / 2.0  
 
                                          | _ -> ignore()
     
@@ -86,9 +85,9 @@ type  MyMenu()  as this =
 
 
     let initMenu() = do this.Visibility <- Visibility.Collapsed 
-                     do canvasMain <- (hostUserControl.Content)?canvasMain 
-                     do canvasMain.MouseLeftButtonDown.Add(fun e -> mouseLeftDown(e))
-                     do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
+                     do cnavasMain <- (hostUserControl.Content)?canvasMain 
+                     do cnavasMain.MouseLeftButtonDown.Add(fun e -> mouseLeftDown(e))
+                     do cnavasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
 
 
     let openFile(e : RoutedEventArgs) = 
@@ -104,7 +103,7 @@ type  MyMenu()  as this =
             | _ -> ignore()
 
 
-    let goTo() =  let t = txtGoTo.Text.Split(',')
+    let goTo() =  let t = txtGotTo.Text.Split(',')
                   let mutable iY = ref (-1)
                   let mutable iX = ref (-1)
                  
@@ -120,16 +119,12 @@ type  MyMenu()  as this =
 
 
 
-    do menuOpen.Click.Add(fun e -> openFile(e))
-    do menuExit.Click.Add(fun _ -> eventMenu.Trigger("Exit", [|""|]))
+    do treeOpenFile.Selected.Add(fun e -> openFile(e))                          // Command openFile  
+    do treeExit.Selected.Add(fun _ -> eventMenu.Trigger("Exit", [|""|]))        // Command Exit   
     
-    do btnFindNext.Click.Add(fun _ -> eventMenu.Trigger("Next", [|txtFindNext.Text|]))
-    do txtFindNext.TextChanged.Add(fun _ -> eventMenu.Trigger("FindChanged", [|txtFindNext.Text|]))
-    do this.KeyDown.Add(fun e ->  match e.Key with
-                                  | Key.Escape -> eventMenu.Trigger("Escape", [|txtFindNext.Text|])
-                                  | _ -> ignore() )
+    do treeFindWindow.Selected.Add(fun _ -> eventMenu.Trigger("Find", [|""|]))  // Open Find Window
+    do treeGoTo.Selected.Add(fun _ -> goTo())
 
-    do btnGoTo.Click.Add(fun _ -> goTo())
 
     [<CLIEvent>]
     member x.EventMenu =  eventMenu.Publish
@@ -140,7 +135,6 @@ type  MyMenu()  as this =
     member x.HostUserControl with set(v) = hostUserControl<- v
                                            do initMenu()
 
-    member x.TxtFind with get()= txtFindNext.Text
                                            
 
 

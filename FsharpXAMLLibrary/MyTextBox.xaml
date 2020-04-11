@@ -47,12 +47,11 @@
                 RenderTransformOrigin="0.0,0.0" Focusable="True" Height="Auto"  Margin="5,5,19,19" Cursor="IBeam" >
 
         </Canvas>
-
-        <!--<CommonClassLibrary:MyMenu x:Name="myMenu" />-->
-
-
+        
+       <CommonClassLibrary:MyMenu x:Name="myMenu" Visibility="Hidden" /> 
     </Grid>
-
+      
+    
 </UserControl>
 
 

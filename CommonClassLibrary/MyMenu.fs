@@ -38,13 +38,14 @@ type  MyMenu()  as this =
     let eventMenu = new Event<string*string[]>() 
     let eventGoTo = new Event<int*int>()
 
-    let grdMyMenu : GridView = this.Content?grdMyMenu 
+    let grdMyMenu : Grid = this.Content?grdMyMenu 
 
+    let mutable mouseMoveArea: TreeViewItem  = this.Content?mouseMoveArea
     let mutable treeOpenFile: TreeViewItem  = this.Content?openFile 
     let mutable treeCopySelected: TreeViewItem  = this.Content?copySelected 
     let mutable treeFindWindow: TreeViewItem  = this.Content?findWindow 
     let mutable treeGoTo: TreeViewItem  = this.Content?goTo 
-    let mutable txtGotTo: TextBox = this.Content?txtGotTo
+    let mutable txtGoTo: TextBox = this.Content?txtGoTo
     let mutable treeStopAllThread: TreeViewItem  = this.Content?stopAllThread
     let mutable treeExit: TreeViewItem  = this.Content?exit
     
@@ -66,28 +67,32 @@ type  MyMenu()  as this =
             | true -> prev <- e.GetPosition(cnavasMain)
                       this.Visibility <- Visibility.Visible
 
-                      do tr.X  <-  prev.X - cnavasMain.ActualWidth  / 2.0  
-                      do tr.Y  <-  prev.Y - cnavasMain.ActualHeight / 2.0  
+                      do tr.X  <-  prev.X //- cnavasMain.ActualWidth  / 2.0  
+                      do tr.Y  <-  prev.Y //- cnavasMain.ActualHeight / 2.0  
             | _ -> ignore()
 
     
-    let myMenuMove(e : MouseEventArgs) = match e.LeftButton with
+    let myMenuMove(e : MouseEventArgs) = 
+                                         match e.RightButton with
                                          | MouseButtonState.Pressed -> 
                                                  let pos = e.GetPosition(cnavasMain)
-                                                 do tr.X  <-  pos.X - cnavasMain.ActualWidth  / 2.0  
-                                                 do tr.Y  <-  pos.Y - cnavasMain.ActualHeight / 2.0  
+                                                 do tr.X  <-  pos.X //- cnavasMain.ActualWidth  / 2.0  
+                                                 do tr.Y  <-  pos.Y //- cnavasMain.ActualHeight / 2.0  
 
                                          | _ -> ignore()
     
 
      
-    do this.MouseMove.Add(fun e -> myMenuMove(e)) 
-
+    do grdMyMenu.MouseMove.Add(fun e -> myMenuMove(e)) 
+    
 
     let initMenu() = do this.Visibility <- Visibility.Collapsed 
                      do cnavasMain <- (hostUserControl.Content)?canvasMain 
                      do cnavasMain.MouseLeftButtonDown.Add(fun e -> mouseLeftDown(e))
                      do cnavasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
+                     do this.MouseEnter.Add(fun _ -> Mouse.SetCursor(Cursors.Arrow) |> ignore)
+                     do this.MouseLeave.Add(fun _ -> Mouse.SetCursor(Cursors.IBeam) |> ignore)
+
 
 
     let openFile(e : RoutedEventArgs) = 
@@ -103,7 +108,8 @@ type  MyMenu()  as this =
             | _ -> ignore()
 
 
-    let goTo() =  let t = txtGotTo.Text.Split(',')
+
+    let goTo() =  let t = txtGoTo.Text.Split(',')
                   let mutable iY = ref (-1)
                   let mutable iX = ref (-1)
                  
@@ -117,13 +123,17 @@ type  MyMenu()  as this =
                              | _ -> (-1, -1)
                   eventGoTo.Trigger(out)
 
-
-
-    do treeOpenFile.Selected.Add(fun e -> openFile(e))                          // Command openFile  
-    do treeExit.Selected.Add(fun _ -> eventMenu.Trigger("Exit", [|""|]))        // Command Exit   
     
-    do treeFindWindow.Selected.Add(fun _ -> eventMenu.Trigger("Find", [|""|]))  // Open Find Window
-    do treeGoTo.Selected.Add(fun _ -> goTo())
+    do txtGoTo.MouseDoubleClick.Add(fun _ -> goTo())
+    do treeOpenFile.MouseDoubleClick.Add(fun e -> openFile(e))                          // Command openFile  
+    do treeExit.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Exit", [|""|]))        // Command Exit   
+    
+    do treeFindWindow.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Find", [|""|]))  // Open Find Window
+    do treeGoTo.MouseDoubleClick.Add(fun _ -> goTo())
+
+    do treeCopySelected.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Copy", [|""|])) 
+
+    
 
 
     [<CLIEvent>]

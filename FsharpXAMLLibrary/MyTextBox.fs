@@ -33,15 +33,19 @@ type MyTextBox() as this  =
     let mutable userClock : UserClock = (this.Content)?userClock
     do userClock.Visibility <- Visibility.Collapsed 
 
+    let mutable myMenu : MyMenu = (this.Content)?myMenu
+    do myMenu.HostUserControl <- this
+    //do myMenu.RenderTransformOrigin <- new Point(0.5,0.5)
+
     // FIND ALL OBJECTS IN THIS.CONTENT 
     let mutable openUpdateMMF = new OpenUpdateMMF()
     let mutable myFonts = new  CommonClassLibrary.Fonts()
     let mutable myTouch = new CommonClassLibrary.Touch()
     let mutable crt = new CommonClassLibrary.CaretCanvas()
-    //let mutable myMenu : MyMenu = (this.Content)?myMenu
+    
 
     let mutable blnInsert = false
-
+    let mutable gridMain : Grid = (this.Content)?gridMain
     let mutable canvasMain : Canvas = (this.Content)?canvasMain 
     let mutable canvasSelecting : Canvas = (this.Content)?canvasSelecting 
     let mutable canvasSelected : Canvas = (this.Content)?canvasSelected 
@@ -69,6 +73,10 @@ type MyTextBox() as this  =
     let mutable statusBar = ref (new StatusBarSystem())
     let mutable lenghtArr = new List<int>()
     
+
+    
+
+
     do lenghtArr.Add(0)
 
     //let openFind = new Event<_>() 
@@ -725,99 +733,6 @@ type MyTextBox() as this  =
 
 
 
-
-    let canvasKeyDown (e : KeyEventArgs ) =
- 
-            match Keyboard.Modifiers with
-            | ModifierKeys.Shift   -> match e.Key with
-                                      | Key.Tab -> scrollX.Value <-  scrollX.Value - 4.0       
-
-                                      | Key.PageUp -> scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage * 10.0        // 100*Up
-
-                                      | Key.PageDown -> scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage * 10.0      // 100*Down
-
-                                    //  | Key.Home -> scrollX.Value <- 0.0
-                                    
-                                      | _ -> ignore()     // Left one Page
-
-            
-            | ModifierKeys.Alt     -> match e.Key with   // System Only
-                                      | _ -> ignore()  
-
-            | ModifierKeys.Control -> match e.Key with
-                                      | Key.Home -> crt.AbsoluteNumLineCurrent <- 0
-                                                    crt.AbsoluteNumCharCurrent <- 0
-                                                    do isCrtInsideWindow() |> ignore
-
-                                      | Key.End  -> crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntNumberOfTotalLinesEstimation                                                 
-                                                    do isCrtInsideWindow() |> ignore
-
-                                      | Key.PageUp   -> crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage * 10 
-                                                        if crt.AbsoluteNumLineCurrent < 0 then crt.AbsoluteNumLineCurrent <- 0
-                                                        do isCrtInsideWindow() |> ignore
-
-                                      | Key.PageDown -> crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent + openUpdateMMF.IntVertCountLinesOnPage * 10 
-                                                        if crt.AbsoluteNumLineCurrent > openUpdateMMF.IntNumberOfTotalLinesEstimation then crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntNumberOfTotalLinesEstimation
-                                                        do isCrtInsideWindow() |> ignore
-
-                                      //| Key.O        -> myMenu.Visibility <- Visibility.Visible
-                                      //| Key.F        -> openFind.Trigger()
-                                      | _ -> ignore()
-
-
-            | _ ->                    match e.Key with
-                                      | Key.Escape -> openUpdateMMF.BlnStopSearch <- true
-                                                      Thread.Sleep(100)
-
-                                      | Key.PageUp -> match isCrtInsideWindow() with
-                                                        | 0 , 0 -> if crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage >=0
-                                                                      then do crt.AbsoluteNumLineCurrent  <- crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage
-                                                                           do scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage
-                                                        | _ , _ -> ignore()
-                                      | Key.PageDown -> match isCrtInsideWindow() with
-                                                        | 0 , 0 -> do crt.AbsoluteNumLineCurrent  <- crt.AbsoluteNumLineCurrent + openUpdateMMF.IntVertCountLinesOnPage
-                                                                   scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage
-                                                        | _ , _ -> ignore()
-                                                              // Down
-                                      | Key.Home ->  match isCrtInsideWindow() with
-                                                     | 0 , 0 -> do crt.AbsoluteNumCharCurrent  <- 0
-                                                                do scrollX.Value <- 0.0
-                                                     | _ , _ -> ignore()
-                                                    
-                                      | Key.End ->   match isCrtInsideWindow() with
-                                                     | 0 , 0 -> let indexArr = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage  
-                                                                crt.AbsoluteNumCharCurrent <- lenghtArr.[indexArr] 
-                                                                scrollX.Value <- (float) (crt.AbsoluteNumCharCurrent - openUpdateMMF.IntHorizCountCharsOnPage)
-                                                     | _ , _ -> ignore()
-
-                                                                      
-                                      | Key.Left ->  if crt.AbsoluteNumCharCurrent > 0 then 
-                                                        do crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent - 1                                     
-                                                     do isCrtInsideWindow() |> ignore
-
-                                      | Key.Right -> do crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent + 1 
-                                                     do isCrtInsideWindow() |> ignore
-                                                     
-                                      | Key.Up ->    if crt.AbsoluteNumLineCurrent > 0 then 
-                                                        do crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent - 1  
-                                                     do isCrtInsideWindow() |> ignore   
-                                                     
-                                      | Key.Down ->  do crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent + 1 
-                                                     do isCrtInsideWindow() |> ignore
-
-                                      | Key.Tab ->   crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent + 4 
-                                                     do isCrtInsideWindow() |> ignore
-
-                                      | Key.Insert -> blnInsert <- not blnInsert
-                                                      do isCrtInsideWindow() |> ignore
-                                      | _ when ((int)e.Key >= 18) ->  do isCrtInsideWindow() |> ignore
-
-                                      | _ -> ignore()
-
-            do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
-            do Thread.Sleep(0)
-
-
     let canvasKeyUp (e : KeyEventArgs ) =                 
         do Thread.Sleep(0)
 
@@ -836,7 +751,7 @@ type MyTextBox() as this  =
 
             // Show Clock - disable  AllowDrop
             do this.Dispatcher.Invoke(new Action ( fun () -> do updateUserClock (true)
-                                                             //do myMenu.Visibility <- Visibility.Collapsed
+                                                             do myMenu.Visibility <- Visibility.Collapsed
                                                              do scrollX.Value <-0.0
                                                              do scrollY.Value <-0.0
                                                              do canvasMain.AllowDrop <- false
@@ -913,37 +828,133 @@ type MyTextBox() as this  =
             openFileTXT(files)
             ()
 
-    //let mutable primaryX = 0.0
-    //let mutable primaryY = 0.0
 
-    //let mutable touchX = 0.0
-    //let mutable touchY = 0.0
+
+
+    let canvasKeyDown (e : KeyEventArgs ) =
+ 
+        match Keyboard.Modifiers with
+        | ModifierKeys.Shift   -> match e.Key with
+                                  | Key.Tab -> scrollX.Value <-  scrollX.Value - 4.0       
+
+                                  | Key.PageUp -> scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage * 10.0        // 100*Up
+
+                                  | Key.PageDown -> scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage * 10.0      // 100*Down
+
+                                  | Key.Home -> scrollX.Value <- 0.0
+        
+                                  | _ -> ignore()     // Left one Page
+
+        
+        | ModifierKeys.Alt     -> match e.Key with   // System Only
+                                  | _ -> ignore()  
+
+        | ModifierKeys.Control -> match e.Key with
+                                  | Key.Home -> crt.AbsoluteNumLineCurrent <- 0
+                                                crt.AbsoluteNumCharCurrent <- 0
+                                                do isCrtInsideWindow() |> ignore
+
+                                  | Key.End  -> crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntNumberOfTotalLinesEstimation                                                 
+                                                do isCrtInsideWindow() |> ignore
+
+                                  | Key.PageUp   -> crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage * 10 
+                                                    if crt.AbsoluteNumLineCurrent < 0 then crt.AbsoluteNumLineCurrent <- 0
+                                                    do isCrtInsideWindow() |> ignore
+
+                                  | Key.PageDown -> crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent + openUpdateMMF.IntVertCountLinesOnPage * 10 
+                                                    if crt.AbsoluteNumLineCurrent > openUpdateMMF.IntNumberOfTotalLinesEstimation then crt.AbsoluteNumLineCurrent <- openUpdateMMF.IntNumberOfTotalLinesEstimation
+                                                    do isCrtInsideWindow() |> ignore
+
+                                  | Key.M        -> myMenu.Visibility <- Visibility.Visible
+                                  //| Key.O        -> do openFileTXT(s)
+                                  //                  myMenu.Visibility <- Visibility.Collapsed
+                                  | _ -> ignore()
+
+
+        | _ ->                    match e.Key with
+                                  | Key.Escape -> openUpdateMMF.BlnStopSearch <- true
+                                                  Thread.Sleep(100)
+
+                                  | Key.PageUp -> match isCrtInsideWindow() with
+                                                    | 0 , 0 -> if crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage >=0
+                                                                  then do crt.AbsoluteNumLineCurrent  <- crt.AbsoluteNumLineCurrent - openUpdateMMF.IntVertCountLinesOnPage
+                                                                       do scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage
+                                                    | _ , _ -> ignore()
+                                  | Key.PageDown -> match isCrtInsideWindow() with
+                                                    | 0 , 0 -> do crt.AbsoluteNumLineCurrent  <- crt.AbsoluteNumLineCurrent + openUpdateMMF.IntVertCountLinesOnPage
+                                                               scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage
+                                                    | _ , _ -> ignore()
+                                                          // Down
+                                  | Key.Home ->  match isCrtInsideWindow() with
+                                                 | 0 , 0 -> do crt.AbsoluteNumCharCurrent  <- 0
+                                                            do scrollX.Value <- 0.0
+                                                 | _ , _ -> ignore()
+                                                
+                                  | Key.End ->   match isCrtInsideWindow() with
+                                                 | 0 , 0 -> let indexArr = crt.AbsoluteNumLineCurrent - openUpdateMMF.IntFirstLineOnPage  
+                                                            crt.AbsoluteNumCharCurrent <- lenghtArr.[indexArr] 
+                                                            scrollX.Value <- (float) (crt.AbsoluteNumCharCurrent - openUpdateMMF.IntHorizCountCharsOnPage)
+                                                 | _ , _ -> ignore()
+
+                                                                  
+                                  | Key.Left ->  if crt.AbsoluteNumCharCurrent > 0 then 
+                                                    do crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent - 1                                     
+                                                 do isCrtInsideWindow() |> ignore
+
+                                  | Key.Right -> do crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent + 1 
+                                                 do isCrtInsideWindow() |> ignore
+                                                 
+                                  | Key.Up ->    if crt.AbsoluteNumLineCurrent > 0 then 
+                                                    do crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent - 1  
+                                                 do isCrtInsideWindow() |> ignore   
+                                                 
+                                  | Key.Down ->  do crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent + 1 
+                                                 do isCrtInsideWindow() |> ignore
+
+                                  | Key.Tab ->   crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent + 4 
+                                                 do isCrtInsideWindow() |> ignore
+
+                                  | Key.Insert -> blnInsert <- not blnInsert
+                                                  do isCrtInsideWindow() |> ignore
+                                  | _ when ((int)e.Key >= 18) ->  do isCrtInsideWindow() |> ignore
+
+                                  | _ -> ignore()
+
+        do this.Dispatcher.Invoke(new Action ( fun () -> do set_Caret()))
+        do Thread.Sleep(0)
+
+
+    let mutable primaryX = 0.0
+    let mutable primaryY = 0.0
+
+    let mutable touchX = 0.0
+    let mutable touchY = 0.0
 
  
 
-    //let exitApp() = let messageBoxText = "Do You want to exit from this Application ...?\n" // _Closing(object sender, System.ComponentModel.CancelEventArgs e)
-    //                let caption = "Exit"
-    //                let button = MessageBoxButton.YesNo
-    //                let icon = MessageBoxImage.Warning
-    //                let result = MessageBox.Show(messageBoxText, caption, button, icon) 
-    //                match result with
-    //                | MessageBoxResult.Yes -> Environment.Exit(0)
-    //                | _ -> ignore()                      // MessageBoxResult.No  -> e.Cancel = true;
+    let exitApp() = let messageBoxText = "Do You want to exit from this Application ...?\n" // _Closing(object sender, System.ComponentModel.CancelEventArgs e)
+                    let caption = "Exit"
+                    let button = MessageBoxButton.YesNo
+                    let icon = MessageBoxImage.Warning
+                    let result = MessageBox.Show(messageBoxText, caption, button, icon) 
+                    match result with
+                    | MessageBoxResult.Yes -> Environment.Exit(0)
+                    | _ -> ignore()                      // MessageBoxResult.No  -> e.Cancel = true;
 
 
 
 
-    //let goto(y ,x) = 
-    //                do this.Dispatcher.Invoke(new Action ( fun () -> 
-    //                           match y < 0 , x < 0 with
-    //                              | true  , true  -> do MessageBox.Show("Not found beyond this point \nOr Cancelled [Esc] \nOr Jumped (duble ckick) to new position...") |> ignore                                            
-    //                              | false , true  -> scrollY.Value <- (float) y                                         
-    //                              | true  , false -> scrollX.Value <- (float) x                                                        
-    //                              | false , false -> scrollY.Value <- (float) y
-    //                                                 scrollX.Value <- (float) x
-    //                                                 do MessageBox.Show((y , x).ToString())  |> ignore  
+    let goto(y ,x) = 
+                    do this.Dispatcher.Invoke(new Action ( fun () -> 
+                               match y < 0 , x < 0 with
+                                  | true  , true  -> do MessageBox.Show("Not found beyond this point \nOr Cancelled [Esc] \nOr Jumped (duble ckick) to new position...") |> ignore                                            
+                                  | false , true  -> scrollY.Value <- (float) y                                         
+                                  | true  , false -> scrollX.Value <- (float) x                                                        
+                                  | false , false -> scrollY.Value <- (float) y
+                                                     scrollX.Value <- (float) x
+                                                     do MessageBox.Show((y , x).ToString())  |> ignore  
                                   
-    //                              ))
+                                  ))
 
 
 
@@ -960,17 +971,22 @@ type MyTextBox() as this  =
                         
                            
 
-    //do myMenu.EventMenu.Add(fun (c, s) ->  
-    //                     match c with
-    //                     | "Open" -> openFileTXT(s)
-    //                                 myMenu.Visibility <- Visibility.Collapsed
-    //                     | "Next" ->  nextSynchro(s : string[])
-    //                     | "FindChanged" -> update(false)
-    //                     | "Escape" -> openUpdateMMF.BlnStopSearch <- true
-    //                     | "Exit" -> exitApp()
-    //                     | _      -> ignore()
-    //                        ) 
+    do myMenu.EventMenu.Add(fun (c, s) ->  
+                         match c with
+                         | "Copy" -> ()
+                         | "Open" -> openFileTXT(s)
+                                     myMenu.Visibility <- Visibility.Collapsed
+                        
+                         //| "FindChanged" -> update(false)
+                         //| "Escape" -> openUpdateMMF.BlnStopSearch <- true
+                         | "Exit" -> exitApp()
+                         | "Find" ->  ()
+                         | _      -> ignore()
+                            ) 
  
+
+    do myMenu.EventGoTo.Add(fun (iy,ix) -> do scrollY.Value <- float iy
+                                           do scrollX.Value <- float ix) 
 
 
     //do myMenu.EventGoTo.Add(fun (y,x) -> goto (y ,x))
@@ -1108,7 +1124,8 @@ type MyTextBox() as this  =
     member x.IntFirstCharOnPage with get() = (int)scrollX.Value and set(v) = do this.Dispatcher.Invoke(new Action ( fun () -> scrollX.Value <- (double)v ; do update(false)))
     member x.IntFirstLineOnPage with get() = (int)scrollY.Value and set(v) = do this.Dispatcher.Invoke(new Action ( fun () ->scrollY.Value <- (double)v ; do update(false)))
 
-    member x.OpenUpdateMMF with get() = ref openUpdateMMF   
+    member x.OpenUpdateMMF with get() = ref openUpdateMMF 
+    member x.OpenFileTXT (files) = openFileTXT (files)
 
     member x.BlnGroupOperation with get() = blnAppend and set(v) = blnAppend <-v
 

@@ -13,8 +13,10 @@ open System.Windows.Markup
 
 let (?) (c:obj) (s:string) =
     match c with
+   // | :? UserControl as c -> c.FindName(s) :?> 'T
     | :? ResourceDictionary as r ->  r.[s] :?> 'T
     | :? Control as c -> c.FindName(s) :?> 'T
+    
     //| :? Control as c -> let x = c.FindName(s)
     //                     match x with
     //                     | null -> failwith ("User Control " + s + " is NULL. dynamic lookup failed")

@@ -167,6 +167,13 @@ type OpenUpdateMMF() as _this   =
 
                             //let strArr = sr.ReadToEnd().Split(Environment.NewLine)
 
+                            ////sr.BaseStream.Position <- 0L
+                            ////let d0 = DateTime.Now
+                            ////let strArr = sr.ReadToEnd().Split(Environment.NewLine)
+                            ////do  countLine <- strArr.Length
+                            ////let d1 = DateTime.Now
+                            ////let dd = (d1-d0).Ticks
+
                             //let mutable countLine = 0
                             //let mutable sb = new StringBuilder()
                             //for str in strArr do                                 

@@ -142,17 +142,18 @@ type  MyMenu()  as this =
                   eventGoTo.Trigger(out)
 
     
+    do treeOpenFile.MouseDoubleClick.Add(fun e -> openFile(e))  // Command openFile 
+
     do txtGoTo.MouseDoubleClick.Add(fun _ -> goTo())
-    do treeOpenFile.MouseDoubleClick.Add(fun e -> openFile(e))                          // Command openFile  
-    do treeExit.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Exit", [|""|]))        // Command Exit   
-    
-    do treeFindWindow.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Find", [|""|]))  // Open Find Window
+    //do txtGoTo.TextChanged.Add(fun _ -> goTo())
     do treeGoTo.MouseDoubleClick.Add(fun _ -> goTo())
+   
+    do treeFindWindow.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Find", [|""|]))  // Open Find Window
 
     do treeCopySelected.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Copy", [|""|])) 
     do treeStopAllThread.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("StopAll", [|""|])) 
 
-    
+    do treeExit.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Exit", [|""|]))        // Command Exit      
 
 
     [<CLIEvent>]

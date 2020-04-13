@@ -1022,8 +1022,11 @@ type MyTextBox() as this  =
                             ) 
  
 
-    do myMenu.EventGoTo.Add(fun (iy,ix) -> do scrollY.Value <- float iy
-                                           do scrollX.Value <- float ix) 
+    do myMenu.EventGoTo.Add(fun (iy,ix) -> mapOfSelectingPosition.Empty()
+                                           mapOfSelectedPosition.Empty()
+                                           do scrollY.Value <- float iy
+                                           do scrollX.Value <- float ix
+                                           ) 
 
 
     //do myMenu.EventGoTo.Add(fun (y,x) -> goto (y ,x))

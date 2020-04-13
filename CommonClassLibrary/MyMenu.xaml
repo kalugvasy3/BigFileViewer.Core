@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              MinHeight="250" MinWidth="160">
 
-    <Grid x:Name="grdMyMenu" RenderTransformOrigin="0.5,0.5"  >
+    <Grid x:Name="grdMyMenu" RenderTransformOrigin="0.0,0.0" >
 
         <TreeView Height="Auto" Width="160" HorizontalAlignment="Left" Name="treeContext" VerticalAlignment="Top"  BorderThickness="1" BorderBrush="DimGray" Foreground="DimGray" Margin="0,0,0,0" FontFamily="Courier New" FontSize="11" Background="#FFF0F0F0">
             <TreeViewItem                        Header="──Double Click──" IsEnabled="false" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
@@ -19,7 +19,7 @@
             <TreeViewItem Header="────────────────" IsEnabled="False" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
             <TreeViewItem x:Name="copySelected" Header="Copy Selected" ClipToBounds="False"  FontFamily="Courier New" FontSize="13" ToolTip="Copy Selected to clipboard from pointed selection  " Background="{x:Null}" Foreground="DarkBlue"  />
             <TreeViewItem Header="────────────────" IsEnabled="False"  FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
-            <TreeViewItem x:Name="findWindow" Header="Open Find Window"      IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="Find Window Open ..." />
+            <TreeViewItem x:Name="findWindow" Header="Find"      IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="Find Window Open ..." />
             <TreeViewItem Header="────────────────" IsEnabled="False" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
             <TreeViewItem x:Name="goTo" Header="GOTO line/char"      IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"  ToolTip="GoTo Line/Char" IsExpanded="True" >
                 <TextBox x:Name="txtGoTo" Text="" TextWrapping="NoWrap" Width="77" ToolTip="GoTo To Line (line, char)" />
@@ -29,6 +29,10 @@
             <TreeViewItem Header="────────────────" IsEnabled="False"  FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
             <TreeViewItem x:Name="exit" Header="Exit" IsEnabled="True" FontFamily="Courier New" FontSize="13" Foreground="DarkBlue"   ToolTip="Exit From Application." />
             <TreeViewItem Header="────────────────" IsEnabled="False" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
+
+            <TreeView.RenderTransform>
+                <TranslateTransform x:Name="tr"/>
+            </TreeView.RenderTransform>
 
         </TreeView>
 

@@ -49,35 +49,51 @@ type  MyMenu()  as this =
     let mutable treeStopAllThread: TreeViewItem  = this.Content?stopAllThread
     let mutable treeExit: TreeViewItem  = this.Content?exit
     
-    let mutable tr = new System.Windows.Media.TranslateTransform()       
-    do this.RenderTransform <- tr 
+    let mutable tr : TranslateTransform = this.Content?tr
 
     let mutable hostUserControl : UserControl = new UserControl()
-    let mutable cnavasMain : Canvas = null
+    let mutable canvasMain : Canvas = null
 
     let mutable prev : System.Windows.Point = new System.Windows.Point()
 
     let mouseLeftDown(e : MouseButtonEventArgs) = 
-            prev <- e.GetPosition(cnavasMain)
+            prev <- e.GetPosition(canvasMain)
             this.Visibility <- Visibility.Collapsed
 
 
-    let mouseRightDown(e : MouseButtonEventArgs) =            
-            match cnavasMain.AllowDrop with
-            | true -> prev <- e.GetPosition(cnavasMain)
-                      this.Visibility <- Visibility.Visible
 
-                      do tr.X  <-  prev.X //- cnavasMain.ActualWidth  / 2.0  
-                      do tr.Y  <-  prev.Y //- cnavasMain.ActualHeight / 2.0  
-            | _ -> ignore()
+    let mouseRightDown(e : MouseButtonEventArgs) = 
+            do this.Visibility <- Visibility.Visible
+            let pnt = Mouse.GetPosition(canvasMain)
+
+            let myAH = this.ActualHeight
+            let myAW = this.ActualWidth
+
+            if pnt.X <= canvasMain.ActualWidth / 2.0 && pnt.Y <= canvasMain.ActualHeight
+            then  tr.X <- pnt.X
+                  tr.Y <- pnt.Y
+            
+            if pnt.X <= canvasMain.ActualWidth / 2.0 && pnt.Y > canvasMain.ActualHeight / 2.0
+            then  tr.X <- pnt.X
+                  tr.Y <- pnt.Y - myAH //- this.Margin.Top / 2.0
+            
+            if pnt.X > canvasMain.ActualWidth / 2.0 && pnt.Y <= canvasMain.ActualHeight / 2.0
+            then  tr.X <- pnt.X - myAW //- this.Margin.Left / 2.0
+                  tr.Y <- pnt.Y
+            
+
+            if pnt.X > canvasMain.ActualWidth / 2.0 && pnt.Y > canvasMain.ActualHeight / 2.0
+            then  tr.X <- pnt.X - myAW - this.Margin.Left / 2.0
+                  tr.Y <- pnt.Y - myAH - this.Margin.Top / 2.0
+
 
     
     let myMenuMove(e : MouseEventArgs) = 
                                          match e.RightButton with
                                          | MouseButtonState.Pressed -> 
-                                                 let pos = e.GetPosition(cnavasMain)
-                                                 do tr.X  <-  pos.X //- cnavasMain.ActualWidth  / 2.0  
-                                                 do tr.Y  <-  pos.Y //- cnavasMain.ActualHeight / 2.0  
+                                                 let pos = e.GetPosition(canvasMain)
+                                                 do tr.X  <-  pos.X - this.ActualWidth/ 2.0  
+                                                 do tr.Y  <-  pos.Y - this.ActualHeight / 12.0  
 
                                          | _ -> ignore()
     
@@ -87,11 +103,13 @@ type  MyMenu()  as this =
     
 
     let initMenu() = do this.Visibility <- Visibility.Collapsed 
-                     do cnavasMain <- (hostUserControl.Content)?canvasMain 
-                     do cnavasMain.MouseLeftButtonDown.Add(fun e -> mouseLeftDown(e))
-                     do cnavasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
+                     do canvasMain <- (hostUserControl.Content)?canvasMain 
+                     do canvasMain.MouseLeftButtonDown.Add(fun e -> mouseLeftDown(e))
+                     do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
                      do this.MouseEnter.Add(fun _ -> Mouse.SetCursor(Cursors.Arrow) |> ignore)
                      do this.MouseLeave.Add(fun _ -> Mouse.SetCursor(Cursors.IBeam) |> ignore)
+                     do this.HorizontalAlignment <- HorizontalAlignment.Left
+                     do this.VerticalAlignment <- VerticalAlignment.Top
 
 
 
@@ -132,6 +150,7 @@ type  MyMenu()  as this =
     do treeGoTo.MouseDoubleClick.Add(fun _ -> goTo())
 
     do treeCopySelected.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Copy", [|""|])) 
+    do treeStopAllThread.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("StopAll", [|""|])) 
 
     
 

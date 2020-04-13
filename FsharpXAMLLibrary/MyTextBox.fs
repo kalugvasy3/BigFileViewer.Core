@@ -35,7 +35,7 @@ type MyTextBox() as this  =
 
     let mutable myMenu : MyMenu = (this.Content)?myMenu
     do myMenu.HostUserControl <- this
-    //do myMenu.RenderTransformOrigin <- new Point(0.5,0.5)
+   
 
     // FIND ALL OBJECTS IN THIS.CONTENT 
     let mutable openUpdateMMF = new OpenUpdateMMF()
@@ -73,14 +73,14 @@ type MyTextBox() as this  =
     let mutable statusBar = ref (new StatusBarSystem())
     let mutable lenghtArr = new List<int>()
     
-
+    let openFind = new Event<_>() 
+    let scaleCurrnet = new Event<float>()
     
 
 
     do lenghtArr.Add(0)
 
-    //let openFind = new Event<_>() 
-    let scaleCurrnet = new Event<float>()
+
     
     let unLoaded(e : RoutedEventArgs) = if openUpdateMMF.Mmf <> null then openUpdateMMF.Mmf.Dispose() 
                                         GC.Collect()
@@ -944,17 +944,17 @@ type MyTextBox() as this  =
 
 
 
-    let goto(y ,x) = 
-                    do this.Dispatcher.Invoke(new Action ( fun () -> 
-                               match y < 0 , x < 0 with
-                                  | true  , true  -> do MessageBox.Show("Not found beyond this point \nOr Cancelled [Esc] \nOr Jumped (duble ckick) to new position...") |> ignore                                            
-                                  | false , true  -> scrollY.Value <- (float) y                                         
-                                  | true  , false -> scrollX.Value <- (float) x                                                        
-                                  | false , false -> scrollY.Value <- (float) y
-                                                     scrollX.Value <- (float) x
-                                                     do MessageBox.Show((y , x).ToString())  |> ignore  
+    //let goto(y ,x) = 
+    //                do this.Dispatcher.Invoke(new Action ( fun () -> 
+    //                           match y < 0 , x < 0 with
+    //                              | true  , true  -> do MessageBox.Show("Not found beyond this point \nOr Cancelled [Esc] \nOr Jumped (duble ckick) to new position...") |> ignore                                            
+    //                              | false , true  -> scrollY.Value <- (float) y                                         
+    //                              | true  , false -> scrollX.Value <- (float) x                                                        
+    //                              | false , false -> scrollY.Value <- (float) y
+    //                                                 scrollX.Value <- (float) x
+    //                                                 do MessageBox.Show((y , x).ToString())  |> ignore  
                                   
-                                  ))
+    //                              ))
 
 
 
@@ -968,19 +968,56 @@ type MyTextBox() as this  =
     //                                                                                      do openUpdateMMF.BlnStopSearch <- true
     //                                                                                      do updateUserClock(false)
     //                                                                                     ), uiThread  ) |> ignore                                                                     
-                        
-                           
+    
+    let copyToClipBoard() = ()
+
+ //public void selectedCopy() {
+ //           try {
+ //               List<StringBuilder> listSBcopy = copyABCDE(false);
+ //               if (listSBcopy == null) goto lexit;
+ //               int iTotal = 0;
+
+ //               String strTmp = "";
+ //               for (int i = 0; i < listSBcopy.Count; i++) {
+ //                   strTmp += listSBcopy[i].ToString();
+ //                   iTotal += listSBcopy[i].Length;
+ //                   if (iTotal > 30000000) {
+ //                       resetCM();
+ //                       MessageBox.Show("You reach limit 30M for copy/cut data to clipboard!\nPlease use CopyTo/CutTo (limit 0.5G)");
+ //                       strTmp = null;
+
+ //                       return;
+ //                   }
+ //                   if (i != listSBcopy.Count - 1) strTmp += Environment.NewLine;
+ //               }
+
+ //               Clipboard.SetText(strTmp);
+
+ //           lexit:
+
+ //               resetCM();
+ //           }
+ //           catch (Exception ex)
+ //           {
+ //               MessageBox.Show("Program has a problem allocating additional char(s)/byte(s) in memory (selectedCopy) ...\nPlease save your  job ..." + " (14)" + ex.Message);
+ //               blnError = true;
+ //           }
+ //       }
+ 
+
+
 
     do myMenu.EventMenu.Add(fun (c, s) ->  
                          match c with
-                         | "Copy" -> ()
+                         | "Copy" -> copyToClipBoard()
                          | "Open" -> openFileTXT(s)
                                      myMenu.Visibility <- Visibility.Collapsed
                         
-                         //| "FindChanged" -> update(false)
-                         //| "Escape" -> openUpdateMMF.BlnStopSearch <- true
+                         | "StopAll" -> do openUpdateMMF.BlnStopSearch <-true
+                                        do Thread.Sleep(100)
                          | "Exit" -> exitApp()
-                         | "Find" ->  ()
+                         | "Find" -> openFind.Trigger()
+                                     myMenu.Visibility <- Visibility.Collapsed      
                          | _      -> ignore()
                             ) 
  
@@ -1115,9 +1152,9 @@ type MyTextBox() as this  =
         )
 
     [<CLIEvent>]
-    member x.ScaleCurrnet =   scaleCurrnet.Publish
-    //[<CLIEvent>]
-    //member x.OpenFind = openFind.Publish
+    member x.ScaleCurrnet = scaleCurrnet.Publish
+    [<CLIEvent>]
+    member x.OpenFind = openFind.Publish
 
     member x.StatusBar with get() = statusBar and set(v)= statusBar <- v 
 

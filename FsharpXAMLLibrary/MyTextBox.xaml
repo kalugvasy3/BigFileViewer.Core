@@ -6,7 +6,7 @@
 
         x:Name="ucShowText"  FontWeight="Bold">
 
-    <Grid MinHeight="200" MinWidth="100" Name="gridMain" Background="#FFF0F0F0" >
+    <Grid MinHeight="200" MinWidth="100" Name="gridMain" Background="#FFF0F0F0" RenderTransformOrigin="0.0,0.0">
 
         <Canvas Name="canvasSelected"  Background="White" Canvas.Left="0" Canvas.Top="0"  Margin="5,5,17,17" RenderTransformOrigin="0.0,0.0" Focusable="False">
         </Canvas>

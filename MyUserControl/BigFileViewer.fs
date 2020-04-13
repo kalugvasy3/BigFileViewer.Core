@@ -131,6 +131,7 @@ type BigFileViewer() as this  =
           
 
     do myControlPanelLeft.FindReplace.Add(fun _ -> openFindDialog()) 
+    do myTextBox.OpenFind.Add(fun _ -> openFindDialog())
 
     //do this.Unloaded.Add(fun _ -> for th in listOfThread do th.Abort() )
 

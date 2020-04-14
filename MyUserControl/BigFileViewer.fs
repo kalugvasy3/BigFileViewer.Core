@@ -97,48 +97,36 @@ type BigFileViewer() as this  =
         let mutable quickFind = new QuickFind()
         do quickFind.InitMyTextBox(ref myTextBox) 
 
- // http://reedcopsey.com/2011/11/28/launching-a-wpf-window-in-a-separate-thread-part-1/
+ //http://reedcopsey.com/2011/11/28/launching-a-wpf-window-in-a-separate-thread-part-1/
+ //https://stackoverflow.com/questions/33379559/f-sta-thread-async
 
+ 
     let openFindDialog() = 
-           let newWindowThread = new Thread(new ThreadStart( fun _ ->
+           let newWindowThread = async {
+            
                 let win = new Window()                
-                
+        
                 let uc = new QuickFind()
                 do uc.InitMyTextBox(ref myTextBox)
-                
+        
                 do win.Content <- uc
                 do win.Height <- 200.0
                 do win.Width <- 500.0
                 do win.Name <- "QuickFind"
                 do win.Title <- "Quick Find"                                                    
                 do win.Height <- 65.0
-                //do win.Owner <- winHolder
-
-                //do uc.TypeOfFind.Add(fun x -> if x then win.Height <- 300.0 else win.Height <- 50.0 )
-
-                do win.Unloaded.Add(fun _ -> Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Background) )
-                do win.WindowStyle <- WindowStyle.SingleBorderWindow
-                do listOfWindows.Add(win)
                 
-                win.Show() 
-               
-                do System.Windows.Threading.Dispatcher.Run()      
-           ))
-       
-           winHolder.Dispatcher.BeginInvoke( fun () -> 
-                                           do newWindowThread.SetApartmentState(ApartmentState.STA)
-                                           do newWindowThread.Start()) |> ignore
+                do win.Closing.Add(fun _ -> myTextBox.BtnCommand("StopAll"))
+
+                do win.Show()    
+           }  
+           do newWindowThread |> Async.StartImmediate
           
 
     do myControlPanelLeft.FindReplace.Add(fun _ -> openFindDialog()) 
     do myTextBox.OpenFind.Add(fun _ -> openFindDialog())
 
-    //do this.Unloaded.Add(fun _ -> for th in listOfThread do th.Abort() )
-
-    do this.Dispatcher.ShutdownStarted.Add(fun _ -> for win in listOfWindows do win.Dispatcher.BeginInvokeShutdown(DispatcherPriority.Normal))
-
-
-        // Synchronized UserControl size with Window
+    // Synchronized UserControl size with Window
     member x.WinHolder  with set(v) = ( do winHolder <- v 
                                         do this.Width <- v.ActualWidth -   deltaAdjHoriz 
                                         do this.Height <- v.ActualHeight - deltaAdjVert 

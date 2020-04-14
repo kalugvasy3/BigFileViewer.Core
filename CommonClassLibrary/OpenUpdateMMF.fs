@@ -135,6 +135,8 @@ type OpenUpdateMMF() as _this   =
                                 readInt64 <- (int64) 0     
             let mutable th : Thread = null 
             
+            do blnStopSearch <- false
+
             let threadContent() = 
 
                 if not (isNull mmf) then  
@@ -407,8 +409,8 @@ type OpenUpdateMMF() as _this   =
  
 
     let updateArrayPresentWindow () =   
-         if blnStopSearch then do Thread.Sleep(500) // Privent resume continue if computer slow ..
-                               do blnStopSearch <- false
+         //if blnStopSearch then do Thread.Sleep(500) // Privent resume continue if computer slow ..
+         //                      do blnStopSearch <- false
          let calcBlock =  calculateCurrentBlock ("") // base on firstLineOnPage                 
          let lines = if intLastLineOnPage - intFirstLineOnPage >= 0 then intLastLineOnPage - intFirstLineOnPage else 0
          
@@ -420,7 +422,7 @@ type OpenUpdateMMF() as _this   =
                                 
                                 blnContinueContentFromMMF <- false
                                 Thread.Sleep(0) //Very important - STOP ALL Thread - MUST BE "0"
-
+                                
                                 do refListCurrentSbAll <- ref (new  List<StringBuilder>())
                                 do refListPreviousSbAll <- ref (new  List<StringBuilder>())
                                 do refListNextSbAll <- ref (new  List<StringBuilder>())
@@ -441,7 +443,7 @@ type OpenUpdateMMF() as _this   =
                                 // THREE OR MORE                      
                                 | (_ , _ )       ->  if longCurrentBlock = 0L then longCurrentBlock <- 1L
                                                      if longCurrentBlock = longNumberOfBlocks - 1L then longCurrentBlock <- longNumberOfBlocks - 2L 
-
+                                                     
                                                      do getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, true, "C")
                                                      do getContentFromMMF (refListPreviousSbAll , int longCurrentBlock - 1, true, true,"P")
                                                      do getContentFromMMF (refListNextSbAll , int longCurrentBlock + 1, true, true,"N")
@@ -449,7 +451,8 @@ type OpenUpdateMMF() as _this   =
                                                      //[async { getContentFromMMF (refListCurrentSbAll , int longCurrentBlock, true, false, "C") };                                                     
                                                      //async { getContentFromMMF (refListPreviousSbAll , int longCurrentBlock - 1, true, false,"P")}; 
                                                      //async { getContentFromMMF (refListNextSbAll , int longCurrentBlock + 1, true, false,"N") }] |> Async.Parallel |> Async.Ignore |> Async.Start 
-                                                 
+                                
+                                do blnStopSearch <- false
                                 false 
 
          do ARR <- Array.init lines (fun i -> initCurrentWindowArray(i))
@@ -883,7 +886,6 @@ type OpenUpdateMMF() as _this   =
     member x.BlnStopSearch 
            with get() = blnStopSearch and 
                 set(v) = blnStopSearch <- v; 
-                         Thread.Sleep(300)
                          if v then progressBar(-1)
 
 

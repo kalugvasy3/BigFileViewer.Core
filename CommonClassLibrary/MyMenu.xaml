@@ -10,7 +10,6 @@
     <Grid x:Name="grdMyMenu" RenderTransformOrigin="0.0,0.0" >
 
         <TreeView Height="Auto" Width="160" HorizontalAlignment="Left" Name="treeContext" VerticalAlignment="Top"  BorderThickness="1" BorderBrush="DimGray" Foreground="DimGray" Margin="0,0,0,0" FontFamily="Courier New" FontSize="11" Background="#FFF0F0F0">
-            <TreeViewItem                        Header="──Double Click──" IsEnabled="false" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
 
             <TreeViewItem x:Name="mouseMoveArea" Header="────────────────" IsEnabled="false" FontFamily="Courier New" FontSize="13" Foreground="DimGray" FontWeight="Bold"></TreeViewItem>
 

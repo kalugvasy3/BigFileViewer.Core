@@ -130,8 +130,12 @@ type QuickFind()  as this =
                           let mutable blnContinue = true
                           let listResult = new List<int*int*string>()
 
+                          let mutable iL = intStartLine
+
+
                           for iL = intStartLine to linesInBlock - 1 do
                               Thread.Sleep(0)
+                              
                               if (blnContinue || blnAll) && not openUpdateMMF.Value.BlnStopSearch then
                                   let len =   refListTestbAll.Value.[iL].Length - intStartChar - str.Length 
                                   let mutable oneStr = "" 
@@ -149,6 +153,7 @@ type QuickFind()  as this =
                                           blnContinue <- false
                                           listResult.Add(iy , ix, partOfString)
                                       else intStartChar <- -str.Length
+
                           Thread.Sleep(0)
                           //progressBarSub(iBlock)
                           listResult
@@ -174,7 +179,7 @@ type QuickFind()  as this =
                                     else //progressBarSub(n + 1)
                                          loop (n + 1)
              else  //do progressBarSub(-1)
-                   do openUpdateMMF.Value.BlnStopSearch <- false
+ //                  do openUpdateMMF.Value.BlnStopSearch <- false
                    (-1 , -1)  
                    
          do openUpdateMMF.Value.BlnStopSearch <- false
@@ -227,10 +232,33 @@ type QuickFind()  as this =
    //     // It MUST be  Synchronization with Context
    //     do mainThreadDoWorkTask.ContinueWith( fun ( t : Task<bool> ) -> finalThreadDoWOrk(t.Result), uiThread ) |> ignore
 
-
-    let findTask () =
-            let newWindowThread = new Thread(new ThreadStart( fun _ ->
+    //let findTask () =
+    //        let newWindowThread = new Thread(new ThreadStart( fun _ ->
                            
+    //                       do this.Dispatcher.Invoke(new Action ( fun () -> 
+    //                               do myTextBox.Value.TextSearch <- txtQuickFind.Text.Trim()
+    //                               Thread.Sleep(10)
+    //                               do typeOfFind.Trigger(false)
+    //                               do blnFindAll <- false
+
+    //                               let (iLine, iChar) = findNextString(txtQuickFind.Text.Trim())
+    //                               isaveLine <- iLine
+    //                               isaveChar <- iChar
+    //                               do myTextBox.Value.IntFirstLineOnPage <- iLine
+    //                               do myTextBox.Value.IntFirstCharOnPage <- iChar
+    //                               do System.Windows.Threading.Dispatcher.Run() 
+    //                               ))
+
+                                        
+    //                       ))
+                  
+    //        this.Dispatcher.BeginInvoke( fun () -> 
+    //                       do newWindowThread.SetApartmentState(ApartmentState.STA)
+    //                       do newWindowThread.Start()) |> ignore
+
+
+
+    let findTask () =  async {     
                            do this.Dispatcher.Invoke(new Action ( fun () -> 
                                    do myTextBox.Value.TextSearch <- txtQuickFind.Text.Trim()
                                    Thread.Sleep(10)
@@ -244,14 +272,7 @@ type QuickFind()  as this =
                                    do myTextBox.Value.IntFirstCharOnPage <- iChar
                                    do System.Windows.Threading.Dispatcher.Run() 
                                    ))
-
-                                        
-                           ))
-                  
-            this.Dispatcher.BeginInvoke( fun () -> 
-                           do newWindowThread.SetApartmentState(ApartmentState.STA)
-                           do newWindowThread.Start()) |> ignore
-
+                           }
 
     
     let findAll() =   
@@ -287,7 +308,8 @@ type QuickFind()  as this =
     
     //do btnFindAll.Click.Add(fun _ -> findAll())                               
     
-    do btnFindNext.Click.Add(fun _ -> findTask ()  )
+    do btnFindNext.Click.Add(fun _ -> [findTask()] |> Async.Parallel |> Async.Ignore |> Async.Start )
+    
 
     //do btnStop.Click.Add(fun _ -> do blnStopSearch <- true) 
 

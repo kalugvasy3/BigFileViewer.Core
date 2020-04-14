@@ -37,10 +37,12 @@ do this.Unloaded.Add(fun _ -> this <- null
 
 do this.SizeChanged.Add(fun _ ->  ucMainWindow.WinHolder <- this)
 
-///do this.Unloaded.Add(fun _ -> Environment.Exit(Environment.ExitCode))
+//https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.shutdownmode?redirectedfrom=MSDN&view=netframework-4.8#System_Windows_Application_ShutdownMode
+
+let newApp : Application = new Application()
+do newApp.ShutdownMode <- ShutdownMode.OnMainWindowClose
 
 [<STAThread>] 
 [<EntryPoint>]
-
-do (new Application()).Run(this) |> ignore
+do (newApp).Run(this) |> ignore
 

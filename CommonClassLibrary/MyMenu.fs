@@ -106,6 +106,7 @@ type  MyMenu()  as this =
                      do canvasMain <- (hostUserControl.Content)?canvasMain 
                      do canvasMain.MouseLeftButtonDown.Add(fun e -> mouseLeftDown(e))
                      do canvasMain.MouseRightButtonDown.Add(fun e -> mouseRightDown(e))
+                     
                      do this.MouseEnter.Add(fun _ -> Mouse.SetCursor(Cursors.Arrow) |> ignore)
                      do this.MouseLeave.Add(fun _ -> Mouse.SetCursor(Cursors.IBeam) |> ignore)
                      do this.HorizontalAlignment <- HorizontalAlignment.Left

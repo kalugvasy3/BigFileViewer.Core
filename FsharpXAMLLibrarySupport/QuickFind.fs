@@ -59,11 +59,9 @@ type QuickFind()  as this =
     let mutable txtQuickFind : TextBox = this.Content?txtQuickFind 
     ///let mutable btnFindAll : Button = this.Content?btnFindAll
     let mutable btnFindNext : Button = this.Content?btnFindNext
-    ///let mutable btnStop : Button = this.Content?btnStop
-    //let mutable stackPanel : StackPanel = this.Content?stackPanel  
-    //let mutable userClkl : UserClock = this.Content?userClk
-    //let mutable progressBar : ProgressBar = this.Content?progressBar
+    let mutable btnStop : Button = this.Content?btnStop
 
+    let mutable blnStop = false
 
 
     let typeOfFind = new Event<bool>() 
@@ -136,7 +134,7 @@ type QuickFind()  as this =
                           for iL = intStartLine to linesInBlock - 1 do
                               Thread.Sleep(0)
                               
-                              if (blnContinue || blnAll) && not openUpdateMMF.Value.BlnStopSearch then
+                              if (blnContinue || blnAll) && not blnStop then
                                   let len =   refListTestbAll.Value.[iL].Length - intStartChar - str.Length 
                                   let mutable oneStr = "" 
 
@@ -168,7 +166,7 @@ type QuickFind()  as this =
          let mutable endBlock = (int)openUpdateMMF.Value.LongNumberOfBlocks - 1  // base on 0 block
          let rec loop n = 
              Thread.Sleep(0)
-             if n <= endBlock &&  str.Trim() <> "" && not openUpdateMMF.Value.BlnStopSearch then
+             if n <= endBlock &&  str.Trim() <> "" && not blnStop  then
                  let lstResult = loadAndSearch(n, str, false)
                  if lstResult.Count = 0 
                      then loop (n + 1)
@@ -263,7 +261,7 @@ type QuickFind()  as this =
                                    do myTextBox.Value.TextSearch <- txtQuickFind.Text.Trim()
                                    Thread.Sleep(10)
                                    do typeOfFind.Trigger(false)
-                                   do blnFindAll <- false
+                                   do blnStop <- false
 
                                    let (iLine, iChar) = findNextString(txtQuickFind.Text.Trim())
                                    isaveLine <- iLine
@@ -311,7 +309,8 @@ type QuickFind()  as this =
     do btnFindNext.Click.Add(fun _ -> [findTask()] |> Async.Parallel |> Async.Ignore |> Async.Start )
     
 
-    //do btnStop.Click.Add(fun _ -> do blnStopSearch <- true) 
+    do btnStop.Click.Add(fun _ -> openUpdateMMF.Value.BlnStopSearch <- true
+                                  blnStop <- true) 
 
     do this.Unloaded.Add(fun _ -> do this.Dispatcher.Invoke(new Action ( fun () -> 
                                                   do openUpdateMMF.Value.BlnStopSearch <- true
@@ -324,7 +323,8 @@ type QuickFind()  as this =
     [<CLIEvent>]
     member x.TypeOfFind =   typeOfFind.Publish
     
-    member x.BlnStopSearch with get() = openUpdateMMF.Value.BlnStopSearch and set(v) = openUpdateMMF.Value.BlnStopSearch <- v
+    member x.BlnStopSearch with get() = openUpdateMMF.Value.BlnStopSearch and set(v) = ( openUpdateMMF.Value.BlnStopSearch <- v
+                                                                                         blnStop <- v )
 
     
     member x.InitMyTextBox(txt : MyTextBox ref ) =

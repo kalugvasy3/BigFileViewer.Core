@@ -100,7 +100,8 @@ type BigFileViewer() as this  =
  //http://reedcopsey.com/2011/11/28/launching-a-wpf-window-in-a-separate-thread-part-1/
  //https://stackoverflow.com/questions/33379559/f-sta-thread-async
 
- 
+  // let cancellationSource = new CancellationTokenSource()
+    
     let openFindDialog() = 
            let newWindowThread = async {
             
@@ -116,11 +117,13 @@ type BigFileViewer() as this  =
                 do win.Title <- "Quick Find"                                                    
                 do win.Height <- 65.0
                 
-                do win.Closing.Add(fun _ -> myTextBox.BtnCommand("StopAll"))
+                do win.Closing.Add(fun _ -> uc.BlnStopSearch <- true
+                                            myTextBox.BtnCommand("StopAll"))
+                //do win.Closed.Add(fun _ -> Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.ApplicationIdle ))
 
                 do win.Show()    
            }  
-           do newWindowThread |> Async.StartImmediate
+           Async.StartImmediate(newWindowThread)   //, cancellationSource.Token)
           
 
     do myControlPanelLeft.FindReplace.Add(fun _ -> openFindDialog()) 

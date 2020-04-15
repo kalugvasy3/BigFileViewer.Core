@@ -6,11 +6,11 @@
              xmlns:FsharpXAMLLibrary="clr-namespace:FsharpXAMLLibrary;assembly=FsharpXAMLLibrary"
 
              mc:Ignorable="d" MinHeight="23" MinWidth="400">
-    <Grid>
-        <TextBox x:Name="txtQuickFind" Height="22" VerticalAlignment="Top" Margin="0,0,62,0" />
+    <Grid Background="#FFCBC9C9" Opacity="0.8">
+        <TextBox x:Name="txtQuickFind" Height="21" VerticalAlignment="Center" Margin="0,0,123,0" />
         <!--<Button x:Name="btnFindAll" Content="Find All" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,1,0" Width="60"/>-->
-        <!--<Button x:Name="btnStop" Content="Stop All" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,62,0" Width="60"/>-->
-        <Button x:Name="btnFindNext" Content="Find Next" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" ToolTip="From Current position to below ..." Margin="0,0,1,0" Width="60"/>
+        <Button x:Name="btnStop" Content="Stop" Height="21" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,62,0" Width="60"/>
+        <Button x:Name="btnFindNext" Content="Find Next" Height="21" HorizontalAlignment="Right" VerticalAlignment="Center" ToolTip="From Current position to below ..." Margin="0,0,1,0" Width="60"/>
 
         <!--<StackPanel x:Name="stackPanel" Background="#FFF3F1F1" Orientation="Vertical" Margin="0,27,0,0"/>-->
         <!--<ProgressBar x:Name="progressBar" Height="22"  VerticalAlignment="Bottom"  />

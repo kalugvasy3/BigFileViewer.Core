@@ -25,10 +25,10 @@
     <EmbeddedResource Include="CaretCanvas.xaml" />
     <Compile Include="CaretCanvas.fs" />
     <Compile Include="DataCommon.fs" />
+    <Compile Include="OpenUpdateMMF.fs" />
     <EmbeddedResource Include="MyMenu.xaml" />
     <Compile Include="MyMenu.fs" />
     <Compile Include="SQLiteAccess.fs" />
-    <Compile Include="OpenUpdateMMF.fs" />
     <EmbeddedResource Include="SelectedRectangle.xaml" />
     <Compile Include="SelectedRectangle.fs" />
     <Compile Include="SelectedPositions.fs" />

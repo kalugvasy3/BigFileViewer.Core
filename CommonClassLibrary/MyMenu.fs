@@ -149,10 +149,10 @@ type  MyMenu()  as this =
     //do txtGoTo.TextChanged.Add(fun _ -> goTo())
     do treeGoTo.MouseDoubleClick.Add(fun _ -> goTo())
    
-    do treeFindWindow.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Find", [|""|]))  // Open Find Window
+    do treeFindWindow.MouseLeftButtonUp.Add(fun _ -> eventMenu.Trigger("Find", [|""|]))  // Open Find Window
 
-    do treeCopySelected.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Copy", [|""|])) 
-    do treeStopAllThread.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("StopAll", [|""|])) 
+    do treeCopySelected.MouseLeftButtonUp.Add(fun _ -> eventMenu.Trigger("Copy", [|""|])) 
+    do treeStopAllThread.MouseLeftButtonUp.Add(fun _ -> eventMenu.Trigger("StopAll", [|""|])) 
 
     do treeExit.MouseDoubleClick.Add(fun _ -> eventMenu.Trigger("Exit", [|""|]))        // Command Exit      
 

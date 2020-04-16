@@ -517,7 +517,7 @@ type MyTextBox() as this  =
 
   
   
-    let mouseMove(e:MouseEventArgs) =           
+    let mouseMove() =           
 
             if Keyboard.Modifiers = ModifierKeys.Shift || Mouse.LeftButton = MouseButtonState.Pressed  then           //&& Keyboard.Modifiers = ModifierKeys.Shift
                  
@@ -835,14 +835,35 @@ type MyTextBox() as this  =
  
         match Keyboard.Modifiers with
         | ModifierKeys.Shift   -> match e.Key with
-                                  | Key.Tab -> scrollX.Value <-  scrollX.Value - 4.0       
+                                  | Key.Tab -> scrollX.Value <-  scrollX.Value - 4.0 
+                                               crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent - 4 
+                                               do isCrtInsideWindow() |> ignore   
 
                                   | Key.PageUp -> scrollY.Value <- scrollY.Value - float openUpdateMMF.IntVertCountLinesOnPage * 10.0        // 100*Up
 
                                   | Key.PageDown -> scrollY.Value <- scrollY.Value + float openUpdateMMF.IntVertCountLinesOnPage * 10.0      // 100*Down
 
                                   | Key.Home -> scrollX.Value <- 0.0
-        
+
+                                  //| Key.Left ->  if crt.AbsoluteNumCharCurrent > 0 then 
+                                  //                  do crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent - 1                                                                                     
+                                  //               do isCrtInsideWindow() |> ignore
+                                  //               //do mouseMove()
+
+                                  //| Key.Right -> do crt.AbsoluteNumCharCurrent <- crt.AbsoluteNumCharCurrent + 1 
+                                  //               do isCrtInsideWindow() |> ignore
+                                  //               //do mouseMove()
+               
+                                  //| Key.Up ->    if crt.AbsoluteNumLineCurrent > 0 then 
+                                  //                  do crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent - 1  
+                                  //               do isCrtInsideWindow() |> ignore
+                                  //               do mouseMove()
+               
+                                  //| Key.Down ->  do crt.AbsoluteNumLineCurrent <- crt.AbsoluteNumLineCurrent + 1 
+                                  //               do isCrtInsideWindow() |> ignore
+                                  //               do mouseMove()
+
+       
                                   | _ -> ignore()     // Left one Page
 
         
@@ -1004,26 +1025,32 @@ type MyTextBox() as this  =
  //           }
  //       }
  
-
+    let resetSelection() = do intAbsolutSelectVertCurrent <- intAbsolutSelectVertStart
+                           do intAbsolutSelectHorizCurrent <- intAbsolutSelectHorizStart
+                           mapOfSelectingPosition.Empty()
+                           mapOfSelectedPosition.Empty() 
+                       
 
 
     do myMenu.EventMenu.Add(fun (c, s) ->  
                          match c with
                          | "Copy" -> copyToClipBoard()
                          | "Open" -> openFileTXT(s)
+                                     do resetSelection()    
                                      myMenu.Visibility <- Visibility.Collapsed
                         
                          | "StopAll" -> do openUpdateMMF.BlnStopSearch <-true
+                                        do resetSelection()
                                         do Thread.Sleep(100)
                          | "Exit" -> exitApp()
                          | "Find" -> openFind.Trigger()
+                                     do resetSelection() 
                                      myMenu.Visibility <- Visibility.Collapsed      
                          | _      -> ignore()
                             ) 
  
 
-    do myMenu.EventGoTo.Add(fun (iy,ix) -> mapOfSelectingPosition.Empty()
-                                           mapOfSelectedPosition.Empty()
+    do myMenu.EventGoTo.Add(fun (iy,ix) -> 
                                            do scrollY.Value <- float iy
                                            do scrollX.Value <- float ix
                                            ) 
@@ -1095,7 +1122,7 @@ type MyTextBox() as this  =
             do canvasMain.Drop.Add(fun e -> openFileDrag(e))
             do canvasMain.Unloaded.Add(fun e -> unLoaded(e))
            
-            do canvasMain.MouseMove.Add(fun e -> mouseMove(e)) 
+            do canvasMain.MouseMove.Add(fun _ -> mouseMove()) 
             
             //do canvasMain.MouseEnter.Add(fun e -> mouseEnter(e))
             

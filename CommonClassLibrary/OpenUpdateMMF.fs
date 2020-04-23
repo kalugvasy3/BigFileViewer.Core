@@ -228,6 +228,28 @@ type OpenUpdateMMF() as _this   =
             ()
 
 
+    let getCountLinesFromMMF (intBlockNumber : int, strSearch : string) =    
+
+            let mutable offset = longOfset * int64(intBlockNumber)  // Begin from 0
+            let mutable readInt64 = longOfset // Number Of Bytes for reading
+
+            // Apply restriction to readIn / offset
+            match (offset < longTotalDocSize , offset + readInt64 < longTotalDocSize ) with
+            | (true , true ) -> ignore()
+            | (true , false) -> readInt64 <- longTotalDocSize - offset
+            | (false, false) -> readInt64 <- 0L
+            | ( _ , _ )      -> offset <- longTotalDocSize 
+                                readInt64 <- (int64) 0           
+
+            use memoryMappedViewStream = mmf.CreateViewStream(offset, readInt64, MemoryMappedFileAccess.Read)
+            let mutable sr = new StreamReader(memoryMappedViewStream)
+            //sr.BaseStream.Position <- 0L
+            let sb = new StringBuilder(sr.ReadToEnd())
+            let before = sb.Length
+            let afterLength = sb.Replace(strSearch,"").Length
+            let count = (before - afterLength) / strSearch.Length 
+            count        
+
 
     let preInitFileOpen () = 
             do arrayOfBlockInfo <- Array.empty                                    
@@ -288,41 +310,50 @@ type OpenUpdateMMF() as _this   =
             do intMaxCharsInLine <- 0
 
             let blockRead(intBlockNumber : int) =  
+                        //let mutable countLine = getCountLinesFromMMF(intBlockNumber, Environment.NewLine)
 
                         let initRef = ref (new  List<StringBuilder>())
                         do getContentFromMMF (initRef , intBlockNumber, true , false, "I")                   
                         let countLine = initRef.Value.Count  
                     
-                        //let mutable sb = new StringBuilder("INSERT INTO [MYTMP] (STR) " + System.Environment.NewLine)
-                        //let mutable countSelect = 0
-                        //for i=0 to countLine - 1 do
-                        //    sb.Append(@"SELECT '").Append(initRef.Value.[i].Replace("'","''")).Append(@"'").Append(System.Environment.NewLine) |> ignore
-                        //    countSelect <- countSelect + 1
+                        ////let mutable sb = new StringBuilder("INSERT INTO [MYTMP] (STR) " + System.Environment.NewLine)
+                        ////let mutable countSelect = 0
+                        ////for i=0 to countLine - 1 do
+                        ////    sb.Append(@"SELECT '").Append(initRef.Value.[i].Replace("'","''")).Append(@"'").Append(System.Environment.NewLine) |> ignore
+                        ////    countSelect <- countSelect + 1
 
-                        //    match countSelect = 500 with
-                        //    | false -> ignore()
-                        //    | _ -> db.ExecuteNonQuery(sb, false) |> ignore
-                        //           countSelect <- 0
-                        //           sb <- new StringBuilder("INSERT INTO [MYTMP] (STR) " + System.Environment.NewLine)
-                        //           ignore()
+                        ////    match countSelect = 500 with
+                        ////    | false -> ignore()
+                        ////    | _ -> db.ExecuteNonQuery(sb, false) |> ignore
+                        ////           countSelect <- 0
+                        ////           sb <- new StringBuilder("INSERT INTO [MYTMP] (STR) " + System.Environment.NewLine)
+                        ////           ignore()
 
-                        //    match (i = countLine - 1) || (countSelect = 0)  with
-                        //    | false -> sb.Append(" UNION ").Append(System.Environment.NewLine) |> ignore
-                        //    | true -> ignore()                              
+                        ////    match (i = countLine - 1) || (countSelect = 0)  with
+                        ////    | false -> sb.Append(" UNION ").Append(System.Environment.NewLine) |> ignore
+                        ////    | true -> ignore()                              
 
-                        //let mutable numEffect = 0
-                        //if countSelect > 0 then db.ExecuteNonQuery(sb, false) |> ignore
-                        //                        do numEffect <- db.IntNumberOfRow
+                        ////let mutable numEffect = 0
+                        ////if countSelect > 0 then db.ExecuteNonQuery(sb, false) |> ignore
+                        ////                        do numEffect <- db.IntNumberOfRow
 
                         match intMinLinesPerBloc > countLine with
                         | true -> do intMinLinesPerBloc <- countLine
                         | false -> ignore()
+
                         countLine
                   
 
             let mutable iTotal = 0
             while (iTotal < arrayOfBlockInfo.Length && not blnStopSearch) do
-                 let count = blockRead(iTotal)               
+                 let mutable count = blockRead(iTotal) 
+                 
+                 
+                 match iTotal with
+                 | 0 -> do count <- count + 1
+                 | _ when iTotal = arrayOfBlockInfo.Length - 1 -> do count <- count - 1 
+                 | _ -> ignore()
+
                  do arrayOfBlockInfo.[iTotal] <- count
                  do iTotal <- iTotal + 1
                  do progressBar(iTotal)  

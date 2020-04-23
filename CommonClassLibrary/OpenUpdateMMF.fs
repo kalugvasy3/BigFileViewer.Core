@@ -351,7 +351,7 @@ type OpenUpdateMMF() as _this   =
                  
                  match iTotal with
                  | 0 -> do count <- count + 1
-                 | _ when iTotal = arrayOfBlockInfo.Length - 1 -> do count <- count - 1 
+                // | _ when iTotal = arrayOfBlockInfo.Length - 1 -> do count <- count - 1 
                  | _ -> ignore()
 
                  do arrayOfBlockInfo.[iTotal] <- count

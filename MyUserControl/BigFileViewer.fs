@@ -134,6 +134,7 @@ type BigFileViewer() as this  =
                                         do this.Width <- v.ActualWidth -   deltaAdjHoriz 
                                         do this.Height <- v.ActualHeight - deltaAdjVert 
                                      )
+    member x.FullFileName with get() = myTextBox.OpenUpdateMMF.Value.FullFileName 
 
 
 

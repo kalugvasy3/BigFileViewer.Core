@@ -309,12 +309,13 @@ type OpenUpdateMMF() as _this   =
             do arrayOfBlockInfo <- Array.create (int longNumberOfBlocks) 0   
             do intMaxCharsInLine <- 0
 
+            let mutable iTotal = 0
             let blockRead(intBlockNumber : int) =  
-                        //let mutable countLine = getCountLinesFromMMF(intBlockNumber, Environment.NewLine)
+                        //let mutable countLine = getCountLinesFromMMF(intBlockNumber, Environment.NewLine)  // Slow
 
                         let initRef = ref (new  List<StringBuilder>())
                         do getContentFromMMF (initRef , intBlockNumber, true , false, "I")                   
-                        let countLine = initRef.Value.Count  
+                        let mutable countLine = initRef.Value.Count  
                     
                         ////let mutable sb = new StringBuilder("INSERT INTO [MYTMP] (STR) " + System.Environment.NewLine)
                         ////let mutable countSelect = 0
@@ -336,28 +337,31 @@ type OpenUpdateMMF() as _this   =
                         ////let mutable numEffect = 0
                         ////if countSelect > 0 then db.ExecuteNonQuery(sb, false) |> ignore
                         ////                        do numEffect <- db.IntNumberOfRow
+                  
+                        match intBlockNumber with
+                        | 0 -> do countLine <- countLine + 1
+                       // | _ when iTotal = arrayOfBlockInfo.Length - 1 -> do count <- count - 1 
+                        | _ -> ignore()
+
+                        //do arrayOfBlockInfo.[intBlockNumber] <- countLine
+                        do iTotal <- iTotal + 1
+                        do progressBar(iTotal)  
+                        do intNumberOfTotalLinesEstimation <- intNumberOfTotalLinesEstimation  + countLine
 
                         match intMinLinesPerBloc > countLine with
                         | true -> do intMinLinesPerBloc <- countLine
                         | false -> ignore()
+                     
 
-                        countLine
-                  
+                        
+                                         
 
-            let mutable iTotal = 0
+            
             while (iTotal < arrayOfBlockInfo.Length && not blnStopSearch) do
-                 let mutable count = blockRead(iTotal) 
-                 
-                 
-                 match iTotal with
-                 | 0 -> do count <- count + 1
-                // | _ when iTotal = arrayOfBlockInfo.Length - 1 -> do count <- count - 1 
-                 | _ -> ignore()
+                 do blockRead(iTotal) 
+            
+            //do arrayOfBlockInfo |> Array.iteri(fun i x ->  blockRead(i)) |> ignore
 
-                 do arrayOfBlockInfo.[iTotal] <- count
-                 do iTotal <- iTotal + 1
-                 do progressBar(iTotal)  
-                 do intNumberOfTotalLinesEstimation <- intNumberOfTotalLinesEstimation  + count
             
             if blnStopSearch then  
                  let mutable tmpArray =  Array.create (iTotal) 0 

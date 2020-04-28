@@ -301,94 +301,81 @@ type OpenUpdateMMF() as _this   =
 
 
     let initArrayOfBlock() =
-        async {
-            //dbOpen()
+         async {
+             //dbOpen()
 
-            do intNumberOfTotalLinesEstimation <- 0
-            do longNumberOfBlocks <- (longTotalDocSize / longOfset) + 1L       
-            do arrayOfBlockInfo <- Array.create (int longNumberOfBlocks) 0   
-            do intMaxCharsInLine <- 0
+             do intNumberOfTotalLinesEstimation <- 0
+             do longNumberOfBlocks <- (longTotalDocSize / longOfset) + 1L       
+             do arrayOfBlockInfo <- Array.create (int longNumberOfBlocks) 0   
+             do intMaxCharsInLine <- 0
 
-            let mutable iTotal = 0
-            let blockRead(intBlockNumber : int) =  
-                        //let mutable countLine = getCountLinesFromMMF(intBlockNumber, Environment.NewLine)  // Slow
+             let blockRead(intBlockNumber : int) =  
 
-                        let initRef = ref (new  List<StringBuilder>())
-                        do getContentFromMMF (initRef , intBlockNumber, true , false, "I")                   
-                        let mutable countLine = initRef.Value.Count  
-                    
-                        ////let mutable sb = new StringBuilder("INSERT INTO [MYTMP] (STR) " + System.Environment.NewLine)
-                        ////let mutable countSelect = 0
-                        ////for i=0 to countLine - 1 do
-                        ////    sb.Append(@"SELECT '").Append(initRef.Value.[i].Replace("'","''")).Append(@"'").Append(System.Environment.NewLine) |> ignore
-                        ////    countSelect <- countSelect + 1
+                         let initRef = ref (new  List<StringBuilder>())
+                         do getContentFromMMF (initRef , intBlockNumber, true , false, "I")                   
+                         let countLine = initRef.Value.Count  
+                 
+                         //let mutable sb = new StringBuilder("INSERT INTO [MYTMP] (STR) " + System.Environment.NewLine)
+                         //let mutable countSelect = 0
+                         //for i=0 to countLine - 1 do
+                         //    sb.Append(@"SELECT '").Append(initRef.Value.[i].Replace("'","''")).Append(@"'").Append(System.Environment.NewLine) |> ignore
+                         //    countSelect <- countSelect + 1
 
-                        ////    match countSelect = 500 with
-                        ////    | false -> ignore()
-                        ////    | _ -> db.ExecuteNonQuery(sb, false) |> ignore
-                        ////           countSelect <- 0
-                        ////           sb <- new StringBuilder("INSERT INTO [MYTMP] (STR) " + System.Environment.NewLine)
-                        ////           ignore()
+                         //    match countSelect = 500 with
+                         //    | false -> ignore()
+                         //    | _ -> db.ExecuteNonQuery(sb, false) |> ignore
+                         //           countSelect <- 0
+                         //           sb <- new StringBuilder("INSERT INTO [MYTMP] (STR) " + System.Environment.NewLine)
+                         //           ignore()
 
-                        ////    match (i = countLine - 1) || (countSelect = 0)  with
-                        ////    | false -> sb.Append(" UNION ").Append(System.Environment.NewLine) |> ignore
-                        ////    | true -> ignore()                              
+                         //    match (i = countLine - 1) || (countSelect = 0)  with
+                         //    | false -> sb.Append(" UNION ").Append(System.Environment.NewLine) |> ignore
+                         //    | true -> ignore()                              
 
-                        ////let mutable numEffect = 0
-                        ////if countSelect > 0 then db.ExecuteNonQuery(sb, false) |> ignore
-                        ////                        do numEffect <- db.IntNumberOfRow
-                  
-                        match intBlockNumber with
-                        | 0 -> do countLine <- countLine + 1
-                       // | _ when iTotal = arrayOfBlockInfo.Length - 1 -> do count <- count - 1 
-                        | _ -> ignore()
+                         //let mutable numEffect = 0
+                         //if countSelect > 0 then db.ExecuteNonQuery(sb, false) |> ignore
+                         //                        do numEffect <- db.IntNumberOfRow
 
-                        //do arrayOfBlockInfo.[intBlockNumber] <- countLine
-                        do iTotal <- iTotal + 1
-                        do progressBar(iTotal)  
-                        do intNumberOfTotalLinesEstimation <- intNumberOfTotalLinesEstimation  + countLine
+                         match intMinLinesPerBloc > countLine with
+                         | true -> do intMinLinesPerBloc <- countLine
+                         | false -> ignore()
+                         countLine
+               
 
-                        match intMinLinesPerBloc > countLine with
-                        | true -> do intMinLinesPerBloc <- countLine
-                        | false -> ignore()
-                     
+             let mutable iTotal = 0
+             while (iTotal < arrayOfBlockInfo.Length && not blnStopSearch) do
+                  let count = blockRead(iTotal)               
+                  do arrayOfBlockInfo.[iTotal] <- count
+                  do iTotal <- iTotal + 1
+                  do progressBar(iTotal)  
+                  do intNumberOfTotalLinesEstimation <- intNumberOfTotalLinesEstimation  + count
+         
+             if blnStopSearch then  
+                  let mutable tmpArray =  Array.create (iTotal) 0 
+                  for i = 0 to iTotal - 1 do tmpArray.[i] <- arrayOfBlockInfo.[i]
+                  do arrayOfBlockInfo <- Array.create(iTotal) 0
+                  for i = 0 to iTotal - 1 do arrayOfBlockInfo.[i] <- tmpArray.[i]
+                  do longNumberOfBlocks <- (int64)iTotal - 1L
+                  do progressBar(-1) 
 
-                        
-                                         
+         //    do arrayOfBlockInfo |> Array.iteri(fun i x ->            
+         //           if not blnStopSearch then
+         //               let count = blockRead(i)
+         //               do arrayOfBlockInfo.[i] <- count
+         //               do iTotal <- iTotal + 1
+         //               do progressBar(iTotal)  
+         //               do intNumberOfTotalLinesEstimation <- intNumberOfTotalLinesEstimation  + count 
+         //            else  do progressBar(0)                                                     
+         //         )
 
-            
-            while (iTotal < arrayOfBlockInfo.Length && not blnStopSearch) do
-                 do blockRead(iTotal) 
-            
-            //do arrayOfBlockInfo |> Array.iteri(fun i x ->  blockRead(i)) |> ignore
+             do blnStopSearch <- false
 
-            
-            if blnStopSearch then  
-                 let mutable tmpArray =  Array.create (iTotal) 0 
-                 for i = 0 to iTotal - 1 do tmpArray.[i] <- arrayOfBlockInfo.[i]
-                 do arrayOfBlockInfo <- Array.create(iTotal) 0
-                 for i = 0 to iTotal - 1 do arrayOfBlockInfo.[i] <- tmpArray.[i]
-                 do longNumberOfBlocks <- (int64)iTotal - 1L
-                 do progressBar(-1) 
-
-        //    do arrayOfBlockInfo |> Array.iteri(fun i x ->            
-        //           if not blnStopSearch then
-        //               let count = blockRead(i)
-        //               do arrayOfBlockInfo.[i] <- count
-        //               do iTotal <- iTotal + 1
-        //               do progressBar(iTotal)  
-        //               do intNumberOfTotalLinesEstimation <- intNumberOfTotalLinesEstimation  + count 
-        //            else  do progressBar(0)                                                     
-        //         )
-
-            do blnStopSearch <- false
-
-            if intNumberOfTotalLinesEstimation > 0 && intMaxCharsInLine < intLimitCharsPerLine 
-                   then  do eventSysInfoStart.Trigger(0.0)
-                   else  do preInitFileOpen ()
-                         do eventSysInfoStart.Trigger(-1.0) 
+             if intNumberOfTotalLinesEstimation > 0 && intMaxCharsInLine < intLimitCharsPerLine 
+                    then  do eventSysInfoStart.Trigger(0.0)
+                    else  do preInitFileOpen ()
+                          do eventSysInfoStart.Trigger(-1.0) 
  
-              } |>   Async.Start
+               } |>   Async.Start
 
 
 

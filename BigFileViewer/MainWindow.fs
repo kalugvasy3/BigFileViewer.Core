@@ -18,7 +18,7 @@ do this.Title <- "Big File Viewer"
 do this.MinHeight <- 750.0
 do this.MinWidth <- 512.0
 do this.MaxHeight <- 2160.0   // limit lines per screen 200 lines
-do this.MaxWidth <- 3000.0
+do this.MaxWidth <- 4000.0
 
 
 do this.SizeToContent <- SizeToContent.WidthAndHeight

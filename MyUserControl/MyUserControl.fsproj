@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <AssemblyName>MyUserControl</AssemblyName>
   </PropertyGroup>
@@ -22,11 +22,16 @@
 
   <ItemGroup>
     <PackageReference Include="System.Data.OleDb" Version="4.7.0" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.112" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FsharpXAMLLibrarySupport\FsharpXAMLLibrarySupport.fsproj" />
     <ProjectReference Include="..\FsharpXAMLLibrary\FsharpXAMLLibrary.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="5.0.2" />
   </ItemGroup>
 
 </Project>

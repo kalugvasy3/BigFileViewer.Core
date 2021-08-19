@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <AssemblyName>BigFileViewer</AssemblyName>
   </PropertyGroup>
@@ -17,9 +17,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.112" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CommonClassLibrary\CommonClassLibrary.fsproj" />
     <ProjectReference Include="..\FsharpXAMLLibrary\FsharpXAMLLibrary.fsproj" />
     <ProjectReference Include="..\MyUserControl\MyUserControl.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="5.0.2" />
   </ItemGroup>
 
 </Project>
